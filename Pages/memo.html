@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memo</title>
+    <link rel="stylesheet" href="memo.css">
+</head>
+
+<body>
+    <table class="header_top">
+        <tr>
+            <td colspan="3" id="header_table">
+                <h3>5 - DAY MEMORANDUM</h3>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3">Image</td>
+            <td rowspan="3" id="title_table">
+                <h2>CARBON & DIAMOND INC.</h2>
+                <h4>Lab Grown Diamonds - Bright Beau6ful & Affordable</h4>
+                <b>Cell : (505) 377 2451</b><br />
+                62 West 47th Street, Suite 305, New York, NY - 10036<br />
+                E : CARBONDIAMOND1@GMAIL.COM<br />
+            </td>
+            <td colspan="3"><b>Memo no.</b></td>
+        </tr>
+        <tr>
+            <td colspan="3"><b>Date</b></td>
+        </tr>
+        <tr>
+            <td colspan="3"><b>To,</b></td>
+        </tr>
+        <tr>
+            <td colspan="3"><b>The goods described and valued as below are delivered to you for examination and
+                    inspection
+                    only and remain our property subject to our order and shall be returned to us on demand. Such
+                    merchandise, until returned to us and actually received, are at your own risk from all hazards. No
+                    right
+                    or power is given to you to sell, pledge, hypothecate or otherwise dispose of the merchandise
+                    regardless of prior transactions. A sale of this merchandise can only be effected and title will
+                    pass
+                    only if, as and when we the said owner shall agree to such sale and a bill of sale rendered
+                    therefore.</b>
+            </td>
+        </tr>
+    </table>
+
+    <table class="table_data">
+        <thead>
+            <tr id="header">
+                <th>Sr No</th>
+                <th>Lot No</th>
+                <th>Description</th>
+                <th>Shape</th>
+                <th>Size</th>
+                <th>Pcs</th>
+                <th>Wt (cts)</th>
+                <th>Color</th>
+                <th>Clarity</th>
+                <th>Certificate</th>
+                <th>Rap ($)</th>
+                <th>Discount</th>
+                <th>Price ($)</th>
+                <th>Total</th>
+                <th>Return</th>
+                <th>Kept</th>
+                <th>Final Total</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- JavaScript will generate rows here -->
+        </tbody>
+        <tr>
+            <td><b>Total</b></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <script>
+        // Generate 10 rows of data
+        for (let i = 1; i <= 10; i++) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${i}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            `;
+            document.getElementById('table-body').appendChild(newRow);
+        }
+    </script>
+</body>
+
+</html>
