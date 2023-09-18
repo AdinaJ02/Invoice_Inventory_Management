@@ -1,0 +1,56 @@
+.header_top {
+    width: 100%;
+    border-collapse: collapse;
+    border: 4px solid black;
+}
+
+.header_top td {
+    padding: 8px;
+    border: 4px solid black;
+}
+
+.header_top #header_table {
+    text-align: center;
+}
+
+.header_top h2,
+.header_top h3,
+.header_top h4 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.header_top #title_table {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+/* Set a specific width for the second column */
+.header_top th:nth-child(3),
+.header_top td:nth-child(3) {
+    width: 40%
+        /* Adjust the width as needed */
+}
+
+/* Let the other columns automatically adjust */
+.header_top th:not(:nth-child(3)),
+.header_top td:not(:nth-child(3)) {
+    width: auto;
+}
+
+.table_data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table_data th,
+.table_data td {
+    border: 1px dotted #ccc;
+    padding: 8px;
+}
+
+#header th {
+    background-color: #106f7b;
+    color: white;
+
+}
