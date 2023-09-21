@@ -1,0 +1,16 @@
+.table_data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table_data th,
+.table_data td {
+    border: 1px dotted #ccc;
+    padding: 8px;
+}
+
+#header th {
+    background-color: #106f7b;
+    color: white;
+
+}
