@@ -25,17 +25,26 @@
     padding-bottom: 30px;
 }
 
-/* Set a specific width for the second column */
-.header_top th:nth-child(3),
-.header_top td:nth-child(3) {
-    width: 40%
-        /* Adjust the width as needed */
+p {
+    margin-top: 10px;
+    margin-bottom: 0px;
 }
 
-/* Let the other columns automatically adjust */
-.header_top th:not(:nth-child(3)),
-.header_top td:not(:nth-child(3)) {
-    width: auto;
+#logo {
+    width: 200px;
+    height: 200px;
+}
+
+/* Set a specific width for the first column */
+.header_top th:nth-child(1),
+.header_top td:nth-child(1) {
+    width: 17%;
+}
+
+/* Set a specific width for the third column */
+.header_top th:nth-child(3),
+.header_top td:nth-child(3) {
+    width: 40%;
 }
 
 .table_data {
@@ -52,5 +61,4 @@
 #header th {
     background-color: #106f7b;
     color: white;
-
 }

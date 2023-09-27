@@ -16,13 +16,13 @@
             </td>
         </tr>
         <tr>
-            <td rowspan="3">Image</td>
+            <td rowspan="3"><img src="../php_data/getImage.php" id="logo" /></td>
             <td rowspan="3" id="title_table">
-                <h2>CARBON & DIAMOND INC.</h2>
-                <h4>Lab Grown Diamonds - Bright Beau6ful & Affordable</h4>
-                <b>Cell : (505) 377 2451</b><br />
-                62 West 47th Street, Suite 305, New York, NY - 10036<br />
-                E : CARBONDIAMOND1@GMAIL.COM<br />
+                <h2></h2>
+                <h4></h4>
+                <b></b><br />
+                <p id="address"></p>
+                <p id="email"></p>
             </td>
             <td colspan="3"><b>Memo no.</b></td>
         </tr>
@@ -33,16 +33,7 @@
             <td colspan="3"><b>To,</b></td>
         </tr>
         <tr>
-            <td colspan="3"><b>The goods described and valued as below are delivered to you for examination and
-                    inspection
-                    only and remain our property subject to our order and shall be returned to us on demand. Such
-                    merchandise, until returned to us and actually received, are at your own risk from all hazards. No
-                    right
-                    or power is given to you to sell, pledge, hypothecate or otherwise dispose of the merchandise
-                    regardless of prior transactions. A sale of this merchandise can only be effected and title will
-                    pass
-                    only if, as and when we the said owner shall agree to such sale and a bill of sale rendered
-                    therefore.</b>
+            <td colspan="3" id="disclaimer"><b></b>
             </td>
         </tr>
     </table>
@@ -118,6 +109,29 @@
             `;
             document.getElementById('table-body').appendChild(newRow);
         }
+
+        // Fetch data from fetch_data.php using JavaScript
+        fetch('../php_data/fetch_data_company.php')
+            .then(response => response.json())
+            .then(data => {
+                const companyName = document.querySelector('#title_table h2');
+                const desc = document.querySelector('#title_table h4');
+                const phoneNo = document.querySelector('#title_table b');
+                const address = document.querySelector('#title_table #address');
+                const email = document.querySelector('#title_table #email');
+                const disclaimerMemo = document.querySelector('#disclaimer b');
+
+                // Set data in HTML elements
+                companyName.textContent = data.company_name;
+                desc.textContent = data.desc;
+                phoneNo.textContent = `Cell: ${data.phone_no}`;
+                address.textContent = data.address;
+                email.textContent = `E: ${data.email}`;
+                disclaimerMemo.textContent = data.disclaimer_memo;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     </script>
 </body>
 
