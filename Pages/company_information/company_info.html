@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Information</title>
+    <link rel="stylesheet" href="company_info.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Update Company Information</h1>
+        <form id="updateForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="companyName">Company Name:</label>
+                <input type="text" id="companyName" name="companyName">
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone">
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="logo">Company Logo:</label>
+                <input type="file" id="logo" name="logo">
+            </div>
+            <div class="form-group">
+                <label for="disclaimer">Disclaimer for memo:</label>
+                <textarea id="disclaimer" name="disclaimer"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="terms">Terms for Invoice:</label>
+                <textarea id="terms" name="terms"></textarea>
+            </div>
+            <div class="form-group" style="text-align:center">
+                <input type="submit" value="Update">
+            </div>
+
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Handle form submission using AJAX
+            $("#updateForm").submit(function (e) {
+                e.preventDefault();
+
+                // Serialize the form data
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: "company_info.php", // The PHP script to process the form
+                    data: formData, // Form data
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false,
+                    success: function (response) {
+                        // Find the position of the first }
+                        var indexOfClosingBrace = response.indexOf("}");
+
+                        // Extract the remaining part of the string
+                        var remainingText = response.substring(indexOfClosingBrace + 1);
+
+                        // Display the remaining text in the designated element
+                        $("#message").html(remainingText);
+                    }
+                });
+            });
+        });
+        // Fetch data from fetch_data.php using JavaScript
+        fetch('company_info.php')
+            .then(response => response.json())
+            .then(data => {
+                const companyName = document.querySelector('#companyName');
+                const desc = document.querySelector('#description');
+                const phoneNo = document.querySelector('#phone');
+                const address = document.querySelector('#address');
+                const email = document.querySelector('#email');
+                const disclaimerMemo = document.querySelector('#disclaimer');
+                const termsInvoice = document.querySelector('#terms');
+
+                // Set data in HTML elements
+                companyName.value = data.company_name;
+                desc.value = data.desc;
+                phoneNo.value = data.phone_no;
+                address.value = data.address;
+                email.value = data.email;
+                disclaimerMemo.value = data.disclaimer_memo;
+                termsInvoice.value = data.terms_invoice;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
+
+
+</body>
+
+</html>
