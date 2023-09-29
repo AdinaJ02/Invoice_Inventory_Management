@@ -5,7 +5,7 @@ body {
   }
   h3{
     margin: 0px;
-    margin-bottom: 35px;
+    margin-bottom: 25%;
     text-align: center;
   }
   
@@ -44,21 +44,21 @@ body {
     pointer-events: all;
 }
   
-  .login .form .btn-login {
-    background: none;
-    text-decoration: none;
-    color: white;
-    box-shadow: 0px 0px 0px 2px white;
-    border-radius: 3px;
-    padding: 5px;
-    transition: 0.5s;
-    text-align: center;
-    display: block;
-  }
-  
-  .login .form .btn-login:hover {
-    background: white;
-    color: dimgray;
-    transition: 0.5s;
-  }
-  
+.btn-login {
+  background: none;
+  text-decoration: none;
+  color: white;
+  box-shadow: 0px 0px 0px 2px white;
+  padding: 5px 6em;
+  transition: 0.5s;
+  border-color: transparent;
+  border-radius: 0.25rem;
+  pointer-events: auto;
+}
+
+.btn-login:hover {
+  background: white;
+  color: dimgray;
+  transition: 0.5s;
+  cursor: pointer;
+}
