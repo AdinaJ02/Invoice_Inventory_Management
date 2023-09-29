@@ -12,7 +12,13 @@
     <table class="header_top">
         <tr>
             <td colspan="3" id="header_table">
-                <h3>5 - DAY MEMORANDUM</h3>
+                <h3><select id="dayDropdown">
+                        <?php
+                        for ($i = 1; $i <= 30; $i++) {
+                            echo "<option value='$i'>$i</option>";
+                        }
+                        ?>
+                    </select> - DAY MEMORANDUM</h3>
             </td>
         </tr>
         <tr>
@@ -27,10 +33,20 @@
             <td colspan="3"><b>Memo no.</b></td>
         </tr>
         <tr>
-            <td colspan="3"><b>Date</b></td>
+            <td colspan="3">
+                <div class="date-container">
+                    <label for="date"><b>Date</b></label>
+                    <input type="date" id="date" name="date">
+                </div>
+            </td>
         </tr>
         <tr>
-            <td colspan="3"><b>To,</b></td>
+            <td colspan="3">
+                <div class="underline-input">
+                    <label for="recipient"><b>To,</b></label>
+                    <input type="text" id="recipient" name="recipient">
+                </div>
+            </td>
         </tr>
         <tr>
             <td colspan="3" id="disclaimer"><b></b>
@@ -84,31 +100,56 @@
         </tr>
     </table>
 
+    <div class="form-group" style="text-align: center;">
+        <input type="submit" value="Submit Memo" id="submitMemo">
+    </div>
+
     <script>
-        // Generate 10 rows of data
-        for (let i = 1; i <= 10; i++) {
+        // Function to add a new row
+        function addRow() {
+            const tableBody = document.getElementById('table-body');
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>${i}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            `;
-            document.getElementById('table-body').appendChild(newRow);
+        <td>${tableBody.children.length + 1}</td>
+        <td contenteditable="true" name="lot_no" class="editable"></td>
+        <td contenteditable="true" name="desc" class="editable"></td>
+        <td contenteditable="true" name="shape" class="editable"></td>
+        <td contenteditable="true" name="size" class="editable"></td>
+        <td contenteditable="true" name="pcs" class="editable"></td>
+        <td contenteditable="true" name="wt" class="editable"></td>
+        <td contenteditable="true" name="color" class="editable"></td>
+        <td contenteditable="true" name="clarity" class="editable"></td>
+        <td contenteditable="true" name="certificate" class="editable"></td>
+        <td contenteditable="true" name="rap" class="editable"></td>
+        <td contenteditable="true" name="disc" class="editable"></td>
+        <td name="price"></td>
+        <td name="total"></td>
+        <td contenteditable="true" name="return" class="editable"></td>
+        <td contenteditable="true" name="kept" class="editable"></td>
+        <td name="final_total"></td>
+    `;
+            tableBody.appendChild(newRow);
         }
+
+        // Add the initial rows
+        for (let i = 0; i < 10; i++) {
+            addRow();
+        }
+
+        // Listen for changes in the last row and add a new row if necessary
+        document.getElementById('table-body').addEventListener('input', function (e) {
+            const lastRow = this.lastElementChild;
+            const lastRowCells = lastRow.querySelectorAll('td.editable');
+
+            for (const cell of lastRowCells) {
+                if (cell.textContent.trim() !== '') {
+                    // If any cell in the last row has content, add a new row
+                    addRow();
+                    break;
+                }
+            }
+        });
+
 
         // Fetch data from fetch_data.php using JavaScript
         fetch('../php_data/fetch_data_company.php')
