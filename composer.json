@@ -1,0 +1,17 @@
+{
+    "name": "nfj/inventorymanagement",
+    "description": "inventory management system",
+    "type": "project",
+     "require": {
+        "php": "^8.2.4",
+        "phpmailer/phpmailer": "^6.8",
+        "google/apiclient": "^2.15"
+    },
+    "license": "'MIT'",
+    "autoload": {
+        "psr-4": {
+            "Nfj\\Inventorymanagement\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}

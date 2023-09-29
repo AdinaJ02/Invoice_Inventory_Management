@@ -1,0 +1,73 @@
+body {
+    font-family: Assistant, sans-serif;
+    display: flex;
+    min-height: 90vh;
+  }
+  
+  .login {
+    color: white;
+    background: #136a8a;
+    background: -webkit-linear-gradient(to right, #267871, #136a8a);
+    background: linear-gradient(to right, #267871, #136a8a);
+    margin: auto;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2), 0px 10px 20px rgba(0, 0, 0, 0.3),
+      0px 30px 60px 1px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 30px;
+    padding-bottom: 10px;
+  }
+  
+  .login .form input[type="password"]#new-password {
+    border: none;
+    background: none;
+    box-shadow: 0px 2px 0px 0px white;
+    width: 100%;
+    color: white;
+    font-size: 1em;
+    outline: none;
+    margin-bottom: 5px;
+  }
+  
+  .login .form .text::placeholder {
+    color: #d3d3d3;
+  }
+  
+  .login .form input[type="password"]#confirm-password {
+    border: none;
+    background: none;
+    box-shadow: 0px 2px 0px 0px white;
+    width: 100%;
+    color: white;
+    font-size: 1em;
+    outline: none;
+    margin-bottom: 40px;
+    margin-top: 20px;
+  }
+  
+  .login .form .password::placeholder {
+    color: #d3d3d3;
+  }
+  
+  .login .form .btn-login {
+    background: none;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0px 0px 0px 2px white;
+    padding: 5px 6em;
+    transition: 0.5s;
+    border-color: transparent;
+    border-radius: 0.25rem;
+    pointer-events: auto;
+  }
+  
+  .login .form .btn-login:hover {
+    background: white;
+    color: dimgray;
+    transition: 0.5s;
+    cursor: pointer;
+  }
+  .error-message{
+    margin-top: 25px;
+    padding: 5px 2em;
+    color: red;
+  }
