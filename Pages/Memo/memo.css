@@ -85,57 +85,89 @@ p {
 /* Style the label for the date input */
 .date-container label {
     font-weight: bold;
-    margin-right: 10px;
     font-size: 16px;
 }
 
 /* Style the date input */
 .date-container input[type="date"] {
-    padding: 5px;
+    padding: 2px;
     font-size: 12px;
-    border: 1px solid #ccc;
+    border: 0px solid #ccc;
     border-radius: 4px;
     margin-left: 20px;
 }
 
-/* Style the container for the underlined input */
 .underline-input {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-/* Style the label for the input */
 .underline-input label {
     font-weight: bold;
-    margin-right: 10px;
-    font-size: 16px;
 }
 
-/* Style the input to display only an underline */
-.underline-input input[type="text"] {
+.underline-input input {
+    margin-left: 50px;
+    margin-bottom: 5px;
     border: none;
-    border-bottom: 1px solid #000; /* Underline style */
-    padding: 5px;
+    outline: none;
+    padding: 0;
     font-size: 12px;
-    outline: none; /* Remove focus outline */
-    background: transparent; /* Transparent background */
-    width: 30%; /* Fill the available space */
-    margin-left: 20px;
+}
+
+/* Add placeholders for name and address */
+.underline-input input::placeholder {
+    color: #888;
+    /* Placeholder text color */
 }
 
 /* CSS to style the "Submit Memo" button */
 #submitMemo {
     display: block;
     margin: 20px auto;
-    background-color: #106f7b; /* Set the background color */
-    color: #fff; /* Set the text color to white */
-    padding: 10px 20px; /* Add padding to the button */
-    border: none; /* Remove the border */
-    border-radius: 5px; /* Add rounded corners */
-    cursor: pointer; /* Add a pointer cursor on hover */
-    font-size: 16px; /* Set the font size */
+    background-color: #106f7b;
+    /* Set the background color */
+    color: #fff;
+    /* Set the text color to white */
+    padding: 10px 20px;
+    /* Add padding to the button */
+    border: none;
+    /* Remove the border */
+    border-radius: 5px;
+    /* Add rounded corners */
+    cursor: pointer;
+    /* Add a pointer cursor on hover */
+    font-size: 16px;
+    /* Set the font size */
 }
 
 #submitMemo:hover {
-    background-color: #0a525e; /* Change the background color on hover */
+    background-color: #0a525e;
+    /* Change the background color on hover */
+}
+
+#memo_no {
+    border: 0px;
+    font-size: 14px;
+    padding-left: 10px;
+}
+
+#autocomplete-results {
+    font-size: 12px;
+    margin-left: 50px;
+    background-color: #fff; /* Background color for the results */
+    border: 1px solid #ccc; /* Border around the results */
+    max-height: 150px; /* Maximum height for the results */
+    overflow-y: auto; /* Add vertical scrollbar if needed */
+    cursor: pointer; /* Add a cursor to indicate interactivity */
+}
+
+#autocomplete-results div {
+    padding: 5px 10px; /* Padding for each result item */
+    transition: background-color 0.2s; /* Smooth background color transition on hover */
+}
+
+#autocomplete-results div:hover {
+    background-color: #f5f5f5; /* Background color on hover */
 }
