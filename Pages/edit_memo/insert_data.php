@@ -30,10 +30,36 @@ if ($conn->connect_error) {
             $disc = (float) $row['disc'];
             $price = (float) $row['price'];
             $total = (float) $row['total'];
+            $return = (float) $row['return'];
+            $kept = (float) $row['kept'];
+            $final_total = (float) $row['final_total'];
 
             if (!empty($lotNo)) {
-                $sql_insert_memo_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`) 
-                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
+                $sql_check_exists = "SELECT * FROM memo_data WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                $check_result_exists = $conn->query($sql_check_exists);
+
+                if ($check_result_exists->num_rows > 0) {
+                    $sql_insert_memo_data = "UPDATE memo_data SET
+                        `description` = '$desc',
+                        shape = '$shape',
+                        `size` = '$size',
+                        pcs = '$pcs',
+                        `weight` = '$wt',
+                        color = '$color',
+                        clarity = '$clarity',
+                        certificate_no = '$certificate',
+                        rap = '$rap',
+                        discount = '$disc',
+                        price = '$price',
+                        total = '$total',
+                        `return` = '$return',
+                        kept = '$kept',
+                        final_total = '$final_total'
+                        WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                } else {
+                    $sql_insert_memo_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`, `return`, `kept`, `final_total`) 
+                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc','$price','$total', '$return', '$kept', '$final_total')";
+                }
 
                 // Check if the lot number exists in stock_list
                 $check_sql = "SELECT * FROM stock_list WHERE lot_no = '$lotNo'";
@@ -42,10 +68,11 @@ if ($conn->connect_error) {
                 if ($check_result->num_rows > 0) {
                     // Lot number already exists, perform an update
                     $sql_insert_stock = "UPDATE `stock_list` SET
+                    `weight` = '$return',
                     `rap` = '$rap',
                     `discount` = '$disc',
                     `total` = '$total',
-                    `price` = '$price',
+                    `price` = '$price'
                     WHERE `lot_no` = '$lotNo'";
                 } else {
                     // Lot number doesn't exist, perform an insert
@@ -63,10 +90,20 @@ if ($conn->connect_error) {
 
 
         // Create a SQL query to insert data into the memo table
-        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', 'open')";
+        $sql_update_memo = "UPDATE memo
+        SET memorandum_day = '$memorandum_day', memo_date = '$date', customer_name = '$name', `address` = '$address'
+        WHERE memo_no = '$memo_no'";
 
         // Create a SQL query to insert data into the customer_data table
-        $sql_insert_customer = "INSERT INTO customer_data (memo_no, customer_name, `address`) VALUES ('$memo_no', '$name', '$address')";
+        $sql_update_customer = "UPDATE customer_data
+        SET customer_name = '$name', `address` = '$address'
+        WHERE memo_no = '$memo_no'";
+
+        if ($conn->query($sql_update_memo) === TRUE && $conn->query($sql_update_customer) === TRUE) {
+            echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
+        } else {
+            echo "<p style='color:red; text-align:center;'>Error: " . $sql . "<br>" . $conn->error . "</p>";
+        }
 
         // Check if the combination of customer_name and address exists
         $check_sql_customers = "SELECT * FROM customers WHERE customer_name = '$name' AND `address` = '$address'";
@@ -77,12 +114,6 @@ if ($conn->connect_error) {
             if ($conn->query($sql_insert_customers) === TRUE) {
                 echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
             }
-        }
-
-        if ($conn->query($sql_insert_memo) === TRUE && $conn->query($sql_insert_customer) === TRUE) {
-            echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
-        } else {
-            echo "<p style='color:red; text-align:center;'>Error: " . $sql . "<br>" . $conn->error . "</p>";
         }
 
         $conn->close();
