@@ -316,7 +316,7 @@ function saveData() {
         .then((response) => {
             if (response.ok) {
                 // If the response status is OK (HTTP status 200), redirect to another page
-                window.location.href = '../invoice/invoice.html';
+                window.location.href = '../print_memo/print_memo.html';
             } else {
                 // Handle other response statuses here if needed
                 console.error('Server returned an error:', response.statusText);
