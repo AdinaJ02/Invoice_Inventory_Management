@@ -63,17 +63,20 @@ p {
     color: white;
 }
 
-/* Style the dropdown select element */
-#dayDropdown {
-    padding: 5px;
-    font-size: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Style the dropdown options */
-#dayDropdown option {
-    font-size: 12px;
+#memorandum_day {
+    width: 3%;
+    border: none;
+    /* Remove the border */
+    outline: none;
+    /* Remove the outline when focused */
+    background: none;
+    /* Remove background color */
+    padding: 0;
+    /* Remove padding */
+    font-size: inherit;
+    text-align: right;
+    font-weight: bold;
+    /* Use the same font size as the surrounding text */
 }
 
 /* Style the date container */
@@ -123,7 +126,7 @@ p {
 }
 
 /* CSS to style the "Submit Memo" button */
-#submitMemo {
+#saveButton, #printButton {
     display: block;
     margin: 20px auto;
     background-color: #106f7b;
@@ -142,7 +145,7 @@ p {
     /* Set the font size */
 }
 
-#submitMemo:hover {
+#saveButton:hover, #printButton:hover {
     background-color: #0a525e;
     /* Change the background color on hover */
 }
@@ -153,25 +156,6 @@ p {
     padding-left: 10px;
 }
 
-#autocomplete-results {
-    font-size: 12px;
-    margin-left: 50px;
-    background-color: #fff; /* Background color for the results */
-    border: 1px solid #ccc; /* Border around the results */
-    max-height: 150px; /* Maximum height for the results */
-    overflow-y: auto; /* Add vertical scrollbar if needed */
-    cursor: pointer; /* Add a cursor to indicate interactivity */
-}
-
-#autocomplete-results div {
-    padding: 5px 10px; /* Padding for each result item */
-    transition: background-color 0.2s; /* Smooth background color transition on hover */
-}
-
-#autocomplete-results div:hover {
-    background-color: #f5f5f5; /* Background color on hover */
-}
-
-.total_wt, .total_tot {
+.total_wt, .total_tot, .total_final_tot {
     font-weight: bold;
 }
