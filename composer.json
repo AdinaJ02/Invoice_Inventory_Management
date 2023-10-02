@@ -5,7 +5,10 @@
      "require": {
         "php": "^8.2.4",
         "phpmailer/phpmailer": "^6.8",
-        "google/apiclient": "^2.15"
+        "google/apiclient": "^2.15",
+        "ext-gd": "*",
+        "ext-fileinfo": "*",
+        "phpoffice/phpspreadsheet": "^1.29"
     },
     "license": "'MIT'",
     "autoload": {

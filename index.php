@@ -26,7 +26,7 @@ if ($conn->connect_error) {
         if ($result->num_rows == 1) {
             $message = 'Authentication successful. You are now logged in.';
             // Redirect to the 'memo.html' page
-            header('Location: Pages/Memo/memo.php');
+            header('Location: Pages/landing_page/landing_page.html');
             exit;
             // Ensure no further PHP code is executed after the redirection
         } else {
