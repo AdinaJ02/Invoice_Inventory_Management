@@ -155,3 +155,7 @@ p {
     font-size: 14px;
     padding-left: 10px;
 }
+
+.total_wt, .total_tot, .total_final_tot {
+    font-weight: bold;
+}

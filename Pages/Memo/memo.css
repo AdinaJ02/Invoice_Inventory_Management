@@ -171,3 +171,7 @@ p {
 #autocomplete-results div:hover {
     background-color: #f5f5f5; /* Background color on hover */
 }
+
+.total_wt, .total_tot {
+    font-weight: bold;
+}

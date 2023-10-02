@@ -4,18 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memo</title>
-    <link rel="stylesheet" href="print_memo.css">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="print_invoice.css">
 </head>
 
 <body>
     <div class="printable-content">
         <form>
+            <div class="select-wrapper">
+                <label for="memo_no"><b>Memo no.</b></label>
+                <select name="memo_no" id="memo_no" class="styled-select">
+                    <option value="" disabled selected>Select Memo Number</option>
+                </select>
+            </div>
+
             <table class="header_top">
                 <tr>
                     <td colspan="3" id="header_table">
-                        <h3><input type="text" id="memorandum_day" name="memorandum_day" readonly> - DAY MEMORANDUM
-                        </h3>
+                        <h3>INVOICE</h3>
                     </td>
                 </tr>
                 <tr>
@@ -27,9 +33,8 @@
                         <p id="address"></p>
                         <p id="email"></p>
                     </td>
-                    <td colspan="3"><b>Memo no.</b> <select name="memo_no" id="memo_no">
-                            <option value="" disabled selected>Select Memo Number</option>
-                        </select></td>
+                    <td colspan="3"><b>Invoice no.<input type="text" name="invoice_no" id="invoice_no"
+                                placeholder="Invoice Number" readonly></b></td>
                 </tr>
                 <tr>
                     <td colspan="3">
@@ -49,7 +54,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3" id="disclaimer"><b></b>
+                    <td colspan="3" id="terms"><b></b>
                     </td>
                 </tr>
             </table>
@@ -57,23 +62,17 @@
             <table class="table_data">
                 <thead>
                     <tr id="header">
-                        <th class="elements">Sr No</th>
-                        <th class="elements">Description</th>
-                        <th class="elements">Lot No</th>
-                        <th class="elements">Shape</th>
-                        <th class="elements">Size</th>
-                        <th class="elements">Pcs</th>
-                        <th class="elements">Wt (cts)</th>
-                        <th class="elements">Color</th>
-                        <th class="elements">Clarity</th>
-                        <th class="elements">Certificate</th>
-                        <th class="elements">Rap ($)</th>
-                        <th class="elements">Discount</th>
-                        <th class="elements">Price ($)</th>
-                        <th class="elements">Total</th>
-                        <th class="elements">Return</th>
-                        <th class="elements">Kept</th>
-                        <th class="elements">Final Total</th>
+                        <th>Sr No</th>
+                        <th>Lot No</th>
+                        <th>Wt (cts)</th>
+                        <th>Shape</th>
+                        <th>Color</th>
+                        <th>Clarity</th>
+                        <th>Certificate</th>
+                        <th>Rap ($)</th>
+                        <th>Discount</th>
+                        <th>Price/CTS ($)</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -82,30 +81,27 @@
                 <tr>
                     <td><b>Total</b></td>
                     <td></td>
+                    <td name="total_wt" class="total_wt">0.0</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td name="total_wt" class="total_wt"></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td name="total_tot" class="total_tot"></td>
-                    <td></td>
-                    <td></td>
-                    <td name="total_final_tot" class="total_final_tot"></td>
+                    <td name="total_final_tot" class="total_final_tot">US$ 0.0</td>
+                </tr>
+                <tr style="text-align:center">
+                    <td colspan="17"><b>THANK YOU</b></td>
                 </tr>
             </table>
 
             <div class="form-group" style="text-align: center;">
-                <button id="printButton" class="no-print">Print Memo</button>
+                <button id="printButton" class="no-print">Print Invoice</button>
             </div>
         </form>
-        <script src="print_memo.js"></script>
     </div>
+    <script src="print_invoice.js"></script>
 </body>
 
 </html>
