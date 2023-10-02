@@ -9,7 +9,7 @@ function addRow() {
 <td contenteditable="true" name="shape" class="editable"></td>
 <td contenteditable="true" name="size" class="editable"></td>
 <td contenteditable="true" name="pcs" class="editable"></td>
-<td contenteditable="true" name="wt" class="editable"></td>
+<td contenteditable="true" name="wt" class="editable wt"></td>
 <td contenteditable="true" name="color" class="editable"></td>
 <td contenteditable="true" name="clarity" class="editable"></td>
 <td contenteditable="true" name="certificate" class="editable"></td>
@@ -28,10 +28,12 @@ function addRow() {
     const discField = newRow.querySelector('.disc');
     const priceField = newRow.querySelector('.price');
     const totalField = newRow.querySelector('.total');
+    const wtField = newRow.querySelector('.wt');
 
     rapField.addEventListener('input', calculatePriceAndTotal);
     discField.addEventListener('input', calculatePriceAndTotal);
     priceField.addEventListener('input', calculatePriceAndTotal);
+    wtField.addEventListener('input', calculatePriceAndTotal);
 
     // Initial calculation
     calculatePriceAndTotal();
@@ -39,13 +41,13 @@ function addRow() {
     // Function to calculate price and total
     function calculatePriceAndTotal() {
         const rapValue = parseFloat(rapField.textContent) || 0;
-        const discValue = Math.abs(parseFloat(discField.textContent)) || 0;
+        const discValue = parseFloat(discField.textContent) || 0;
         const priceValue = parseFloat(priceField.textContent) || 0;
-        const wtValue = parseFloat(newRow.querySelector('[name="wt"]').textContent) || 0;
+        const wtValue = parseFloat(wtField.textContent) || 0;
         if (rapValue === 0 && discValue === 0) {
         } else {
             // Calculate the Price
-            const price = rapValue * (rapValue * (discValue / 100));
+            const price = (rapValue * (100 + discValue))/100;
             priceField.textContent = price.toFixed(2);
         }
         const price = parseFloat(priceField.textContent);
