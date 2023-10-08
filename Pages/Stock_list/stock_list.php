@@ -200,8 +200,8 @@ if ($conn->connect_error) {
                 <td>${rowData.ratio}</td>
                 <td>${rowData.rap}</td>
                 <td>${rowData.discount}</td>
-                <td>${rowData.value}</td>
-                <td>${rowData.memo_date}</td>
+                <td>${rowData.total}</td>
+                <td>${rowData.price}</td>
                 <td>${rowData.name}</td>
                 <td>${rowData.avg_Weight}</td>
             `;
