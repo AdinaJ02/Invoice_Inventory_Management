@@ -14,6 +14,27 @@ if ($conn->connect_error) {
         $name = $request_data["name"];
         $address = $request_data["address"];
         $data = $request_data["data"];
+        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', 'open')";
+
+        // Create a SQL query to insert data into the customer_data table
+        $sql_insert_customer = "INSERT INTO customer_data (memo_no, customer_name, `address`) VALUES ('$memo_no', '$name', '$address')";
+
+        // Check if the combination of customer_name and address exists
+        $check_sql_customers = "SELECT * FROM customers WHERE customer_name = '$name' AND `address` = '$address'";
+        $check_result = $conn->query($check_sql_customers);
+
+        if ($check_result->num_rows == 0) {
+            $sql_insert_customers = "INSERT INTO customers (customer_name, `address`) VALUES ('$name', '$address')";
+            if ($conn->query($sql_insert_customers) === TRUE) {
+                echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
+            }
+        }
+
+        if ($conn->query($sql_insert_memo) === TRUE && $conn->query($sql_insert_customer) === TRUE) {
+            echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
+        } else {
+            echo "<p style='color:red; text-align:center;'>Error: " . $sql . "<br>" . $conn->error . "</p>";
+        }
 
         // Create a SQL query to insert data into the memo table
         $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', 'open')";
@@ -75,7 +96,7 @@ if ($conn->connect_error) {
                 }
             }
         }
-
+      
         $conn->close();
     }
 }
