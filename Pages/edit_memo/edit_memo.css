@@ -159,3 +159,7 @@ p {
 .total_wt, .total_tot, .total_final_tot {
     font-weight: bold;
 }
+
+#disclaimer {
+    text-align: justify;
+}

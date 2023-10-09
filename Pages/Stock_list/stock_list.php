@@ -58,48 +58,50 @@ if ($conn->connect_error) {
                 $name = $rowData[22];
                 $avg_Weight = $rowData[23];
 
-                // Define your SQL query using INSERT INTO ... ON DUPLICATE KEY UPDATE
-                $sql = "INSERT INTO stock_list (lot_no, shape, `size`, pcs, `weight`, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, `name`, avg_weight) 
-    VALUES ('$lot_no', '$shape', '$size', '$pcs', '$Weight', '$color', '$clarity', '$certificate_no', '$cut', '$pol', '$sym', '$fl', '$m1', '$m2', '$m3', '$tab', '$dep', '$ratio', '$rap', '$discount', '$total', '$price', '$name', '$avg_Weight') 
-    ON DUPLICATE KEY UPDATE 
-    shape = VALUES(shape), `size` = VALUES(`size`), pcs = VALUES(pcs), `weight` = VALUES(`weight`), color = VALUES(color), 
-    clarity = VALUES(clarity), certificate_no = VALUES(certificate_no), cut = VALUES(cut), pol = VALUES(pol), sym = VALUES(sym), 
-    fl = VALUES(fl), m1 = VALUES(m1), m2 = VALUES(m2), m3 = VALUES(m3), tab = VALUES(tab), dep = VALUES(dep), ratio = VALUES(ratio), 
-    rap = VALUES(rap), discount = VALUES(discount), total = VALUES(total), price = VALUES(price), `name` = VALUES(`name`), avg_weight = VALUES(avg_weight)";
+                if ($lot_no !== null) {
+                    // Define your SQL query using INSERT INTO ... ON DUPLICATE KEY UPDATE
+                    $sql = "INSERT INTO stock_list (lot_no, shape, `size`, pcs, `weight`, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, `name`, avg_weight) 
+                        VALUES ('$lot_no', '$shape', '$size', '$pcs', '$Weight', '$color', '$clarity', '$certificate_no', '$cut', '$pol', '$sym', '$fl', '$m1', '$m2', '$m3', '$tab', '$dep', '$ratio', '$rap', '$discount', '$total', '$price', '$name', '$avg_Weight') 
+                        ON DUPLICATE KEY UPDATE 
+                        shape = VALUES(shape), `size` = VALUES(`size`), pcs = VALUES(pcs), `weight` = VALUES(`weight`), color = VALUES(color), 
+                        clarity = VALUES(clarity), certificate_no = VALUES(certificate_no), cut = VALUES(cut), pol = VALUES(pol), sym = VALUES(sym), 
+                        fl = VALUES(fl), m1 = VALUES(m1), m2 = VALUES(m2), m3 = VALUES(m3), tab = VALUES(tab), dep = VALUES(dep), ratio = VALUES(ratio), 
+                        rap = VALUES(rap), discount = VALUES(discount), total = VALUES(total), price = VALUES(price), `name` = VALUES(`name`), avg_weight = VALUES(avg_weight)";
 
-                if ($conn->query($sql) === TRUE) {
-                    $message = "<p style='color:green;'>Record inserted successfully</p>";
-                } else {
-                    $message = "<p>Error: " . $sql . "<br>" . $conn->error . "</p>";
+                    if ($conn->query($sql) === TRUE) {
+                        $message = "<p style='color:green;'>Record inserted successfully</p>";
+                    } else {
+                        $message = "<p>Error: " . $sql . "<br>" . $conn->error . "</p>";
+                    }
+
+                    // Store the imported data in an array
+                    $importedData[] = array(
+                        'lot_no' => $lot_no,
+                        'shape' => $shape,
+                        'size' => $size,
+                        'pcs' => $pcs,
+                        'Weight' => $Weight,
+                        'color' => $color,
+                        'clarity' => $clarity,
+                        'certificate_no' => $certificate_no,
+                        'cut' => $cut,
+                        'pol' => $pol,
+                        'sym' => $sym,
+                        'fl' => $fl,
+                        'm1' => $m1,
+                        'm2' => $m2,
+                        'm3' => $m3,
+                        'tab' => $tab,
+                        'dep' => $dep,
+                        'ratio' => $ratio,
+                        'rap' => $rap,
+                        'discount' => $discount,
+                        'total' => $total,
+                        'price' => $price,
+                        'name' => $name,
+                        'avg_Weight' => $avg_Weight,
+                    );
                 }
-
-                // Store the imported data in an array
-                $importedData[] = array(
-                    'lot_no' => $lot_no,
-                    'shape' => $shape,
-                    'size' => $size,
-                    'pcs' => $pcs,
-                    'Weight' => $Weight,
-                    'color' => $color,
-                    'clarity' => $clarity,
-                    'certificate_no' => $certificate_no,
-                    'cut' => $cut,
-                    'pol' => $pol,
-                    'sym' => $sym,
-                    'fl' => $fl,
-                    'm1' => $m1,
-                    'm2' => $m2,
-                    'm3' => $m3,
-                    'tab' => $tab,
-                    'dep' => $dep,
-                    'ratio' => $ratio,
-                    'rap' => $rap,
-                    'discount' => $discount,
-                    'total' => $total,
-                    'price' => $price,
-                    'name' => $name,
-                    'avg_Weight' => $avg_Weight,
-                );
             }
         } else {
             $message = "<p style='color:red;'>Invalid file format. Allowed file extensions: xls, xlsx</p>";

@@ -38,15 +38,25 @@ fetch('fetch_memo_numbers.php')
     });
 
 // Get references to HTML elements
-const memoNoDropdown = document.getElementById('memo_no');
+const memoNo = document.getElementById('memo_no');
 const memorandumDayInput = document.getElementById('memorandum_day');
 const dateInput = document.getElementById('date');
 const recipientInput = document.getElementById('recipient');
 const addressInput = document.getElementById('addressInput');
 
+function getQueryParam(parameterName) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    return urlSearchParams.get(parameterName);
+}
+
 // Add an event listener for the memo_no dropdown change event
-memoNoDropdown.addEventListener('change', () => {
-    const selectedMemoNo = memoNoDropdown.value;
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the memo_no query parameter value
+    const memo_no = getQueryParam('memo_no');
+
+    memoNo.value = memo_no;
+
+    const selectedMemoNo = memoNo.value;
     if (selectedMemoNo) {
         // Perform a fetch to fetch_memo_details.php with the selected memo_no
         fetch(`fetch_memo_details.php?memo_no=${selectedMemoNo}`)
@@ -73,7 +83,7 @@ memoNoDropdown.addEventListener('change', () => {
     recipientInput.readOnly = true;
     addressInput.readOnly = true;
 
-    fetchMemoData(memoNoDropdown.value);
+    fetchMemoData(memoNo.value);
 });
 
 // Function to fetch and display memo data

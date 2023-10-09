@@ -175,3 +175,12 @@ p {
 .total_wt, .total_tot {
     font-weight: bold;
 }
+
+#disclaimer {
+    text-align: justify;
+}
+
+.delete-icon {
+    cursor: pointer;
+    color: red;
+}
