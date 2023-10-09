@@ -3,7 +3,7 @@
     "description": "inventory management system",
     "type": "project",
      "require": {
-        "php": "^8.2.4",
+        "php": "^8.0.26",
         "phpmailer/phpmailer": "^6.8",
         "google/apiclient": "^2.15",
         "ext-gd": "*",
