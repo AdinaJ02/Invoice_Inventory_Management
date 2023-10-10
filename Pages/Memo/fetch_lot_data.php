@@ -10,7 +10,7 @@ if (isset($_GET['lotNo'])) {
     $lotNo = $_GET['lotNo'];
 
     // Implement a SQL query to fetch data based on the provided lot_no
-    $sql = "SELECT `weight`, `size`, `pcs`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`
+    $sql = "SELECT `lot_no`, `weight`, `size`, `pcs`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`
             FROM `stock_list`
             WHERE `lot_no` = '$lotNo'";
 
