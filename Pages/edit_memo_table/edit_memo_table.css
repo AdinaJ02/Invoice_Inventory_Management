@@ -1,0 +1,51 @@
+.table_data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table_data th,
+.table_data td {
+    border: 1px dotted #ccc;
+    padding: 8px;
+}
+
+#header th {
+    background-color: #106f7b;
+    color: white;
+}
+/* styles.css */
+
+.memo-no-row{
+    cursor: pointer;
+}
+
+.memo-link {
+    color: rgb(0, 0, 0); /* Change the color to your desired color */
+    text-decoration: none; /* Remove underlines, if needed */
+}
+
+
+/* CSS to style the "Submit Memo" button */
+#printButton {
+    display: block;
+    margin: 20px auto;
+    background-color: #106f7b;
+    /* Set the background color */
+    color: #fff;
+    /* Set the text color to white */
+    padding: 10px 20px;
+    /* Add padding to the button */
+    border: none;
+    /* Remove the border */
+    border-radius: 5px;
+    /* Add rounded corners */
+    cursor: pointer;
+    /* Add a pointer cursor on hover */
+    font-size: 16px;
+    /* Set the font size */
+}
+
+#printButton:hover {
+    background-color: #0a525e;
+    /* Change the background color on hover */
+}

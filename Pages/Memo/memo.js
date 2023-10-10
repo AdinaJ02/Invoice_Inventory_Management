@@ -20,8 +20,126 @@ function addRow() {
 <td contenteditable="true" name="return" class="editable"></td>
 <td contenteditable="true" name="kept" class="editable"></td>
 <td name="final_total" class="editable"></td>
+<td class="delete-cell"><span class="delete-icon">Delete</span></td>
 `;
     tableBody.appendChild(newRow);
+
+    // Attach a click event listener to the delete icon
+    const deleteIcon = newRow.querySelector('.delete-icon');
+    deleteIcon.addEventListener('click', function () {
+        newRow.querySelector('[name="lot_no"]').textContent = '';
+        newRow.querySelector('[name="desc"]').textContent = '';
+        newRow.querySelector('[name="shape"]').textContent = '';
+        newRow.querySelector('[name="size"]').textContent = '';
+        newRow.querySelector('[name="pcs"]').textContent = '';
+        newRow.querySelector('[name="wt"]').textContent = '';
+        newRow.querySelector('[name="color"]').textContent = '';
+        newRow.querySelector('[name="clarity"]').textContent = '';
+        newRow.querySelector('[name="certificate"]').textContent = '';
+        newRow.querySelector('[name="rap"]').textContent = '';
+        newRow.querySelector('[name="disc"]').textContent = '';
+        newRow.querySelector('[name="price"]').textContent = '';
+        newRow.querySelector('[name="total"]').textContent = '';
+
+        newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
+
+        calculateTotals();
+    });
+
+    const shapeInput = newRow.querySelector('[name="shape"]');
+    const sizeInput = newRow.querySelector('[name="size"]');
+
+    shapeInput.addEventListener('input', function () {
+        const shape = this.textContent.trim();
+        fetchDropdownData(shape, shapeInput);
+    });
+
+    sizeInput.addEventListener('input', function () {
+        const size = this.textContent.trim();
+        fetchDropdownData(size, sizeInput);
+    });
+
+    function fetchDropdownData(value, otherInput) {
+        // Make an AJAX request to fetch dropdown data from the server based on the value (shape/size)
+        // Replace 'fetch_dropdown_data.php' with the actual URL for fetching dropdown data
+        fetch(`fetch_dropdown_data.php?value=${value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    // Create and populate the dropdown
+                    const dropdown = document.createElement('select');
+                    dropdown.classList.add('dropdown');
+                    for (const item of data) {
+                        const option = document.createElement('option');
+                        option.value = item.lot_no;
+                        option.textContent = `${item.lot_no} - ${item.shape} - ${item.size} - ${item.pcs} - ${item.wt} - ${item.color} - ${item.clarity} - ${item.certificate} - ${item.rap} - ${item.discount} - ${item.price}`;
+                        dropdown.appendChild(option);
+                    }
+
+                    // Clear the other input field
+                    otherInput.textContent = '';
+
+                    // Replace the current input field with the dropdown
+                    newRow.replaceChild(dropdown, otherInput);
+
+                    // Add an event listener to handle dropdown selection
+                    dropdown.addEventListener('change', function () {
+                        const selectedValue = this.value;
+                        populateFieldsFromDropdown(selectedValue, otherInput);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to populate fields based on the selected value from the dropdown
+    function populateFieldsFromDropdown(selectedValue, otherInput) {
+        console.log(selectedValue);
+        // Make an AJAX request to fetch data for the selected lot_no from the server
+        // Replace 'fetch_lot_data.php' with the actual URL for fetching lot data
+        fetch(`fetch_lot_data.php?lotNo=${selectedValue}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Populate fields in the current row with data from the server
+                    newRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    newRow.querySelector('[name="wt"]').textContent = data.weight;
+                    newRow.querySelector('[name="pcs"]').textContent = data.pcs;
+                    newRow.querySelector('[name="color"]').textContent = data.color;
+                    newRow.querySelector('[name="clarity"]').textContent = data.clarity;
+                    newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
+                    newRow.querySelector('[name="rap"]').textContent = data.rap;
+                    newRow.querySelector('[name="disc"]').textContent = data.discount;
+
+                    // Remove the dropdown from the current row
+                    const dropdown = newRow.querySelector('.dropdown');
+                    if (dropdown) {
+                        // Update the corresponding field in the current row
+                        if (otherInput === shapeInput) {
+                            newRow.querySelector('[name="size"]').textContent = data.size;
+                            otherInput.textContent = data.shape;
+                        } else {
+                            newRow.querySelector('[name="shape"]').textContent = data.shape;
+                            otherInput.textContent = data.size;
+                        }
+
+                        // Replace the dropdown with the text input
+                        dropdown.parentNode.replaceChild(otherInput, dropdown);
+                    }
+
+                    calculatePriceAndTotal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
 
     // Add event listeners to rap and disc fields for calculations
     const rapField = newRow.querySelector('.rap');
@@ -47,7 +165,7 @@ function addRow() {
         if (rapValue === 0 && discValue === 0) {
         } else {
             // Calculate the Price
-            const price = (rapValue * (100 + discValue))/100;
+            const price = (rapValue * (100 + discValue)) / 100;
             priceField.textContent = price.toFixed(2);
         }
         const price = parseFloat(priceField.textContent);
@@ -94,7 +212,6 @@ function addRow() {
                         newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="pcs"]').textContent = data.pcs;
-                        newRow.querySelector('[name="pcs"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="shape"]').textContent = data.shape;
                         newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
@@ -147,7 +264,9 @@ function calculateTotals() {
     const totalWtField = document.querySelector('.total_wt');
     const totalTotField = document.querySelector('.total_tot');
     totalWtField.textContent = totalWt.toFixed(2);
+    totalWtField.value = totalWt.toFixed(2);
     totalTotField.textContent = totalTot.toFixed(2);
+    totalTotField.value = totalTot.toFixed(2);
 }
 
 // Get references to the total_wt and total_tot elements
@@ -271,9 +390,10 @@ autocompleteResults.addEventListener('click', function (event) {
 
 
 // Add an event listener to the button
-const submitButton = document.getElementById('submitMemo');
+const form = document.getElementById('form-data');
 
-submitButton.addEventListener('click', function () {
+form.addEventListener('submit', function (event) {
+    event.preventDefault(); 
     saveData(); // Call the saveData function when the button is clicked
 });
 
@@ -286,6 +406,11 @@ function saveData() {
     const memorandum_day = document.getElementById("dayDropdown").value;
     const name = document.getElementById("recipient").value;
     const address = document.getElementById("addressInput").value;
+    const total_wt = document.querySelector('.total_wt').value;
+    const total_total = document.querySelector('.total_tot').value;
+
+    console.log(total_wt);
+    console.log(total_total);
 
     tableRows.forEach((row) => {
         const rowData = {};
@@ -302,6 +427,8 @@ function saveData() {
         memorandum_day: memorandum_day,
         name: name,
         address: address,
+        total_wt: total_wt,
+        total_total: total_total,
         data: data,
     };
 
@@ -318,7 +445,7 @@ function saveData() {
         .then((response) => {
             if (response.ok) {
                 // If the response status is OK (HTTP status 200), redirect to another page
-                window.location.href = '../print_memo/print_memo.html';
+                window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
             } else {
                 // Handle other response statuses here if needed
                 console.error('Server returned an error:', response.statusText);
