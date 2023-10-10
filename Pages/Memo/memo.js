@@ -264,7 +264,9 @@ function calculateTotals() {
     const totalWtField = document.querySelector('.total_wt');
     const totalTotField = document.querySelector('.total_tot');
     totalWtField.textContent = totalWt.toFixed(2);
+    totalWtField.value = totalWt.toFixed(2);
     totalTotField.textContent = totalTot.toFixed(2);
+    totalTotField.value = totalTot.toFixed(2);
 }
 
 // Get references to the total_wt and total_tot elements
@@ -388,9 +390,10 @@ autocompleteResults.addEventListener('click', function (event) {
 
 
 // Add an event listener to the button
-const submitButton = document.getElementById('submitMemo');
+const form = document.getElementById('form-data');
 
-submitButton.addEventListener('click', function () {
+form.addEventListener('submit', function (event) {
+    event.preventDefault(); 
     saveData(); // Call the saveData function when the button is clicked
 });
 
@@ -403,6 +406,11 @@ function saveData() {
     const memorandum_day = document.getElementById("dayDropdown").value;
     const name = document.getElementById("recipient").value;
     const address = document.getElementById("addressInput").value;
+    const total_wt = document.querySelector('.total_wt').value;
+    const total_total = document.querySelector('.total_tot').value;
+
+    console.log(total_wt);
+    console.log(total_total);
 
     tableRows.forEach((row) => {
         const rowData = {};
@@ -419,6 +427,8 @@ function saveData() {
         memorandum_day: memorandum_day,
         name: name,
         address: address,
+        total_wt: total_wt,
+        total_total: total_total,
         data: data,
     };
 

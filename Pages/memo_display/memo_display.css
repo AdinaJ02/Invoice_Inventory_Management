@@ -1,0 +1,23 @@
+.table_data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table_data th,
+.table_data td {
+    border: 1px dotted #ccc;
+    padding: 8px;
+}
+
+#header th {
+    background-color: #106f7b;
+    color: white;
+}
+.close-button{
+    background-color: #106f7b;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}

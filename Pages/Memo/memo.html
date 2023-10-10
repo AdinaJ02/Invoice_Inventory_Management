@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <form>
+    <form id="form-data">
         <table class="header_top">
             <tr>
                 <td colspan="3" id="header_table">
@@ -40,8 +40,8 @@
                 <td colspan="3">
                     <div class="underline-input">
                         <label for="recipient"><b>To,</b></label>
-                        <input type="text" id="recipient" name="recipient" placeholder="Name">
-                        <input type="text" id="addressInput" name="address" placeholder="Address">
+                        <input type="text" id="recipient" name="recipient" placeholder="Name" required>
+                        <input type="text" id="addressInput" name="address" placeholder="Address" required>
                         <div id="autocomplete-results"></div>
                     </div>
                 </td>
@@ -85,14 +85,15 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td name="total_wt" class="total_wt"></td>
+                <td id="total_wt" name="total_wt" class="total_wt"></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td name="total_tot" class="total_tot"></td>
+                <td id="total_tot" name="total_tot" class="total_tot"></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -101,7 +102,7 @@
         </table>
 
         <div class="form-group" style="text-align: center;">
-            <input type="button" value="Print Memo" id="submitMemo">
+            <input type="submit" value="Print Memo" id="submitMemo">
         </div>
     </form>
 
