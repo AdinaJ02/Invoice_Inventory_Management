@@ -67,7 +67,13 @@ $conn->close();
             echo "<td>" . $row['customer_name'] . "</td>";
             echo "<td>" . $row['address'] . "</td>";
             echo "<td>" . $row['is_open'] . "</td>";
-            echo "<td><button class='close-button' data-memo_no='" . $row['memo_no'] . "'>Close</button></td>"; // Add a button with data attribute
+            // echo "<td><button class='close-button' data-memo_no='" . $row['memo_no'] . "'>Close</button></td>"; // Add a button with data attribute
+            if ($row['is_open'] == 'open') {
+                echo "<td><button class='close-button' data-memo_no='" . $row['memo_no'] . "'>Close</button></td>";
+            } else {
+                // Display an empty cell when the memo is closed
+                echo "<td></td>";
+            }
             echo "</tr>";
         }
         ?>

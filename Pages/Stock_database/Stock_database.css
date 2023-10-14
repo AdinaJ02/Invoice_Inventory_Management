@@ -1,0 +1,33 @@
+body {
+    display: grid;
+    height: 5vh;
+    place-items: center;
+  }
+
+.table_data {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table_data th,
+.table_data td {
+    border: 1px dotted #ccc;
+    padding: 4.8px;
+}
+
+#header th {
+    background-color: #106f7b;
+    color: white;
+
+}
+#download-button{
+  color: white;
+  background-color: #106f7b;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+#download-button:hover{
+  cursor: pointer;
+}
