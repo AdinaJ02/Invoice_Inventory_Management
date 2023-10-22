@@ -13,48 +13,126 @@ if ($result->num_rows > 0) {
     }
 }
 
+// Fetch and populate customer names from the customers table
+$sqlCustomer = "SELECT customer_name FROM customers";
+$resultCustomer = $conn->query($sqlCustomer);
+
+// Store customer names in an array
+$customerNames = array();
+while ($rowCustomer = $resultCustomer->fetch_assoc()) {
+    $customerNames[] = $rowCustomer['customer_name'];
+}
+
 // Close the database connection
-$conn->close();  
+$conn->close();
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="edit_memo_table.css">
 </head>
+
 <body>
-<table class="table_data">
-    <thead>
-        <tr id="header">
-            <th>memo no.</th>
-            <th>date</th>
-            <th>name</th>
-            <th>totalwt</th>
-            <th>totalvalue</th>
-            <th>select</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        foreach ($data as $row) {
+    <div class="dropdown-container">
+        <select class="dropdown" id="customerDropdown">
+            <option value="" disabled selected>Select Customer</option>
+            <?php
+            foreach ($customerNames as $customerName) {
+                echo '<option value="' . $customerName . '">' . $customerName . '</option>';
+            }
             ?>
-            <tr>
-                <td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=<?php echo $row['memo_no']; ?>"><?php echo $row['memo_no']; ?></a></td>
-                <td><?php echo $row['memo_date']; ?></td>
-                <td><?php echo $row['customer_name']; ?></td>
-                <td><?php echo $row['total_wt']; ?></td>
-                <td><?php echo $row['total_total']; ?></td>
-                <td><input type="checkbox" name="select_checkbox[]" value="<?php echo $row['memo_no']; ?>"></td>
-                <!-- Added a checkbox input in the last cell -->
+        </select>
+        <select class="dropdown" id="sortDropdown">
+            <option value="" disabled selected>Sort By</option>
+            <option value="date-asc">Date Ascending</option>
+            <option value="date-desc">Date Descending</option>
+        </select>
+    </div>
+    <table class="table_data">
+        <thead>
+            <tr id="header">
+                <th>memo no.</th>
+                <th>date</th>
+                <th>name</th>
+                <th>totalwt</th>
+                <th>totalvalue</th>
             </tr>
-        <?php } ?>
-    </tbody>
-</table>
-<div class="form-group" style="text-align: center;">
-                <button id="printButton" class="no-print">Print Memo</button>
-            </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        </thead>
+        <tbody>
+            <?php
+            foreach ($data as $row) {
+                echo '<tr>';
+                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
+                $memoDate = date('F j, Y', strtotime($row['memo_date']));
+                echo '<td>' . $memoDate . '</td>';
+                echo '<td>' . $row['customer_name'] . '</td>';
+                echo '<td>' . $row['total_wt'] . '</td>';
+                echo '<td>' . $row['total_total'] . '</td>';
+                echo '</tr>';
+            }
+            ?>
+        </tbody>
+    </table>
+    <div class="form-group" style="text-align: center;">
+        <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // JavaScript for the "Back" button
+        function goBackOneStep() {
+            window.history.back(); // This will go back one step in the browser's history
+        }
+
+        // Get references to the dropdown and table
+        const customerDropdown = document.getElementById("customerDropdown");
+        const sortDropdown = document.getElementById("sortDropdown");
+        const tableRows = document.querySelectorAll(".table_data tbody tr");
+
+        customerDropdown.addEventListener("change", filterTable);
+        sortDropdown.addEventListener("change", filterTableDate);
+
+        function filterTable() {
+            const selectedCustomer = customerDropdown.value;
+
+            tableRows.forEach(row => {
+                const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
+                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer;
+                row.style.display = showRow ? "table-row" : "none";
+            });
+        }
+
+        function filterTableDate() {
+            const sortOption = sortDropdown.value;
+            const tbody = document.querySelector(".table_data tbody");
+
+            if (sortOption === "date-asc") {
+                // Sort the rows in ascending order by date
+                const sortedRows = Array.from(tableRows).sort((a, b) => {
+                    const dateA = new Date(a.querySelector("td:nth-child(2)").textContent);
+                    const dateB = new Date(b.querySelector("td:nth-child(2)").textContent);
+                    return dateA - dateB;
+                });
+
+                // Append the sorted rows to the tbody
+                sortedRows.forEach(row => tbody.appendChild(row));
+            } else if (sortOption === "date-desc") {
+                // Sort the rows in descending order by date
+                const sortedRows = Array.from(tableRows).sort((a, b) => {
+                    const dateA = new Date(a.querySelector("td:nth-child(2)").textContent);
+                    const dateB = new Date(b.querySelector("td:nth-child(2)").textContent);
+                    return dateB - dateA;
+                });
+
+                // Append the sorted rows to the tbody
+                sortedRows.forEach(row => tbody.appendChild(row));
+            }
+        }
+
+    </script>
 </body>
+
 </html>

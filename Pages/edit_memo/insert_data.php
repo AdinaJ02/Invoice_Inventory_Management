@@ -13,6 +13,8 @@ if ($conn->connect_error) {
         $memorandum_day = $request_data["memorandum_day"];
         $name = $request_data["name"];
         $address = $request_data["address"];
+        $total_wt = $request_data["total_wt"];
+        $total_final_tot = $request_data["total_final_tot"];
         $data = $request_data["data"];
 
         // Iterate through the data and insert each row into the database
@@ -65,22 +67,13 @@ if ($conn->connect_error) {
                 $check_sql = "SELECT * FROM stock_list WHERE lot_no = '$lotNo'";
                 $check_result = $conn->query($check_sql);
 
-                if ($check_result->num_rows > 0) {
-                    // Lot number already exists, perform an update
-                    $sql_insert_stock = "UPDATE `stock_list` SET
-                    `weight` = '$return',
-                    `rap` = '$rap',
-                    `discount` = '$disc',
-                    `total` = '$total',
-                    `price` = '$price'
-                    WHERE `lot_no` = '$lotNo'";
-                } else {
+                if ($check_result->num_rows == 0) {
                     // Lot number doesn't exist, perform an insert
                     $sql_insert_stock = "INSERT INTO `stock_list`(`lot_no`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `total`, `price`) 
                     VALUES ('$lotNo','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc', '$total', '$price')";
                 }
 
-                if ($conn->query($sql_insert_memo_data) === TRUE && $conn->query($sql_insert_stock) === TRUE) {
+                if ($conn->query($sql_insert_memo_data) === TRUE || $conn->query($sql_insert_stock) === TRUE) {
                     echo 'Data Inserted successfully';
                 } else {
                     echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
@@ -91,7 +84,7 @@ if ($conn->connect_error) {
 
         // Create a SQL query to insert data into the memo table
         $sql_update_memo = "UPDATE memo
-        SET memorandum_day = '$memorandum_day', memo_date = '$date', customer_name = '$name', `address` = '$address'
+        SET memorandum_day = '$memorandum_day', memo_date = '$date', customer_name = '$name', `address` = '$address', total_wt = '$total_wt', total_total = '$total_final_tot'
         WHERE memo_no = '$memo_no'";
 
         // Create a SQL query to insert data into the customer_data table

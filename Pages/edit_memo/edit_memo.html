@@ -26,8 +26,8 @@
                     <p id="address"></p>
                     <p id="email"></p>
                 </td>
-                <td colspan="3"><b>Memo no.</b> <input type="text" name="memo_no" id="memo_no"
-                    placeholder="Memo Number" readonly></td>
+                <td colspan="3"><b>Memo no.</b> <input type="text" name="memo_no" id="memo_no" placeholder="Memo Number"
+                        readonly></td>
             </tr>
             <tr>
                 <td colspan="3">
@@ -56,8 +56,8 @@
             <thead>
                 <tr id="header">
                     <th class="elements">Sr No</th>
-                    <th class="elements">Description</th>
                     <th class="elements">Lot No</th>
+                    <th class="elements">Description</th>
                     <th class="elements">Shape</th>
                     <th class="elements">Size</th>
                     <th class="elements">Pcs</th>
@@ -72,6 +72,7 @@
                     <th class="elements">Return</th>
                     <th class="elements">Kept</th>
                     <th class="elements">Final Total</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -84,7 +85,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td name="total_wt" class="total_wt"></td>
+                <td id="total_wt" name="total_wt" class="total_wt"></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -94,12 +95,21 @@
                 <td name="total_tot" class="total_tot"></td>
                 <td></td>
                 <td></td>
-                <td name="total_final_tot" class="total_final_tot"></td>
+                <td id="total_final_tot" name="total_final_tot" class="total_final_tot"></td>
+                <td></td>
             </tr>
         </table>
 
+        <div id="successMessage" class="success-message"></div>
+
         <div class="form-group" style="text-align: center;">
-            <input type="button" value="Save Memo" id="saveButton">
+            <div class="button-container">
+                <input type="button" value="Add Row" id="addButton">
+                <input type="button" value="Save Memo" id="saveButton">
+                <input type="button" value="Close Memo" id="closeButton">
+                <input type="button" value="Print Invoice" id="printButton">
+                <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
+            </div>
         </div>
     </form>
     <script src="edit_memo.js"></script>

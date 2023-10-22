@@ -13,20 +13,23 @@
     background-color: #106f7b;
     color: white;
 }
+
 /* styles.css */
 
-.memo-no-row{
+.memo-no-row {
     cursor: pointer;
 }
 
 .memo-link {
-    color: rgb(0, 0, 0); /* Change the color to your desired color */
-    text-decoration: none; /* Remove underlines, if needed */
+    color: rgb(0, 0, 0);
+    /* Change the color to your desired color */
+    text-decoration: none;
+    /* Remove underlines, if needed */
 }
 
 
 /* CSS to style the "Submit Memo" button */
-#printButton {
+#goBack {
     display: block;
     margin: 20px auto;
     background-color: #106f7b;
@@ -45,7 +48,19 @@
     /* Set the font size */
 }
 
-#printButton:hover {
+#goBack:hover {
     background-color: #0a525e;
     /* Change the background color on hover */
+}
+
+.dropdown-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dropdown {
+    margin-right: 30px;
+    margin-bottom: 20px;
+    margin-top: 15px;
 }

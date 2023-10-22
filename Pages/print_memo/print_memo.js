@@ -21,26 +21,10 @@ fetch('../php_data/fetch_data_company.php')
         console.error('Error:', error);
     });
 
-// Fetch memo numbers from the PHP script and populate the dropdown
-fetch('fetch_memo_numbers.php')
-    .then(response => response.json())
-    .then(data => {
-        const memoDropdown = document.getElementById('memo_no');
-        data.forEach(memoNo => {
-            const option = document.createElement('option');
-            option.value = memoNo;
-            option.textContent = memoNo;
-            memoDropdown.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching memo numbers:', error);
-    });
-
 // Get references to HTML elements
 const memoNo = document.getElementById('memo_no');
 const memorandumDayInput = document.getElementById('memorandum_day');
-const dateInput = document.getElementById('date');
+const dateInput = document.getElementById('formatted-date');
 const recipientInput = document.getElementById('recipient');
 const addressInput = document.getElementById('addressInput');
 
@@ -64,7 +48,19 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 // Update the form fields with fetched data
                 memorandumDayInput.value = data.memorandum_day;
-                dateInput.value = data.memo_date;
+                const rawDate = new Date(data.memo_date); // Convert the date string to a Date object
+                const months = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+
+                const day = rawDate.getDate();
+                const month = months[rawDate.getMonth()];
+                const year = rawDate.getFullYear();
+
+                const formattedDate = `${month} ${day}, ${year}`;
+                console.log(formattedDate);
+                dateInput.textContent = formattedDate; // Set the formatted date in the input field
                 recipientInput.value = data.customer_name;
                 addressInput.value = data.address;
             })
@@ -119,7 +115,7 @@ function displayMemoData(data) {
             <td>${row.clarity}</td>
             <td>${row.certificate_no}</td>
             <td>${row.rap}</td>
-            <td>${row.discount}</td>
+            <td>${row.discount}%</td>
             <td>${row.price}</td>
             <td name="total">${row.total}</td>
             <td>${row.return === null ? '' : row.return}</td>
@@ -184,7 +180,7 @@ document.getElementById('printButton').addEventListener('click', function () {
 function printMemo() {
     // Hide the button when printing by applying a media query
     const style = document.createElement('style');
-    style.innerHTML = '@media print { #printButton { display: none; } }';
+    style.innerHTML = '@media print { #printButton, #goBack { display: none; } }';
     document.head.appendChild(style);
 
     // Clone the original content
@@ -213,4 +209,9 @@ function printMemo() {
 
     // Remove the duplicate content after printing
     duplicateContent.remove();
+}
+
+// JavaScript for the "Back" button
+function goBackOneStep() {
+    window.history.back(); // This will go back one step in the browser's history
 }

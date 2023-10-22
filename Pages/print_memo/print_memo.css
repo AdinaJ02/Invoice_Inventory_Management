@@ -20,6 +20,13 @@
         background-color: #106f7b;
         color: white;
     }
+
+    #header {
+        font-size: 14px;
+        /* Adjust the font size as needed */
+        white-space: nowrap;
+        /* Prevent text from wrapping to the next line */
+    }
 }
 
 .header_top {
@@ -103,24 +110,9 @@ p {
     /* Use the same font size as the surrounding text */
 }
 
-/* Style the date container */
-.date-container {
-    display: flex;
-    align-items: center;
-}
-
-/* Style the label for the date input */
-.date-container label {
-    font-weight: bold;
-    font-size: 16px;
-}
-
-/* Style the date input */
-.date-container input[type="date"] {
+#formatted-date {
     padding: 2px;
-    font-size: 12px;
-    border: 0px solid #ccc;
-    border-radius: 4px;
+    font-size: 14px;
     margin-left: 20px;
 }
 
@@ -150,7 +142,8 @@ p {
 }
 
 /* CSS to style the "Submit Memo" button */
-#printButton {
+#printButton,
+#goBack {
     display: block;
     margin: 20px auto;
     background-color: #106f7b;
@@ -169,7 +162,8 @@ p {
     /* Set the font size */
 }
 
-#printButton:hover {
+#printButton:hover,
+#goBack:hover {
     background-color: #0a525e;
     /* Change the background color on hover */
 }
@@ -180,7 +174,9 @@ p {
     padding-left: 10px;
 }
 
-.total_wt, .total_tot, .total_final_tot {
+.total_wt,
+.total_tot,
+.total_final_tot {
     font-weight: bold;
 }
 
