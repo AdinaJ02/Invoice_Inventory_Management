@@ -28,6 +28,71 @@ body {
   padding: 8px; /* Add some padding for spacing */
   width: 200px; /* Set a fixed width */
 }
+#add-button{
+  color: white;
+  background-color: #106f7b;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+#edit-button{
+  color: white;
+  background-color: #606060b1;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+#duplicate-button{
+  color: white;
+  background-color: #606060b1;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+#update-button{
+  color: white;
+  background-color: #106f7b;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+#delete-button{
+  color: white;
+  background-color: #106f7b;
+  border-radius: 5px; /* Add border radius */
+  padding: 8px; /* Add some padding for spacing */
+  width: 200px; /* Set a fixed width */
+}
+
+
 #download-button:hover{
   cursor: pointer;
+}
+#add-button:hover{
+   cursor: pointer;
+}
+#edit-button:hover{
+   cursor: pointer;
+}
+#duplicate-button:hover{
+   cursor: pointer;
+}
+#update-button:hover{
+   cursor: pointer;
+}
+#delete-button:hover{
+   cursor: pointer;
+}
+
+/* Highlight selected rows */
+.table_data tbody tr.selected {
+  background-color: #0d82db;
+}
+
+/* Style the selected buttons */
+#edit-button.selected,
+#duplicate-button.selected,
+#delete-button {
+  background-color: #106f7b;
+  color: white;
 }

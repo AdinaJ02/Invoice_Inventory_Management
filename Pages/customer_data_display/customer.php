@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Delete the row from the database
             $sql = "DELETE FROM customers WHERE id=$id";
             $conn->query($sql);
-
+            // here why it is not reseting the whole column of auto increment is because it deleting row by row
              // After deleting the row, reset the auto-increment value
              $resetSql = "ALTER TABLE customers AUTO_INCREMENT = 1";
              $conn->query($resetSql);
