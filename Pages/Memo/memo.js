@@ -27,10 +27,33 @@ function addRow() {
     // Attach a click event listener to the delete icon
     const deleteIcon = newRow.querySelector('.delete-icon');
     deleteIcon.addEventListener('click', function () {
+        const dropdown = newRow.querySelector('.dropdown'); // Define dropdown within the click event handler
+        if (dropdown) {
+            if (shapeFlag === 1) {
+                const dropdownParent = dropdown.parentNode;
+                shapeInput.textContent = '';
+                dropdownParent.replaceChild(shapeInput, dropdown);
+                shapeFlag = 0;
+            }
+            else if (sizeFlag === 1) {
+                const dropdownParentSize = dropdown.parentNode;
+                sizeInput.textContent = '';
+                dropdownParentSize.replaceChild(sizeInput, dropdown);
+                sizeFlag = 0;
+            }
+
+            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+        }
+        else {
+            newRow.querySelector('[name="shape"]').textContent = '';
+            newRow.querySelector('[name="size"]').textContent = '';
+
+            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+        }
         newRow.querySelector('[name="lot_no"]').textContent = '';
         newRow.querySelector('[name="desc"]').textContent = '';
-        newRow.querySelector('[name="shape"]').textContent = '';
-        newRow.querySelector('[name="size"]').textContent = '';
         newRow.querySelector('[name="pcs"]').textContent = '';
         newRow.querySelector('[name="wt"]').textContent = '';
         newRow.querySelector('[name="color"]').textContent = '';
@@ -41,8 +64,6 @@ function addRow() {
         newRow.querySelector('[name="price"]').textContent = '';
         newRow.querySelector('[name="total"]').textContent = '';
 
-        newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
         newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
         newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
         newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
@@ -53,14 +74,23 @@ function addRow() {
     const shapeInput = newRow.querySelector('[name="shape"]');
     const sizeInput = newRow.querySelector('[name="size"]');
 
+    let shapeFlag = 0;
+    let sizeFlag = 0;
+
     shapeInput.addEventListener('input', function () {
         const shape = this.textContent.trim();
-        fetchDropdownData(shape, shapeInput);
+        if (shape !== '') {
+            fetchDropdownData(shape, shapeInput);
+            shapeFlag = 1;
+        }
     });
 
     sizeInput.addEventListener('input', function () {
         const size = this.textContent.trim();
-        fetchDropdownData(size, sizeInput);
+        if (size !== '') {
+            fetchDropdownData(size, sizeInput);
+            sizeFlag = 1;
+        }
     });
 
     function fetchDropdownData(value, otherInput) {
@@ -73,10 +103,13 @@ function addRow() {
                     // Create and populate the dropdown
                     const dropdown = document.createElement('select');
                     dropdown.classList.add('dropdown');
+                    const option = document.createElement('option');
+                    option.textContent = '';
+                    dropdown.appendChild(option);
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.lot_no} - ${item.shape} - ${item.size} - ${item.pcs} - ${item.wt} - ${item.color} - ${item.clarity} - ${item.certificate} - ${item.rap} - ${item.discount} - ${item.price}`;
+                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.wt}`;
                         dropdown.appendChild(option);
                     }
 
@@ -89,6 +122,7 @@ function addRow() {
                     // Add an event listener to handle dropdown selection
                     dropdown.addEventListener('change', function () {
                         const selectedValue = this.value;
+                        previousInput = otherInput;
                         populateFieldsFromDropdown(selectedValue, otherInput);
                     });
                 }
@@ -115,7 +149,7 @@ function addRow() {
                     newRow.querySelector('[name="clarity"]').textContent = data.clarity;
                     newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
                     newRow.querySelector('[name="rap"]').textContent = data.rap;
-                    newRow.querySelector('[name="disc"]').textContent = data.discount;
+                    newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                     // Remove the dropdown from the current row
                     const dropdown = newRow.querySelector('.dropdown');
@@ -226,7 +260,7 @@ function addRow() {
                         newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="rap"]').textContent = data.rap;
-                        newRow.querySelector('[name="disc"]').textContent = data.discount;
+                        newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                         calculatePriceAndTotal();
                     }
@@ -393,7 +427,7 @@ autocompleteResults.addEventListener('click', function (event) {
 const form = document.getElementById('form-data');
 
 form.addEventListener('submit', function (event) {
-    event.preventDefault(); 
+    event.preventDefault();
     saveData(); // Call the saveData function when the button is clicked
 });
 
@@ -407,10 +441,10 @@ function saveData() {
     const name = document.getElementById("recipient").value;
     const address = document.getElementById("addressInput").value;
     const total_wt = document.querySelector('.total_wt').value;
-    const total_total = document.querySelector('.total_tot').value;
+    // const total_total = document.querySelector('.total_tot').value;
 
     console.log(total_wt);
-    console.log(total_total);
+    // console.log(total_total);
 
     tableRows.forEach((row) => {
         const rowData = {};
@@ -428,7 +462,7 @@ function saveData() {
         name: name,
         address: address,
         total_wt: total_wt,
-        total_total: total_total,
+        // total_total: total_total,
         data: data,
     };
 
@@ -454,4 +488,9 @@ function saveData() {
         .catch((error) => {
             console.error('Error:', error);
         });
+}
+
+// JavaScript for the "Back" button
+function goBackOneStep() {
+    window.history.back(); // This will go back one step in the browser's history
 }

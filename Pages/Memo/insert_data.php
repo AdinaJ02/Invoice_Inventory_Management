@@ -14,9 +14,9 @@ if ($conn->connect_error) {
         $name = $request_data["name"];
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
-        $total_total = $request_data["total_total"];
+        // $total_total = $request_data["total_total"];
         $data = $request_data["data"];
-        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, total_wt, total_total, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', '$total_wt', '$total_total', 'open')";
+        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, total_wt, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', '$total_wt', 'open')";
 
         // Create a SQL query to insert data into the customer_data table
         $sql_insert_customer = "INSERT INTO customer_data (memo_no, customer_name, `address`) VALUES ('$memo_no', '$name', '$address')";

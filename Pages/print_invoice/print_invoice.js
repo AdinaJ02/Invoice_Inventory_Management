@@ -21,22 +21,6 @@ fetch('../php_data/fetch_data_company.php')
         console.error('Error:', error);
     });
 
-// Fetch memo numbers from the PHP script and populate the dropdown
-fetch('../print_memo/fetch_memo_numbers.php')
-    .then(response => response.json())
-    .then(data => {
-        const memoDropdown = document.getElementById('memo_no');
-        data.forEach(memoNo => {
-            const option = document.createElement('option');
-            option.value = memoNo;
-            option.textContent = memoNo;
-            memoDropdown.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching memo numbers:', error);
-    });
-
 // Fetch the next memo number from the PHP script
 fetch('generate_invoice.php')
     .then(response => response.json())
@@ -47,20 +31,32 @@ fetch('generate_invoice.php')
         console.error('Error:', error);
     });
 
-// Get the current date in yyyy-mm-dd format
-const today = new Date().toISOString().split('T')[0];
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-// Set the default value for the date input field
-document.getElementById('date').value = today;
+const today = new Date();
+const month = months[today.getMonth()]; // Get the month in words
+const day = today.getDate(); // Get the day of the month
+const year = today.getFullYear(); // Get the year
+
+const formattedDate = `${month} ${day}, ${year}`;
+
+document.getElementById('formatted-date').textContent = formattedDate;
+
+function getQueryParam(parameterName) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    return urlSearchParams.get(parameterName);
+}
 
 // Get references to HTML elements
-const memoNoDropdown = document.getElementById('memo_no');
 const recipientInput = document.getElementById('recipient');
 const addressInput = document.getElementById('addressInput');
 
 // Add an event listener for the memo_no dropdown change event
-memoNoDropdown.addEventListener('change', () => {
-    const selectedMemoNo = memoNoDropdown.value;
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the memo_no query parameter value
+    const memo_no = getQueryParam('memo_no');
+
+    const selectedMemoNo = memo_no;
     if (selectedMemoNo) {
         // Perform a fetch to fetch_memo_details.php with the selected memo_no
         fetch(`../print_memo/fetch_memo_details.php?memo_no=${selectedMemoNo}`)
@@ -81,13 +77,13 @@ memoNoDropdown.addEventListener('change', () => {
     recipientInput.readOnly = true;
     addressInput.readOnly = true;
 
-    fetchMemoData(memoNoDropdown.value);
+    fetchMemoData(memo_no);
 });
 
 // Function to fetch and display memo data
 function fetchMemoData(memoNo) {
     console.log(memoNo);
-    fetch(`../print_memo/fetch_memo_rows.php?memo_no=${memoNo}`)
+    fetch(`fetch_memo_rows.php?memo_no=${memoNo}`)
         .then((response) => response.json())
         .then((data) => {
             // Loop through the data and add a row for each record
@@ -138,13 +134,13 @@ function addRow(data) {
     newRow.innerHTML = `
         <td>${tableBody.children.length + 1}</td>
         <td name="lot_no" class="editable">${data.lot_no}</td>
-        <td name="wt" class="editable wt">${data.weight}</td>
+        <td name="wt" class="editable wt">${data.kept}</td>
         <td name="shape" class="editable">${data.shape}</td>
         <td name="color" class="editable">${data.color}</td>
         <td name="clarity" class="editable">${data.clarity}</td>
         <td name="certificate" class="editable">${data.certificate_no}</td>
         <td name="rap" class="editable rap">${data.rap}</td>
-        <td name="disc" class="editable disc">${data.discount}</td>
+        <td name="disc" class="editable disc">${data.discount}%</td>
         <td name="price" class="editable price">${data.price}</td>
         <td name="final_total" class="editable">${data.final_total === null ? '' : data.final_total}</td>
     `;
@@ -152,53 +148,47 @@ function addRow(data) {
 }
 
 // JavaScript code to handle the print button click
-document.getElementById('printButton').addEventListener('click', function () {
-    // Call the printMemo function to initiate printing
-    printMemo();
+document.getElementById('printButton').addEventListener('click', function (e) {
+    e.preventDefault();
+    // Call the printInvoice function to initiate printing
+    printInvoice();
 });
 
 // Function to initiate the printing
-function printMemo() {
+function printInvoice() {
+    // Save data or perform any other actions before printing
     saveData();
 
-    // Hide the button when printing by applying a media query
+    // Get the container element for printable content
+    const container = document.querySelector('.printable-content');
+
+    // Create a clone of the container
+    const clone = container.cloneNode(true);
+
+    // Apply a media query to hide the button and other elements when printing
     const style = document.createElement('style');
-    style.innerHTML = '@media print { #printButton, .select-wrapper { display: none; } }';
+    style.innerHTML = '@media print { #printButton, #goBack, .spacing { display: none; } }';
     document.head.appendChild(style);
 
-    // Clone the original content
-    const originalContent = document.querySelector('.printable-content');
-    // Generate the duplicated content here
-    const originalMemoNo = document.getElementById('memo_no');
-    const selectedMemoNo = originalMemoNo.value;
+    // Add a class to the clone to specify a page break
+    clone.classList.add('page-break');
 
-    const duplicateContent = originalContent.cloneNode(true);
+    // Append the clone to the body for printing
+    document.body.appendChild(clone);
 
-    // Hide the duplicate content in the main display
-    duplicateContent.classList.add('spacing');
-
-    // Update the memo_no input field in the duplicated content with the selected value
-    const duplicatedMemoNo = duplicateContent.querySelector('#memo_no');
-    duplicatedMemoNo.value = selectedMemoNo;
-
-    // Append the duplicate content to the body for printing
-    document.body.appendChild(duplicateContent);
-
-    // Use the window.print() method to trigger the print dialog
+    // Use window.print() to open the print dialog
     window.print();
 
-    // Remove the added style element to reset the styles
+    // Remove the added style element and the clone after printing
     document.head.removeChild(style);
-
-    // Remove the duplicate content after printing
-    duplicateContent.remove();
+    clone.remove();
 }
 
-function saveData(){
-    const data = [];
+
+function saveData() {
     const invoice_no = document.getElementById("invoice_no").value;
-    const memo_no = document.getElementById("memo_no").value;
-    const date = document.getElementById("date").value;
+    const memo_no = getQueryParam('memo_no');
+    const date = new Date().toISOString().split('T')[0];
 
     const requestData = {
         invoice_no: invoice_no,
@@ -218,8 +208,7 @@ function saveData(){
     })
         .then((response) => {
             if (response.ok) {
-                // If the response status is OK (HTTP status 200), redirect to another page
-                // window.location.href = '../print_memo/print_memo.html';
+                print();
             } else {
                 // Handle other response statuses here if needed
                 console.error('Server returned an error:', response.statusText);
@@ -228,4 +217,9 @@ function saveData(){
         .catch((error) => {
             console.error('Error:', error);
         });
+}
+
+// JavaScript for the "Back" button
+function goBackOneStep() {
+    window.history.back(); // This will go back one step in the browser's history
 }
