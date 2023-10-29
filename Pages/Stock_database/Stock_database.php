@@ -148,10 +148,18 @@ if ($conn->connect_error) {
             editButton.removeAttribute('disabled');
             duplicateButton.removeAttribute('disabled');
             deleteButton.removeAttribute('disabled');
+            
+        editButton.classList.add('enabled');
+        duplicateButton.classList.add('enabled');
+        deleteButton.classList.add('enabled');
         } else {
             editButton.setAttribute('disabled', 'true');
             duplicateButton.setAttribute('disabled', 'true');
             deleteButton.setAttribute('disabled', 'true');
+            editButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+        duplicateButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+        deleteButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+    
         }
     }
 

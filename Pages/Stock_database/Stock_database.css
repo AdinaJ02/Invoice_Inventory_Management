@@ -90,9 +90,11 @@ body {
 }
 
 /* Style the selected buttons */
-#edit-button.selected,
-#duplicate-button.selected,
-#delete-button {
+#edit-button.enabled,
+#duplicate-button.enabled {
   background-color: #106f7b;
   color: white;
 }
+
+
+
