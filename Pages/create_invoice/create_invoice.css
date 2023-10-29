@@ -61,25 +61,9 @@ p {
 #header th {
     background-color: #106f7b;
     color: white;
+
 }
 
-#memorandum_day {
-    width: 3%;
-    border: none;
-    /* Remove the border */
-    outline: none;
-    /* Remove the outline when focused */
-    background: none;
-    /* Remove background color */
-    padding: 0;
-    /* Remove padding */
-    font-size: inherit;
-    text-align: right;
-    font-weight: bold;
-    /* Use the same font size as the surrounding text */
-}
-
-/* Style the date container */
 .date-container {
     display: flex;
     align-items: center;
@@ -125,15 +109,50 @@ p {
     /* Placeholder text color */
 }
 
-.button-container {
-    display: flex;
-    justify-content: center;
-    /* This will space the buttons evenly */
+#invoice_no {
+    border: 0px;
+    font-size: 14px;
+    padding-left: 10px;
+    width: 20%;
+}
+
+#autocomplete-results {
+    font-size: 12px;
+    margin-left: 50px;
+    background-color: #fff;
+    /* Background color for the results */
+    border: 1px solid #ccc;
+    /* Border around the results */
+    max-height: 150px;
+    /* Maximum height for the results */
+    overflow-y: auto;
+    /* Add vertical scrollbar if needed */
+    cursor: pointer;
+    /* Add a cursor to indicate interactivity */
+}
+
+#autocomplete-results div {
+    padding: 5px 10px;
+    /* Padding for each result item */
+    transition: background-color 0.2s;
+    /* Smooth background color transition on hover */
+}
+
+#autocomplete-results div:hover {
+    background-color: #f5f5f5;
+    /* Background color on hover */
+}
+
+.total_wt,
+.total_tot,
+.total_final_tot {
+    font-weight: bold;
 }
 
 /* Style for the buttons (you can customize this as needed) */
 .button-container input[type="button"] {
     padding: 10px 20px;
+    margin-top: 15px;
     margin-right: 10px;
     border: none;
     background-color: #106f7b;
@@ -147,29 +166,38 @@ p {
     background-color: #0a525e;
 }
 
-.button-container input[type="button"]:disabled {
-    background-color: #cccccc; 
-    cursor: not-allowed; 
-    color: #999999; 
+#autocomplete-results {
+    font-size: 12px;
+    margin-left: 50px;
+    background-color: #fff;
+    /* Background color for the results */
+    border: 1px solid #ccc;
+    /* Border around the results */
+    max-height: 150px;
+    /* Maximum height for the results */
+    overflow-y: auto;
+    /* Add vertical scrollbar if needed */
+    cursor: pointer;
+    /* Add a cursor to indicate interactivity */
 }
 
-#memo_no {
-    border: 0px;
-    font-size: 14px;
-    padding-left: 10px;
+#autocomplete-results div {
+    padding: 5px 10px;
+    /* Padding for each result item */
+    transition: background-color 0.2s;
+    /* Smooth background color transition on hover */
+}
+
+#autocomplete-results div:hover {
+    background-color: #f5f5f5;
+    /* Background color on hover */
 }
 
 .total_wt,
-.total_tot,
-.total_final_tot {
+.total_tot {
     font-weight: bold;
 }
 
-#disclaimer {
-    text-align: justify;
-}
-
-/* Style for the success message */
 .success-message {
     color: green;
     text-align: center;
@@ -179,4 +207,8 @@ p {
 .delete-icon {
     cursor: pointer;
     color: red;
+}
+
+.checkbox-container {
+    text-align: center;
 }

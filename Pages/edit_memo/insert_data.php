@@ -17,6 +17,8 @@ if ($conn->connect_error) {
         $total_final_tot = $request_data["total_final_tot"];
         $data = $request_data["data"];
 
+        $lotNumbersInData = array();
+
         // Iterate through the data and insert each row into the database
         foreach ($data as $row) {
             $lotNo = (string) $row['lot_no'];
@@ -35,6 +37,9 @@ if ($conn->connect_error) {
             $return = (float) $row['return'];
             $kept = (float) $row['kept'];
             $final_total = (float) $row['final_total'];
+
+            // Add the lot number to the array
+            $lotNumbersInData[] = $lotNo;
 
             if (!empty($lotNo)) {
                 $sql_check_exists = "SELECT * FROM memo_data WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
@@ -81,7 +86,6 @@ if ($conn->connect_error) {
             }
         }
 
-
         // Create a SQL query to insert data into the memo table
         $sql_update_memo = "UPDATE memo
         SET memorandum_day = '$memorandum_day', memo_date = '$date', customer_name = '$name', `address` = '$address', total_wt = '$total_wt', total_total = '$total_final_tot'
@@ -109,8 +113,34 @@ if ($conn->connect_error) {
             }
         }
 
+        // Fetch existing lot numbers for the given memo_no
+        $sql_existing_lot_numbers = "SELECT lot_no FROM memo_data WHERE memo_no = '$memo_no'";
+        $result_existing_lot_numbers = $conn->query($sql_existing_lot_numbers);
+
+        if ($result_existing_lot_numbers->num_rows > 0) {
+            $existing_lot_numbers = array(); // Array to store existing lot numbers
+            while ($row = $result_existing_lot_numbers->fetch_assoc()) {
+                $existing_lot_numbers[] = $row['lot_no'];
+            }
+
+            // Compare existing lot numbers with the lot numbers passed in the data
+            $lot_numbers_to_delete = array_diff($existing_lot_numbers, $lotNumbersInData);
+
+            if (!empty($lot_numbers_to_delete)) {
+                // Delete rows from the memo_data table for lot numbers that are not in the data
+                $lot_numbers_to_delete_str = implode("', '", $lot_numbers_to_delete);
+                $sql_delete_rows = "DELETE FROM memo_data WHERE memo_no = '$memo_no' AND lot_no IN ('$lot_numbers_to_delete_str')";
+                if ($conn->query($sql_delete_rows) === TRUE) {
+                    // Rows deleted successfully
+                    echo "Deleted rows for lot numbers: " . implode(', ', $lot_numbers_to_delete);
+                } else {
+                    // Handle the deletion error
+                    echo "Error deleting rows: " . $conn->error;
+                }
+            }
+        }
+
         $conn->close();
     }
 }
-
 ?>

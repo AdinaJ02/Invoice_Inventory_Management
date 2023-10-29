@@ -7,7 +7,7 @@ if ($conn->connect_error) {
 }
 
 // Define the columns to retrieve
-$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice';
+$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice, `currency`';
 
 // Construct the SQL query
 $sql = "SELECT $columns FROM `company_info`";

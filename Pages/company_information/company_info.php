@@ -7,7 +7,7 @@ if ($conn->connect_error) {
 }
 
 // Define the columns to retrieve
-$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice';
+$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice, `currency`';
 
 // Construct the SQL query
 $sql = "SELECT $columns FROM `company_info`";
@@ -33,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = mysqli_real_escape_string($conn, $_POST["email"]);
     $disclaimer = mysqli_real_escape_string($conn, $_POST["disclaimer"]);
     $terms = mysqli_real_escape_string($conn, $_POST["terms"]);
+    $currency = mysqli_real_escape_string($conn, $_POST["currency"]);
 
     // Handle logo file upload
     if ($_FILES["logo"]["error"] == UPLOAD_ERR_OK) {
@@ -45,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($stmt) {
                 $stmt->bind_param('s', $newImage);
-                
+
                 if ($stmt->execute()) {
                     echo "<p style='color: green;'>Image updated successfully!</p>";
                 } else {
@@ -72,7 +73,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               `address` = '$address', 
               email = '$email', 
               disclaimer_memo = '$disclaimer', 
-              terms_invoice = '$terms' 
+              terms_invoice = '$terms',
+              currency = '$currency' 
               WHERE id = 1";
 
     if ($conn->query($queryupdate)) {

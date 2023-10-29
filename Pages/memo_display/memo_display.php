@@ -14,7 +14,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch and populate customer names from the customers table
-$sqlCustomer = "SELECT customer_name FROM customers";
+$sqlCustomer = "SELECT distinct customer_name FROM memo";
 $resultCustomer = $conn->query($sqlCustomer);
 
 // Store customer names in an array
@@ -39,7 +39,7 @@ $conn->close();
 <body>
     <div class="dropdown-container">
         <select class="dropdown" id="customerDropdown">
-            <option value="" disabled selected>Select Customer</option>
+            <option value="">All Customers</option>
             <?php
             foreach ($customerNames as $customerName) {
                 echo '<option value="' . $customerName . '">' . $customerName . '</option>';
@@ -65,13 +65,14 @@ $conn->close();
                 <th>Customer name</th>
                 <th>Total Weight</th>
                 <th>Final Total</th>
-                <th>Is Open</th </tr>
+                <th>Is Open</th>
+            </tr>
         </thead>
         <tbody>
             <?php
             foreach ($data as $row) {
                 echo '<tr>';
-                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
+                echo '<td>' . $row['memo_no'] . '</td>';
                 $memoDate = date('F j, Y', strtotime($row['memo_date']));
                 echo '<td>' . $memoDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
@@ -108,7 +109,7 @@ $conn->close();
 
             tableRows.forEach(row => {
                 const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer;
+                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
                 row.style.display = showRow ? "table-row" : "none";
             });
         }
