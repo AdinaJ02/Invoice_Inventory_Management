@@ -81,6 +81,29 @@ document.addEventListener('DOMContentLoaded', function () {
     recipientInput.readOnly = true;
     addressInput.readOnly = true;
 
+    // Fetch request to send the memo_no value to the PHP script
+    fetch('isClose.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ memo_no: memo_no }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'close') {
+                // Disable the "Close Memo" button
+                document.getElementById("closeButton").disabled = true;
+            } else {
+                // Keep the "Close Memo" button enabled
+                document.getElementById("closeButton").disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+
     fetchMemoData(memoNo.value);
 });
 
@@ -174,7 +197,7 @@ function addRow(data) {
         <td contenteditable="true" name="return" class="editable">${data.return === null ? '' : data.return}</td>
         <td contenteditable="true" name="kept" class="editable">${data.kept === null ? '' : data.kept}</td>
         <td name="final_total" class="editable">${data.final_total === null ? '' : data.final_total}</td>
-        <td></td>
+        <td class="delete-cell"><span class="delete-icon">Delete</span></td>
     `;
     tableBody.appendChild(newRow);
 
@@ -206,6 +229,272 @@ function addRow(data) {
             totalCell.textContent = totalVal.toFixed(2); // You can format it as needed
         }
     });
+
+    const shapeInput = newRow.querySelector('[name="shape"]');
+    const sizeInput = newRow.querySelector('[name="size"]');
+
+    let shapeFlag = 0;
+    let sizeFlag = 0;
+
+    shapeInput.addEventListener('input', function () {
+        const shape = this.textContent.trim();
+        if (shape !== '') {
+            fetchDropdownData(shape, shapeInput);
+            shapeFlag = 1;
+        }
+    });
+
+    sizeInput.addEventListener('input', function () {
+        const size = this.textContent.trim();
+        if (size !== '') {
+            fetchDropdownData(size, sizeInput);
+            sizeFlag = 1;
+        }
+    });
+
+    function fetchDropdownData(value, otherInput) {
+        // Make an AJAX request to fetch dropdown data from the server based on the value (shape/size)
+        // Replace 'fetch_dropdown_data.php' with the actual URL for fetching dropdown data
+        fetch(`../Memo/fetch_dropdown_data.php?value=${value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    // Create and populate the dropdown
+                    const dropdown = document.createElement('select');
+                    dropdown.classList.add('dropdown');
+                    const option = document.createElement('option');
+                    option.textContent = '';
+                    dropdown.appendChild(option);
+                    for (const item of data) {
+                        const option = document.createElement('option');
+                        option.value = item.lot_no;
+                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.wt}`;
+                        dropdown.appendChild(option);
+                    }
+
+                    // Clear the other input field
+                    otherInput.textContent = '';
+
+                    // Replace the current input field with the dropdown
+                    newRow.replaceChild(dropdown, otherInput);
+
+                    // Add an event listener to handle dropdown selection
+                    dropdown.addEventListener('change', function () {
+                        const selectedValue = this.value;
+                        previousInput = otherInput;
+                        populateFieldsFromDropdown(selectedValue, otherInput);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to populate fields based on the selected value from the dropdown
+    function populateFieldsFromDropdown(selectedValue, otherInput) {
+        console.log(selectedValue);
+        // Make an AJAX request to fetch data for the selected lot_no from the server
+        // Replace 'fetch_lot_data.php' with the actual URL for fetching lot data
+        fetch(`../Memo/fetch_lot_data.php?lotNo=${selectedValue}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Populate fields in the current row with data from the server
+                    newRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    newRow.querySelector('[name="wt"]').textContent = data.weight;
+                    newRow.querySelector('[name="pcs"]').textContent = data.pcs;
+                    newRow.querySelector('[name="color"]').textContent = data.color;
+                    newRow.querySelector('[name="clarity"]').textContent = data.clarity;
+                    newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
+                    newRow.querySelector('[name="rap"]').textContent = data.rap;
+                    newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
+
+                    // Remove the dropdown from the current row
+                    const dropdown = newRow.querySelector('.dropdown');
+                    if (dropdown) {
+                        // Update the corresponding field in the current row
+                        if (otherInput === shapeInput) {
+                            newRow.querySelector('[name="size"]').textContent = data.size;
+                            otherInput.textContent = data.shape;
+                        } else {
+                            newRow.querySelector('[name="shape"]').textContent = data.shape;
+                            otherInput.textContent = data.size;
+                        }
+
+                        // Replace the dropdown with the text input
+                        dropdown.parentNode.replaceChild(otherInput, dropdown);
+                    }
+
+                    calculatePriceAndTotal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Attach a click event listener to the delete icon
+    const deleteIcon = newRow.querySelector('.delete-icon');
+    deleteIcon.addEventListener('click', function () {
+        const dropdown = newRow.querySelector('.dropdown'); // Define dropdown within the click event handler
+        if (dropdown) {
+            if (shapeFlag === 1) {
+                const dropdownParent = dropdown.parentNode;
+                shapeInput.textContent = '';
+                dropdownParent.replaceChild(shapeInput, dropdown);
+                shapeFlag = 0;
+            }
+            else if (sizeFlag === 1) {
+                const dropdownParentSize = dropdown.parentNode;
+                sizeInput.textContent = '';
+                dropdownParentSize.replaceChild(sizeInput, dropdown);
+                sizeFlag = 0;
+            }
+
+            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+        }
+        else {
+            newRow.querySelector('[name="shape"]').textContent = '';
+            newRow.querySelector('[name="size"]').textContent = '';
+
+            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+        }
+        newRow.querySelector('[name="lot_no"]').textContent = '';
+        newRow.querySelector('[name="desc"]').textContent = '';
+        newRow.querySelector('[name="pcs"]').textContent = '';
+        newRow.querySelector('[name="wt"]').textContent = '';
+        newRow.querySelector('[name="color"]').textContent = '';
+        newRow.querySelector('[name="clarity"]').textContent = '';
+        newRow.querySelector('[name="certificate"]').textContent = '';
+        newRow.querySelector('[name="rap"]').textContent = '';
+        newRow.querySelector('[name="disc"]').textContent = '';
+        newRow.querySelector('[name="price"]').textContent = '';
+        newRow.querySelector('[name="total"]').textContent = '';
+        newRow.querySelector('[name="return"]').textContent = '';
+        newRow.querySelector('[name="kept"]').textContent = '';
+        newRow.querySelector('[name="final_total"]').textContent = '';
+
+        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
+
+        calculateTotals();
+    });
+
+    newRow.querySelector('[name="lot_no"]').addEventListener('blur', function () {
+        const lotNo = this.textContent.trim();
+        console.log(lotNo);
+
+        // Make an AJAX request to fetch values from the server
+        fetch('../Memo/fetch_lot_data.php?lotNo=' + lotNo)
+            .then(response => {
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
+
+                return response.text(); // Read the response as text
+            })
+            .then(responseText => {
+                console.log("Response text:", responseText); // Log the raw response text
+
+                try {
+                    const data = JSON.parse(responseText); // Attempt to parse the response as JSON
+                    if (data) {
+                        newRow.querySelector('[name="wt"]').textContent = data.weight;
+
+                        newRow.querySelector('[name="size"]').textContent = data.size;
+                        newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
+
+                        newRow.querySelector('[name="pcs"]').textContent = data.pcs;
+
+                        newRow.querySelector('[name="shape"]').textContent = data.shape;
+                        newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
+
+                        newRow.querySelector('[name="color"]').textContent = data.color;
+                        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'false');
+
+                        newRow.querySelector('[name="clarity"]').textContent = data.clarity;
+                        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'false');
+
+                        newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
+                        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'false');
+
+                        newRow.querySelector('[name="rap"]').textContent = data.rap;
+                        newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
+
+                        calculatePriceAndTotal();
+                    }
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    })
+
+    // Add event listeners to rap and disc fields for calculations
+    const rapField = newRow.querySelector('.rap');
+    const discField = newRow.querySelector('.disc');
+    const priceField = newRow.querySelector('.price');
+    const totalField = newRow.querySelector('.total');
+    const wtField = newRow.querySelector('.wt');
+
+    rapField.addEventListener('input', calculatePriceAndTotal);
+    discField.addEventListener('input', calculatePriceAndTotal);
+    priceField.addEventListener('input', calculatePriceAndTotal);
+    wtField.addEventListener('input', calculatePriceAndTotal);
+
+    // Initial calculation
+    calculatePriceAndTotal();
+
+    // Function to calculate price and total
+    function calculatePriceAndTotal() {
+        const rapValue = parseFloat(rapField.textContent) || 0;
+        const discValue = parseFloat(discField.textContent) || 0;
+        const priceValue = parseFloat(priceField.textContent) || 0;
+        const wtValue = parseFloat(wtField.textContent) || 0;
+        if (rapValue === 0 && discValue === 0) {
+        } else {
+            // Calculate the Price
+            const price = (rapValue * (100 + discValue)) / 100;
+            priceField.textContent = price.toFixed(2);
+        }
+        const price = parseFloat(priceField.textContent);
+        const total = price * wtValue;
+        totalField.textContent = total.toFixed(2);
+        calculateTotals();
+    }
+
+    // Function to calculate total_wt and total_tot
+    function calculateTotals() {
+        let totalWt = 0;
+        let totalTot = 0;
+
+        // Calculate total_wt and total_tot based on input values in all rows
+        const wtInputs = document.querySelectorAll('.editable[name="wt"]');
+        const totalInputs = document.querySelectorAll('.editable[name="total"]');
+
+        wtInputs.forEach((input) => {
+            const wtValue = parseFloat(input.textContent) || 0;
+            totalWt += wtValue;
+        });
+
+        totalInputs.forEach((input) => {
+            const totalValue = parseFloat(input.textContent) || 0;
+            totalTot += totalValue;
+        });
+
+        // Update the corresponding <td> elements for the totals
+        const totalWtField = document.querySelector('.total_wt');
+        const totalTotField = document.querySelector('.total_tot');
+        totalWtField.textContent = totalWt.toFixed(2);
+        totalWtField.value = totalWt.toFixed(2);
+        totalTotField.textContent = totalTot.toFixed(2);
+        totalTotField.value = totalTot.toFixed(2);
+    }
 }
 
 
@@ -378,6 +667,9 @@ function addRowEmpty() {
         newRow.querySelector('[name="disc"]').textContent = '';
         newRow.querySelector('[name="price"]').textContent = '';
         newRow.querySelector('[name="total"]').textContent = '';
+        newRow.querySelector('[name="return"]').textContent = '';
+        newRow.querySelector('[name="kept"]').textContent = '';
+        newRow.querySelector('[name="final_total"]').textContent = '';
 
         newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
         newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');

@@ -2,7 +2,7 @@
 include '../../connection.php';
 
 // SQL query to retrieve data from the database
-$sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total FROM memo";
+$sql = "SELECT invoice_no, `date`, customer_name, total_wt, final_total, payment_status FROM invoice_wmemo";
 $result = $conn->query($sql);
 
 // Store the retrieved data in an array
@@ -14,7 +14,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch and populate customer names from the customers table
-$sqlCustomer = "SELECT distinct customer_name FROM memo";
+$sqlCustomer = "SELECT distinct customer_name FROM invoice_wmemo";
 $resultCustomer = $conn->query($sqlCustomer);
 
 // Store customer names in an array
@@ -33,7 +33,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="edit_memo_table.css">
+    <link rel="stylesheet" href="invoice_display.css">
 </head>
 
 <body>
@@ -51,27 +51,34 @@ $conn->close();
             <option value="date-asc">Date Ascending</option>
             <option value="date-desc">Date Descending</option>
         </select>
+        <select class="dropdown" id="statusDropdown">
+            <option value="" disabled selected>Payment Status</option>
+            <option value="open">Recieved</option>
+            <option value="close">Not Recieved</option>
+        </select>
     </div>
     <table class="table_data">
         <thead>
             <tr id="header">
-                <th>memo no.</th>
-                <th>date</th>
-                <th>name</th>
-                <th>totalwt</th>
-                <th>totalvalue</th>
+                <th>Invoice no.</th>
+                <th>Date</th>
+                <th>Customer name</th>
+                <th>Total Weight</th>
+                <th>Final Total</th>
+                <th>Payment Recieved</th>
             </tr>
         </thead>
         <tbody>
             <?php
             foreach ($data as $row) {
                 echo '<tr>';
-                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
-                $memoDate = date('F j, Y', strtotime($row['memo_date']));
+                echo '<td>' . $row['invoice_no'] . '</td>';
+                $memoDate = date('F j, Y', strtotime($row['date']));
                 echo '<td>' . $memoDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
                 echo '<td>' . $row['total_wt'] . '</td>';
-                echo '<td>' . $row['total_total'] . '</td>';
+                echo '<td>' . $row['final_total'] . '</td>';
+                echo '<td>' . $row['payment_status'] . '</td>';
                 echo '</tr>';
             }
             ?>
@@ -90,10 +97,12 @@ $conn->close();
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
         const sortDropdown = document.getElementById("sortDropdown");
+        const filterDropdown = document.getElementById("statusDropdown");
         const tableRows = document.querySelectorAll(".table_data tbody tr");
 
         customerDropdown.addEventListener("change", filterTable);
         sortDropdown.addEventListener("change", filterTableDate);
+        filterDropdown.addEventListener("change", filterTableInvoice);
 
         function filterTable() {
             const selectedCustomer = customerDropdown.value;
@@ -132,6 +141,37 @@ $conn->close();
             }
         }
 
+        function filterTableInvoice() {
+            const selectedStatus = filterDropdown.value.toLowerCase();
+            const tbody = document.querySelector(".table_data tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+
+            rows.sort((rowA, rowB) => {
+                const statusCellA = rowA.querySelector("td:nth-child(6)").textContent.trim().toLowerCase();
+                const statusCellB = rowB.querySelector("td:nth-child(6)").textContent.trim().toLowerCase();
+
+                if (selectedStatus === "open") {
+                    // Sort by "Recieved" first, then "Not Recieved"
+                    if (statusCellA === "received" && statusCellB === "not received") {
+                        return -1;
+                    } else if (statusCellA === "not received" && statusCellB === "received") {
+                        return 1;
+                    }
+                } else if (selectedStatus === "close") {
+                    // Sort by "Not Recieved" first, then "Recieved"
+                    if (statusCellA === "not received" && statusCellB === "received") {
+                        return -1;
+                    } else if (statusCellA === "received" && statusCellB === "not received") {
+                        return 1;
+                    }
+                }
+                return 0;
+            });
+
+            // Clear the table and append the sorted rows
+            tbody.innerHTML = "";
+            rows.forEach((row) => tbody.appendChild(row));
+        }
     </script>
 </body>
 

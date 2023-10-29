@@ -6,7 +6,7 @@ if ($conn->connect_error) {
 }
 
 // Query to get the last memo number from the database
-$sql = "SELECT invoice_no FROM invoice ORDER BY invoice_no DESC LIMIT 1";
+$sql = "SELECT invoice_no FROM invoice_nos ORDER BY invoice_no DESC LIMIT 1";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

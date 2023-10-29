@@ -1,4 +1,5 @@
-var currency = "";
+var currency;
+
 // Fetch data from fetch_data.php using JavaScript
 fetch('../php_data/fetch_data_company.php')
     .then(response => response.json())
@@ -23,27 +24,6 @@ fetch('../php_data/fetch_data_company.php')
         console.error('Error:', error);
     });
 
-// Fetch the next memo number from the PHP script
-fetch('generate_invoice.php')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('invoice_no').value = data.next_memo_no;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-const today = new Date();
-const month = months[today.getMonth()]; // Get the month in words
-const day = today.getDate(); // Get the day of the month
-const year = today.getFullYear(); // Get the year
-
-const formattedDate = `${month} ${day}, ${year}`;
-
-document.getElementById('formatted-date').textContent = formattedDate;
-
 function getQueryParam(parameterName) {
     const urlSearchParams = new URLSearchParams(window.location.search);
     return urlSearchParams.get(parameterName);
@@ -56,15 +36,39 @@ const addressInput = document.getElementById('addressInput');
 // Add an event listener for the memo_no dropdown change event
 document.addEventListener('DOMContentLoaded', function () {
     // Get the memo_no query parameter value
-    const memo_no = getQueryParam('memo_no');
+    const invoice_no = getQueryParam('invoice_no');
+    document.getElementById("invoice_no").value = invoice_no;
 
-    const selectedMemoNo = memo_no;
-    if (selectedMemoNo) {
+    const selectedInvoiceoNo = invoice_no;
+    if (selectedInvoiceoNo) {
         // Perform a fetch to fetch_memo_details.php with the selected memo_no
-        fetch(`../print_memo/fetch_memo_details.php?memo_no=${selectedMemoNo}`)
+        fetch(`fetch_invoice_details.php?invoice_no=${selectedInvoiceoNo}`)
             .then(response => response.json())
             .then(data => {
                 // Update the form fields with fetched data
+                // Assuming data.date contains the date in the format "YYYY-MM-DD"
+                const rawDate = data.date; // Replace with your actual date
+
+                // Create a Date object from the raw date string
+                const formattedDate = new Date(rawDate);
+
+                // Define an array of month names
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+
+                // Extract the components of the date
+                const day = formattedDate.getDate();
+                const monthIndex = formattedDate.getMonth();
+                const year = formattedDate.getFullYear();
+
+                // Format the date in the desired format (e.g., "November 10, 2023")
+                const formattedDateString = `${monthNames[monthIndex]} ${day}, ${year}`;
+
+                // Set the formatted date in the "formatted-date" element
+                document.getElementById("formatted-date").textContent = formattedDateString;
+
                 recipientInput.value = data.customer_name;
                 addressInput.value = data.address;
             })
@@ -79,13 +83,12 @@ document.addEventListener('DOMContentLoaded', function () {
     recipientInput.readOnly = true;
     addressInput.readOnly = true;
 
-    fetchMemoData(memo_no);
+    fetchInvoiceData(invoice_no);
 });
 
 // Function to fetch and display memo data
-function fetchMemoData(memoNo) {
-    console.log(memoNo);
-    fetch(`fetch_memo_rows.php?memo_no=${memoNo}`)
+function fetchInvoiceData(invoiceNo) {
+    fetch(`fetch_invoice_rows.php?invoice_no=${invoiceNo}`)
         .then((response) => response.json())
         .then((data) => {
             // Loop through the data and add a row for each record
@@ -136,7 +139,7 @@ function addRow(data) {
     newRow.innerHTML = `
         <td>${tableBody.children.length + 1}</td>
         <td name="lot_no" class="editable">${data.lot_no}</td>
-        <td name="wt" class="editable wt">${data.kept}</td>
+        <td name="wt" class="editable wt">${data.wt}</td>
         <td name="shape" class="editable">${data.shape}</td>
         <td name="color" class="editable">${data.color}</td>
         <td name="clarity" class="editable">${data.clarity}</td>
@@ -144,12 +147,13 @@ function addRow(data) {
         <td name="rap" class="editable rap">${data.rap}</td>
         <td name="disc" class="editable disc">${data.discount}%</td>
         <td name="price" class="editable price">${data.price}</td>
-        <td name="final_total" class="editable">${data.final_total === null ? '' : data.final_total}</td>
+        <td name="final_total" class="editable">${data.total === null ? '' : data.total}</td>
     `;
     tableBody.appendChild(newRow);
+
+    console.log(data);
 }
 
-// JavaScript code to handle the print button click
 document.getElementById('printButton').addEventListener('click', function (e) {
     e.preventDefault();
     // Call the printInvoice function to initiate printing
@@ -158,9 +162,6 @@ document.getElementById('printButton').addEventListener('click', function (e) {
 
 // Function to initiate the printing
 function printInvoice() {
-    // Save data or perform any other actions before printing
-    saveData();
-
     // Get the container element for printable content
     const container = document.querySelector('.printable-content');
 
@@ -184,41 +185,6 @@ function printInvoice() {
     // Remove the added style element and the clone after printing
     document.head.removeChild(style);
     clone.remove();
-}
-
-
-function saveData() {
-    const invoice_no = document.getElementById("invoice_no").value;
-    const memo_no = getQueryParam('memo_no');
-    const date = new Date().toISOString().split('T')[0];
-
-    const requestData = {
-        invoice_no: invoice_no,
-        memo_no: memo_no,
-        date: date,
-    };
-
-    console.log(requestData);
-
-    // Send the data to the server using an AJAX request
-    fetch('insert_data.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-    })
-        .then((response) => {
-            if (response.ok) {
-                print();
-            } else {
-                // Handle other response statuses here if needed
-                console.error('Server returned an error:', response.statusText);
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
 }
 
 // JavaScript for the "Back" button

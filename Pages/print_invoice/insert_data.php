@@ -16,7 +16,14 @@ if ($conn->connect_error) {
         $sql_insert_invoice = "INSERT INTO invoice (invoice_no, invoice_date, memo_no, payment_status) VALUES ('$invoice_no', '$date', '$memo_no', 'Recieved')";
 
         if ($conn->query($sql_insert_invoice) === TRUE) {
-            echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
+            // Now, insert the invoice_no into the "invoice_nos" table
+            $sql_insert_invoice_no = "INSERT INTO invoice_nos (invoice_no) VALUES ('$invoice_no')";
+
+            if ($conn->query($sql_insert_invoice_no) === TRUE) {
+                echo "<p style='color:green; text-align:center;'>Data inserted successfully into both tables.</p>";
+            } else {
+                echo "<p style='color:red; text-align:center;'>Error inserting invoice_no into invoice_nos: " . $sql_insert_invoice_no . "<br>" . $conn->error . "</p>";
+            }
         } else {
             echo "<p style='color:red; text-align:center;'>Error: " . $sql_insert_invoice . "<br>" . $conn->error . "</p>";
         }
