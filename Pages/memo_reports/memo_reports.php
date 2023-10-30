@@ -51,7 +51,8 @@ $conn->close();
         <select class="dropdown" id="shapeDropdown">
             <option value="" disabled selected>Select Shape</option>
             <?php
-            foreach ($shapeNames as $shapeName) {
+            $uniqueShapeNames = array_unique($shapeNames);
+            foreach ($uniqueShapeNames as $shapeName) {
                 echo '<option value="' . $shapeName . '">' . $shapeName . '</option>';
             }
             ?>
@@ -83,7 +84,8 @@ $conn->close();
             ?>
         </tbody>
     </table>
-    <div class="form-group" style="text-align: center;">
+    <div class="button-container" style="text-align: center;">
+        <button id="removeFilters">Remove Filters</button>
         <input type="button" value="Download Excel" id="downloadExcel">
         <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
     </div>
@@ -149,7 +151,12 @@ $conn->close();
             XLSX.writeFile(wb, fileName);
         });
 
-
+        // JavaScript for the "Remove Filters" button
+        const removeFiltersButton = document.getElementById("removeFilters");
+        removeFiltersButton.addEventListener("click", function () {
+            // Reload the page to remove filters
+            window.location.reload();
+        });
     </script>
 </body>
 

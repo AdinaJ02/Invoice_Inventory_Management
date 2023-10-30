@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
     recipientInput.readOnly = true;
     addressInput.readOnly = true;
 
-    // Fetch request to send the memo_no value to the PHP script
     fetch('isClose.php', {
         method: 'POST',
         headers: {
@@ -92,17 +91,20 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'close') {
-                // Disable the "Close Memo" button
+                // Disable the "Add Row" and "Save Memo" buttons
+                document.getElementById("addButton").disabled = true;
+                document.getElementById("saveButton").disabled = true;
                 document.getElementById("closeButton").disabled = true;
-            } else {
-                // Keep the "Close Memo" button enabled
-                document.getElementById("closeButton").disabled = false;
+
+                const tableCells = document.querySelectorAll('.table_data tbody td.editable');
+                tableCells.forEach(cell => {
+                    cell.contentEditable = "false"; // Use "false" as a string to set contentEditable to "false"
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
         });
-
 
     fetchMemoData(memoNo.value);
 });
@@ -872,7 +874,7 @@ saveButton.addEventListener('click', function () {
 });
 
 // Function to save data to the server
-function saveData() {
+function saveData(isCalledFromCloseMemo = false) {
     const tableRows = document.querySelectorAll('#table-body tr');
     const data = [];
     const memo_no = document.getElementById("memo_no").value;
@@ -914,7 +916,7 @@ function saveData() {
         body: JSON.stringify(requestData),
     })
         .then((response) => {
-            if (response.ok) {
+            if (response.ok && !isCalledFromCloseMemo) {
                 // Display a success message
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = 'Data saved successfully!';
@@ -922,8 +924,9 @@ function saveData() {
                 // Optionally, you can clear the message after a few seconds
                 setTimeout(() => {
                     successMessage.textContent = '';
-                }, 3000); // Clear the message after 3 seconds
-            } else {
+                    location.reload();
+                }, 3000);// Clear the message after 3 seconds
+            } else if (!isCalledFromCloseMemo) {
                 // Handle other response statuses here if needed
                 console.error('Server returned an error:', response.statusText);
             }
@@ -934,7 +937,7 @@ function saveData() {
 }
 
 function closeMemo() {
-    saveData();
+    saveData(true);
     const tableRows = document.querySelectorAll('#table-body tr');
     const data = [];
     // Get the memo_no value from your HTML, assuming it's stored in an element with an id "memo_no"
@@ -972,6 +975,7 @@ function closeMemo() {
                 // Optionally, you can clear the message after a few seconds
                 setTimeout(() => {
                     successMessage.textContent = '';
+                    location.reload();
                 }, 3000); // Clear the message after 3 seconds
             } else {
                 // Handle other response statuses here if needed
@@ -982,6 +986,39 @@ function closeMemo() {
             console.error('Error:', error);
         });
 }
+
+// Add event listener to the entire table to handle "Enter" key presses for cell navigation
+document.getElementById('table-body').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const activeCell = document.activeElement;
+
+        if (activeCell) {
+            const row = activeCell.parentElement;
+            const cellIndex = Array.from(row.cells).indexOf(activeCell);
+
+            if (cellIndex < row.cells.length - 1) {
+                // Move to the next cell in the same row
+                const nextCell = row.cells[cellIndex + 1];
+                nextCell.focus();
+            } else {
+                // Move to the first cell of the next row
+                const nextRow = row.nextElementSibling;
+                if (nextRow) {
+                    const firstCell = nextRow.cells[0];
+                    firstCell.focus();
+                } else {
+                    // There is no next row; add a new row and move to its first cell
+                    addRow();
+                    const newRows = document.getElementById('table-body').querySelectorAll('tr');
+                    const newRow = newRows[newRows.length - 1];
+                    const firstCell = newRow.cells[0];
+                    firstCell.focus();
+                }
+            }
+        }
+    }
+});
 
 function printInvoice() {
     saveData();

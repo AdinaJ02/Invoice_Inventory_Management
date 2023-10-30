@@ -167,22 +167,30 @@ $conn->close();
         const customerSelect = document.getElementById("customerSelect");
         const tableBody = document.getElementById("table-body");
 
-        const downloadButton = document.getElementById("downloadButton");
-
-        // Add an event listener to the select element
         customerSelect.addEventListener("change", function () {
+            // Get the selected customer from the dropdown
             const selectedCustomer = customerSelect.value.toLowerCase();
 
-            // Iterate through the table rows and show/hide based on the selected customer
-            Array.from(tableBody.children).forEach(row => {
-                const customerName = row.children[0].textContent.toLowerCase();
+            // Clear the table body
+            tableBody.innerHTML = "";
+
+            // Iterate through customer data and display matching rows
+            for (const customerName in customerData) {
                 if (selectedCustomer === "" || customerName === selectedCustomer) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
+                    const data = customerData[customerName];
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${customerName}</td>
+                        <td>${data.lot_no.join(', ')}</td>
+                        <td>${data.shape.join(', ')}</td>
+                        <td>${data.final_total}</td>
+                    `;
+                    tableBody.appendChild(row);
                 }
-            });
+            }
         });
+
+        const downloadButton = document.getElementById("downloadButton");
 
         downloadButton.addEventListener("click", function () {
             // Get the selected customer from the dropdown
@@ -211,7 +219,6 @@ $conn->close();
             // Generate the Excel file and trigger the download
             XLSX.writeFile(wb, "customer_data.xlsx");
         });
-
 
         var backButton = document.getElementById("backButton");
 
