@@ -84,7 +84,8 @@ $conn->close();
             ?>
         </tbody>
     </table>
-    <div class="form-group" style="text-align: center;">
+    <div class="button-container" style="text-align: center;">
+        <button id="removeFilters">Remove Filters</button>
         <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -176,6 +177,13 @@ $conn->close();
             tbody.innerHTML = "";
             rows.forEach((row) => tbody.appendChild(row));
         }
+
+        // JavaScript for the "Remove Filters" button
+        const removeFiltersButton = document.getElementById("removeFilters");
+        removeFiltersButton.addEventListener("click", function () {
+            // Reload the page to remove filters
+            window.location.reload();
+        });
     </script>
 </body>
 

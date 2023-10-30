@@ -234,3 +234,9 @@ p {
     cursor: pointer;
     color: red;
 }
+
+.button-container input[type="button"]:disabled {
+    background-color: #cccccc; 
+    cursor: not-allowed; 
+    color: #999999; 
+}

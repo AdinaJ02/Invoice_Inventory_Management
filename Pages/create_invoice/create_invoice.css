@@ -212,3 +212,9 @@ p {
 .checkbox-container {
     text-align: center;
 }
+
+#printButton:disabled {
+    background-color: #ccc; 
+    color: #666; 
+    cursor: not-allowed; 
+}

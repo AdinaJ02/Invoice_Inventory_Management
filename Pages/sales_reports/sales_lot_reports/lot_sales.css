@@ -1,93 +1,103 @@
 body {
-    display: grid;
-    height: 5vh;
-    place-items: center;
-  }
+  display: grid;
+  height: 5vh;
+  place-items: center;
+}
 
-  /* Style the file input */
+/* Style the file input */
 .uploadbutton {
-    border: 2px solid teal; /* Add a teal blue border */
-    border-radius: 5px; /* Add border radius */
-    padding: 8px; /* Add some padding for spacing */
-    width: 200px; /* Set a fixed width */
-  }
-  
-  /* Style the selected file display */
-  .uploadbutton::file-selector-value {
-    display: inline-block;
-    border: 1px solid grey; /* Add a grey border */
-    padding: 4px; /* Add padding for spacing */
-    border-radius: 5px; /* Add border radius */
-    margin-top: 5px; /* Add some spacing from the input */
-  }
-  
-  
-  input::file-selector-button {
-    background-image: linear-gradient(
-      to right,
+  border: 2px solid teal;
+  /* Add a teal blue border */
+  border-radius: 5px;
+  /* Add border radius */
+  padding: 8px;
+  /* Add some padding for spacing */
+  width: 200px;
+  /* Set a fixed width */
+}
+
+/* Style the selected file display */
+.uploadbutton::file-selector-value {
+  display: inline-block;
+  border: 1px solid grey;
+  /* Add a grey border */
+  padding: 4px;
+  /* Add padding for spacing */
+  border-radius: 5px;
+  /* Add border radius */
+  margin-top: 5px;
+  /* Add some spacing from the input */
+}
+
+
+input::file-selector-button {
+  background-image: linear-gradient(to right,
       #136a8a,
       #267871,
       #136a8a 100%,
-      #319197 200%
-    );
-    background-position-x: 0%;
-    background-size: 100%;
-    border: 0;
-    border-radius: 8px;
-    color: #fff;
-    text-shadow: 0 1px 1px #333;
-    transition: all 0.25s;
-    height: 30px;
-    width: 100px;
-    
-  }
-  input::file-selector-button:hover {
-    background-position-x: 100%;
-    transform: scale(1.1);
-  }
-  .btn-login {
-    background: none;
-    text-decoration:solid;
-    color: rgb(41, 41, 41);
-    box-shadow: 0px 0px 0px 2px white;
-    padding: 15px 3em;
-    margin-right: 10px;
-    transition: 0.5s;
-    border-color: rgba(0, 0, 0, 0.356);
-    border-radius: 5px;
-    border: 2px solid teal;
-    pointer-events: auto;
-  }
-  
-  .btn-login:hover {
-    background: white;
-    color: dimgray;
-    transition: 0.5s;
-    cursor: pointer;
-  }
-  #message{
-    text-align: center;
-  }
+      #319197 200%);
+  background-position-x: 0%;
+  background-size: 100%;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  text-shadow: 0 1px 1px #333;
+  transition: all 0.25s;
+  height: 30px;
+  width: 100px;
+
+}
+
+input::file-selector-button:hover {
+  background-position-x: 100%;
+  transform: scale(1.1);
+}
+
+.btn-login {
+  background: none;
+  text-decoration: solid;
+  color: rgb(41, 41, 41);
+  box-shadow: 0px 0px 0px 2px white;
+  padding: 15px 3em;
+  margin-right: 10px;
+  transition: 0.5s;
+  border-color: rgba(0, 0, 0, 0.356);
+  border-radius: 5px;
+  border: 2px solid teal;
+  pointer-events: auto;
+}
+
+.btn-login:hover {
+  background: white;
+  color: dimgray;
+  transition: 0.5s;
+  cursor: pointer;
+}
+
+#message {
+  text-align: center;
+}
 
 .table_data {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
 .table_data th,
 .table_data td {
-    border: 1px dotted #ccc;
-    padding: 8px;
+  border: 1px dotted #ccc;
+  padding: 8px;
 }
 
 #header th {
-    background-color: #106f7b;
-    color: white;
+  background-color: #106f7b;
+  color: white;
 
 }
 
-#backButton, #downloadButton {
+#backButton,
+#downloadButton {
   padding: 8px 15px;
   border: none;
   background-color: #106f7b;
@@ -97,13 +107,14 @@ body {
   font-size: 12px;
 }
 
-#backButton:hover, #downloadButton:hover {
+#backButton:hover,
+#downloadButton:hover {
   background-color: #0a525e;
 }
 
 #removeFiltersButton {
   background: none;
-  text-decoration:solid;
+  text-decoration: solid;
   color: rgb(41, 41, 41);
   box-shadow: 0px 0px 0px 2px white;
   padding: 5px;
@@ -120,4 +131,8 @@ body {
   color: dimgray;
   transition: 0.5s;
   cursor: pointer;
+}
+
+.no-data-message {
+  text-align: center;
 }

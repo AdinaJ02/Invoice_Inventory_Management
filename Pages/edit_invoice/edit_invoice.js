@@ -73,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Get the checkboxes by their IDs
                 const receivedCheckbox = document.getElementById("receivedCheckbox");
                 const notReceivedCheckbox = document.getElementById("notReceivedCheckbox");
+                const addButton = document.getElementById("addButton");
+                const saveInvoiceButton = document.getElementById("saveInvoice");
+                const table = document.querySelector(".table_data tbody");
 
                 // Check the checkbox based on the paymentStatus value
                 if (paymentStatus === "Received") {
@@ -87,6 +90,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (paymentStatus === "Received") {
                     receivedCheckbox.disabled = true;
                     notReceivedCheckbox.disabled = true;
+
+                    addButton.disabled = true; // Disable the "Add Row" button
+                    saveInvoiceButton.disabled = true; // Disable the "Save" button
+                    // Make the entire table not editable
+                    const tableCells = document.querySelectorAll('.table_data tbody td.editable');
+                    tableCells.forEach(cell => {
+                        cell.contentEditable = "false"; // Use "false" as a string to set contentEditable to "false"
+                    });
                 }
 
                 recipientInput.value = data.customer_name;

@@ -26,6 +26,7 @@ function addRow() {
 
     // Attach a click event listener to the delete icon
     const deleteIcon = newRow.querySelector('.delete-icon');
+    // Attach a click event listener to the delete icon
     deleteIcon.addEventListener('click', function () {
         const dropdown = newRow.querySelector('.dropdown'); // Define dropdown within the click event handler
         if (dropdown) {
@@ -34,40 +35,29 @@ function addRow() {
                 shapeInput.textContent = '';
                 dropdownParent.replaceChild(shapeInput, dropdown);
                 shapeFlag = 0;
-            }
-            else if (sizeFlag === 1) {
+            } else if (sizeFlag === 1) {
                 const dropdownParentSize = dropdown.parentNode;
                 sizeInput.textContent = '';
                 dropdownParentSize.replaceChild(sizeInput, dropdown);
                 sizeFlag = 0;
             }
-
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
-        }
-        else {
+        } else {
             newRow.querySelector('[name="shape"]').textContent = '';
             newRow.querySelector('[name="size"]').textContent = '';
-
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
         }
-        newRow.querySelector('[name="lot_no"]').textContent = '';
-        newRow.querySelector('[name="desc"]').textContent = '';
-        newRow.querySelector('[name="pcs"]').textContent = '';
-        newRow.querySelector('[name="wt"]').textContent = '';
-        newRow.querySelector('[name="color"]').textContent = '';
-        newRow.querySelector('[name="clarity"]').textContent = '';
-        newRow.querySelector('[name="certificate"]').textContent = '';
-        newRow.querySelector('[name="rap"]').textContent = '';
-        newRow.querySelector('[name="disc"]').textContent = '';
-        newRow.querySelector('[name="price"]').textContent = '';
-        newRow.querySelector('[name="total"]').textContent = '';
 
-        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
+        // Clear other cell contents without affecting the cells themselves
+        const cellsToClear = newRow.querySelectorAll('.editable');
+        cellsToClear.forEach((cell) => {
+            cell.textContent = ''; // Clear the content
+            // You may want to add additional logic here to handle dropdowns, etc.
+        });
 
+        // Enable content editing for certain cells
+        newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
+        newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
+
+        // Calculate totals based on the updated data
         calculateTotals();
     });
 
@@ -77,9 +67,13 @@ function addRow() {
     let shapeFlag = 0;
     let sizeFlag = 0;
 
+    let shapeSelect = 0;
+    let sizeSelect = 1;
+
     shapeInput.addEventListener('input', function () {
         const shape = this.textContent.trim();
         if (shape !== '') {
+            shapeSelect = 1;
             fetchDropdownData(shape, shapeInput);
             shapeFlag = 1;
         }
@@ -88,6 +82,7 @@ function addRow() {
     sizeInput.addEventListener('input', function () {
         const size = this.textContent.trim();
         if (size !== '') {
+            sizeSelect = 1;
             fetchDropdownData(size, sizeInput);
             sizeFlag = 1;
         }
@@ -103,13 +98,16 @@ function addRow() {
                     // Create and populate the dropdown
                     const dropdown = document.createElement('select');
                     dropdown.classList.add('dropdown');
-                    const option = document.createElement('option');
-                    option.textContent = '';
-                    dropdown.appendChild(option);
+
+                    // Add a default option (Select Shape or Select Size)
+                    const defaultOption = document.createElement('option');
+                    defaultOption.textContent = `Select ${shapeSelect == 1 ? 'Shape' : 'Size'}`;
+                    dropdown.appendChild(defaultOption);
+
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.wt}`;
+                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
@@ -489,6 +487,39 @@ function saveData() {
             console.error('Error:', error);
         });
 }
+
+// Add event listener to the entire table to handle "Enter" key presses for cell navigation
+document.getElementById('table-body').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const activeCell = document.activeElement;
+
+        if (activeCell) {
+            const row = activeCell.parentElement;
+            const cellIndex = Array.from(row.cells).indexOf(activeCell);
+
+            if (cellIndex < row.cells.length - 1) {
+                // Move to the next cell in the same row
+                const nextCell = row.cells[cellIndex + 1];
+                nextCell.focus();
+            } else {
+                // Move to the first cell of the next row
+                const nextRow = row.nextElementSibling;
+                if (nextRow) {
+                    const firstCell = nextRow.cells[0];
+                    firstCell.focus();
+                } else {
+                    // There is no next row; add a new row and move to its first cell
+                    addRow();
+                    const newRows = document.getElementById('table-body').querySelectorAll('tr');
+                    const newRow = newRows[newRows.length - 1];
+                    const firstCell = newRow.cells[0];
+                    firstCell.focus();
+                }
+            }
+        }
+    }
+});
 
 // JavaScript for the "Back" button
 function goBackOneStep() {

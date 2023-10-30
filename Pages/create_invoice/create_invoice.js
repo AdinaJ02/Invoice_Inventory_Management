@@ -21,6 +21,13 @@ fetch('../php_data/fetch_data_company.php')
         console.error('Error:', error);
     });
 
+document.addEventListener('DOMContentLoaded', function () {
+    // Disable the "Print Invoice" button initially
+    const printButton = document.getElementById("printButton");
+    printButton.disabled = true;
+});
+
+
 // Fetch the next memo number from the PHP script
 fetch('../print_invoice/generate_invoice.php')
     .then(response => response.json())
@@ -119,6 +126,7 @@ function addRow() {
         newRow.querySelector('[name="price"]').textContent = '';
         newRow.querySelector('[name="final_total"]').textContent = '';
         calculateTotals();
+        updatePrintButtonState();
     });
 
     // Add event listeners to rap and disc fields for calculations
@@ -204,6 +212,7 @@ function addRow() {
                         newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                         calculatePriceAndTotal();
+                        updatePrintButtonState();
                     }
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
@@ -213,6 +222,16 @@ function addRow() {
                 console.error('Error:', error);
             });
     })
+
+    function updatePrintButtonState() {
+        const printButton = document.getElementById("printButton");
+        const rowsWithData = document.querySelectorAll('#table-body tr:not(:last-child):not(.export-row)'); // Select all rows except the last one and export rows
+        const enablePrintButton = Array.from(rowsWithData).some((row) => {
+            const inputs = Array.from(row.querySelectorAll('.editable')).map((cell) => cell.textContent.trim());
+            return inputs.some(input => input !== ''); // Enable the button if any cell in any row contains data
+        });
+        printButton.disabled = !enablePrintButton;
+    }
 }
 
 // Listen for changes in the last row and add a new row if necessary
@@ -264,6 +283,7 @@ saveButton.addEventListener("click", saveData);
 printButton.addEventListener("click", print);
 
 function print() {
+    saveData();
     const invoice_no = document.getElementById("invoice_no").value;
     window.location.href = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodeURIComponent(invoice_no)}`;
 }
@@ -346,6 +366,39 @@ function saveData() {
             console.error('Error:', error);
         });
 }
+
+// Add event listener to the entire table to handle "Enter" key presses for cell navigation
+document.getElementById('table-body').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const activeCell = document.activeElement;
+
+        if (activeCell) {
+            const row = activeCell.parentElement;
+            const cellIndex = Array.from(row.cells).indexOf(activeCell);
+
+            if (cellIndex < row.cells.length - 1) {
+                // Move to the next cell in the same row
+                const nextCell = row.cells[cellIndex + 1];
+                nextCell.focus();
+            } else {
+                // Move to the first cell of the next row
+                const nextRow = row.nextElementSibling;
+                if (nextRow) {
+                    const firstCell = nextRow.cells[0];
+                    firstCell.focus();
+                } else {
+                    // There is no next row; add a new row and move to its first cell
+                    addRow();
+                    const newRows = document.getElementById('table-body').querySelectorAll('tr');
+                    const newRow = newRows[newRows.length - 1];
+                    const firstCell = newRow.cells[0];
+                    firstCell.focus();
+                }
+            }
+        }
+    }
+});
 
 // JavaScript for the "Back" button
 function goBackOneStep() {
