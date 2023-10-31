@@ -49,3 +49,17 @@
     cursor: pointer;
     border-radius: 5px; 
 }
+
+.btn-back{
+    margin-top: 20px;
+    margin-left: 50%;
+    background-color: teal;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-back:hover{
+    background-color: gray;
+}

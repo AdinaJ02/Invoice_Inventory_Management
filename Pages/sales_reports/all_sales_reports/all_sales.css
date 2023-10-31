@@ -100,3 +100,6 @@ body {
 #backButton:hover, #downloadButton:hover {
   background-color: #0a525e;
 }
+.no-data-row{
+  text-align: center;
+}

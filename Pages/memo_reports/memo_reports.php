@@ -49,7 +49,7 @@ $conn->close();
 <body>
     <div class="dropdown-container">
         <select class="dropdown" id="shapeDropdown">
-            <option value="" disabled selected>Select Shape</option>
+            <option value="" selected>All Shapes</option>
             <?php
             $uniqueShapeNames = array_unique($shapeNames);
             foreach ($uniqueShapeNames as $shapeName) {

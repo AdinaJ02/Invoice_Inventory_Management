@@ -41,12 +41,13 @@ if ($conn->connect_error) {
 <body>
     <!-- Add buttons at the top of the table -->
     <div id="table-buttons">
-        <button id="add-button">Add</button>
-        <button id="edit-button" disabled>Edit</button>
-        <button id="duplicate-button" disabled>Duplicate</button>
-        <button id="update-button">Update</button>
-        <button id="delete-button" disabled>Delete</button>
-        <button id="download-button">Download</button>
+    <button id="add-button">Add</button>
+    <button id="edit-button" disabled>Edit</button>
+    <button id="duplicate-button" disabled>Duplicate</button>
+    <button id="update-button">Update</button>
+    <button id="delete-button" disabled>Delete</button>
+    <button id="download-button">Download</button>
+    <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
     </div>
     <div id="success-message" class="hidden">Success Message</div>
     <table class="table_data">

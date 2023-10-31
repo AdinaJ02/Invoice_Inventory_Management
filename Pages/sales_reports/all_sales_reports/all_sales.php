@@ -90,14 +90,9 @@ $importedData = json_encode($mergedData);
 </head>
 
 <body>
-    <!-- <form id="downloadForm" method="post" action="download_excel.php">
-        <input type="hidden" name="excelData" id="excelData">
-    </form> -->
-
-
     <div class="dropdown-container">
         <select class="dropdown" id="customerDropdown">
-            <option value="" disabled selected>Select Customer</option>
+            <option value="" selected>All Customers</option>
             <?php
             // Fetch customer names from the "memo" table
             $sql = "SELECT DISTINCT customer_name FROM memo WHERE is_open = 'close'";
@@ -112,7 +107,7 @@ $importedData = json_encode($mergedData);
         </select>
 
         <select class="dropdown" id="lotNoDropdown">
-            <option value="" disabled selected>Select Lot No</option>
+            <option value="" selected>All Lot No</option>
             <?php
             // Fetch distinct lot_no values based on memo_no
             $sql = "SELECT DISTINCT lot_no FROM memo_data
@@ -129,9 +124,9 @@ $importedData = json_encode($mergedData);
         </select>
 
         <select class="dropdown" id="ShapeDropdown">
-            <option value="" disabled selected>Select Shape</option>
+            <option value="" selected>All Shapes</option>
             <?php
-            // Fetch distinct lot_no values based on memo_no
+            // Fetch distinct shape values based on memo_no
             $sql = "SELECT DISTINCT shape FROM memo_data
         WHERE memo_no IN (SELECT memo_no FROM memo WHERE is_open = 'close')";
 
@@ -157,7 +152,6 @@ $importedData = json_encode($mergedData);
 
     </div>
 
-
     <table class="table_data">
         <thead>
             <tr id="header">
@@ -174,10 +168,8 @@ $importedData = json_encode($mergedData);
             </tr>
         </thead>
         <tbody id="table-body">
-
             <script>
-                var importedData = <?php echo $importedData; ?>; // Parse the JSON data
-
+                var importedData = <?php echo $importedData; ?>;
                 var tableBody = document.getElementById("table-body");
                 var sortDropdown = document.getElementById("sortDropdown");
                 var customerDropdown = document.getElementById("customerDropdown");
@@ -185,7 +177,8 @@ $importedData = json_encode($mergedData);
                 var ShapeDropdown = document.getElementById("ShapeDropdown");
                 var tableRows;
                 var downloadButton = document.getElementById("downloadButton");
-
+                var removeFiltersButton = document.getElementById("removeFiltersButton");
+                var backButton = document.getElementById("backButton");
 
                 function applyFilters() {
                     const selectedCustomer = customerDropdown.value;
@@ -219,22 +212,15 @@ $importedData = json_encode($mergedData);
                     return filteredData;
                 }
 
-
                 downloadButton.addEventListener("click", function () {
-                    // Extract filtered table data
                     var filteredData = applyFilters();
-
-                    // Convert filtered data to CSV
                     var csvData = "Memo/Invoice,No.,Date,Party Name,Lot No.,Shape,Size,Pcs,Wt (cts),Value\n";
                     filteredData.forEach(function (row) {
                         csvData += Object.values(row).join(',') + '\n';
                     });
 
-                    // Create a data URI for the CSV
                     var csvBlob = new Blob([csvData], { type: "text/csv" });
                     var csvUrl = URL.createObjectURL(csvBlob);
-
-                    // Create a hidden link and trigger the download
                     var downloadLink = document.createElement("a");
                     downloadLink.href = csvUrl;
                     downloadLink.download = "filtered_data.csv";
@@ -244,50 +230,48 @@ $importedData = json_encode($mergedData);
                     document.body.removeChild(downloadLink);
                 });
 
-
-
-
-
                 customerDropdown.addEventListener("change", filterTable);
-                lotNoDropdown.addEventListener("change", filterTableLotNo);
-                ShapeDropdown.addEventListener("change", filterTableShape);
+                lotNoDropdown.addEventListener("change", filterTable);
+                ShapeDropdown.addEventListener("change", filterTable);
                 sortDropdown.addEventListener("change", filterTableDate);
 
+                // ...
+
                 function filterTable() {
-                    const selectedCustomer = customerDropdown.value;
-                    const selectedLotNo = lotNoDropdown.value;
-                    const selectedShape = ShapeDropdown.value;
-                    tableRows = tableBody.querySelectorAll("tr"); // Define tableRows here
+                    tableRows = tableBody.querySelectorAll("tr");
+                    var foundData = false; // Flag to check if data is found
+
+                    // Remove any existing "No data found" row
+                    var noDataFoundRow = tableBody.querySelector(".no-data-found-row");
+                    if (noDataFoundRow) {
+                        tableBody.removeChild(noDataFoundRow);
+                    }
 
                     tableRows.forEach(row => {
-                        const customerNameCell = row.querySelector("td:nth-child(4)"); // Select the 4th column (customer name)
+                        const customerNameCell = row.querySelector("td:nth-child(4)");
                         const lotNoCell = row.querySelector("td:nth-child(5)");
                         const ShapeCell = row.querySelector("td:nth-child(6)");
                         const str = customerNameCell.textContent;
-                        const showRow = selectedCustomer === "" || str.toLocaleLowerCase() === selectedCustomer;
+                        const showRow = (customerDropdown.value === "" || str.toLocaleLowerCase() === customerDropdown.value) &&
+                            (lotNoDropdown.value === "" || lotNoCell.textContent === lotNoDropdown.value) &&
+                            (ShapeDropdown.value === "" || ShapeCell.textContent === ShapeDropdown.value);
+
                         row.style.display = showRow ? "table-row" : "none";
+
+                        if (showRow) {
+                            foundData = true; // Data is found
+                        }
                     });
+
+                    // Display "No data found" if no matching records are found
+                    if (!foundData) {
+                        var noDataRow = document.createElement("tr");
+                        noDataRow.className = "no-data-found-row";
+                        noDataRow.innerHTML = "<td colspan='10' class='no-data-row'>No data found</td>";
+                        tableBody.appendChild(noDataRow);
+                    }
                 }
 
-                function filterTableLotNo() {
-                    const selectedLotNo = lotNoDropdown.value;
-                    tableRows = tableBody.querySelectorAll("tr");
-                    tableRows.forEach(row => {
-                        const lotNoCell = row.querySelector("td:nth-child(5)");
-                        const showRow = selectedLotNo === "" || lotNoCell.textContent === selectedLotNo;
-                        row.style.display = showRow ? "table-row" : "none";
-                    });
-                }
-
-                function filterTableShape() {
-                    const selectedShape = ShapeDropdown.value;
-                    tableRows = tableBody.querySelectorAll("tr");
-                    tableRows.forEach(row => {
-                        const ShapeCell = row.querySelector("td:nth-child(6)");
-                        const showRow = selectedShape === "" || ShapeCell.textContent === selectedShape;
-                        row.style.display = showRow ? "table-row" : "none";
-                    });
-                }
 
                 function filterTableDate() {
                     const sortOption = sortDropdown.value;
@@ -295,24 +279,20 @@ $importedData = json_encode($mergedData);
                     tableRows = tbody.querySelectorAll("tr");
 
                     if (sortOption === "date-asc") {
-                        // Sort the rows in ascending order by date
                         const sortedRows = Array.from(tableRows).sort((a, b) => {
                             const dateA = new Date(a.querySelector("td:nth-child(3)").textContent);
                             const dateB = new Date(b.querySelector("td:nth-child(3)").textContent);
                             return dateA - dateB;
                         });
 
-                        // Append the sorted rows to the tbody
                         sortedRows.forEach(row => tbody.appendChild(row));
                     } else if (sortOption === "date-desc") {
-                        // Sort the rows in descending order by date
                         const sortedRows = Array.from(tableRows).sort((a, b) => {
                             const dateA = new Date(a.querySelector("td:nth-child(3)").textContent);
                             const dateB = new Date(b.querySelector("td:nth-child(3)").textContent);
                             return dateB - dateA;
                         });
 
-                        // Append the sorted rows to the tbody
                         sortedRows.forEach(row => tbody.appendChild(row));
                     }
                 }
@@ -327,8 +307,6 @@ $importedData = json_encode($mergedData);
                     while (tableBody.firstChild) {
                         tableBody.removeChild(tableBody.firstChild);
                     }
-
-                    var selectedCustomer = customerDropdown.value;
 
                     Object.values(importedData).forEach(function (item) {
                         item.items.forEach(function (itemData) {
@@ -350,20 +328,13 @@ $importedData = json_encode($mergedData);
                     });
                 }
 
-                // Initial table update
                 updateTable();
 
-                var removeFiltersButton = document.getElementById("removeFiltersButton");
-
                 removeFiltersButton.addEventListener("click", function () {
-                    // Reload the page
                     location.reload();
                 });
 
-                var backButton = document.getElementById("backButton");
-
                 backButton.addEventListener("click", function () {
-                    // Use the browser's history to navigate back to the previous page
                     window.history.back();
                 });
 
