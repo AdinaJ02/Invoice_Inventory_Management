@@ -285,7 +285,11 @@ printButton.addEventListener("click", print);
 function print() {
     saveData();
     const invoice_no = document.getElementById("invoice_no").value;
-    window.location.href = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodeURIComponent(invoice_no)}`;
+
+    // Delay the redirection by 3 seconds
+    const encodedInvoiceNo = encodeURIComponent(invoice_no);
+    const destinationURL = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodedInvoiceNo}`;
+    window.location.href = destinationURL;
 }
 
 // JavaScript for checkbox behavior
