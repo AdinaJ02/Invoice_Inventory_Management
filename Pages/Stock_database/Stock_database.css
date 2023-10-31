@@ -108,5 +108,13 @@ body {
   background-color: gray;
 }
 
-
-
+#success-message {
+  display: none;
+  text-align: center;
+  color: green;
+  padding: 10px;
+  font-size: 16px;
+  margin: 10px auto;
+  width: 50%;
+  border-radius: 5px;
+}

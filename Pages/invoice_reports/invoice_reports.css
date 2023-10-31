@@ -29,9 +29,9 @@
 
 
 /* CSS to style the "Submit Memo" button */
-#goBack, #downloadExcel {
-    display: block;
-    margin: 20px auto;
+#goBack,
+#downloadExcel,
+#removeFilters {
     background-color: #106f7b;
     /* Set the background color */
     color: #fff;
@@ -48,7 +48,9 @@
     /* Set the font size */
 }
 
-#goBack:hover, #downloadExcel:hover {
+#goBack:hover,
+#downloadExcel:hover,
+#removeFilters:hover {
     background-color: #0a525e;
     /* Change the background color on hover */
 }
@@ -63,4 +65,21 @@
     margin-right: 30px;
     margin-bottom: 20px;
     margin-top: 15px;
+}
+
+.button-container {
+    text-align: center;
+}
+
+.button-container button,
+.button-container input[type="button"] {
+    display: inline-block;
+    margin: 20px 10px;
+    vertical-align: middle;
+}
+
+.button-container:after {
+    content: '';
+    display: inline-block;
+    width: 100%;
 }

@@ -49,6 +49,7 @@ if ($conn->connect_error) {
     <button id="download-button">Download</button>
     <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
     </div>
+    <div id="success-message" class="hidden">Success Message</div>
     <table class="table_data">
         <thead>
             <tr id="header">
@@ -86,6 +87,17 @@ if ($conn->connect_error) {
 
     <script>
         let selectedRow = null; // Define the selectedRow variable in a wider scope
+
+        function showSuccessMessage(message) {
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000); // 3000 milliseconds (3 seconds)
+        }
 
         // Function to add a new row for data entry
         function addNewRow() {
@@ -140,38 +152,36 @@ if ($conn->connect_error) {
         let isEditing = false;
 
         // Function to toggle the "Edit" and "Duplicate" buttons
-    function toggleButtons(enable) {
-        const editButton = document.getElementById('edit-button');
-        const duplicateButton = document.getElementById('duplicate-button');
-        const deleteButton = document.getElementById('delete-button');
+        function toggleButtons(enable) {
+            const editButton = document.getElementById('edit-button');
+            const duplicateButton = document.getElementById('duplicate-button');
+            const deleteButton = document.getElementById('delete-button');
 
-        if (enable) {
-            editButton.removeAttribute('disabled');
-            duplicateButton.removeAttribute('disabled');
-            deleteButton.removeAttribute('disabled');
-            
-        editButton.classList.add('enabled');
-        duplicateButton.classList.add('enabled');
-        deleteButton.classList.add('enabled');
-        } else {
-            editButton.setAttribute('disabled', 'true');
-            duplicateButton.setAttribute('disabled', 'true');
-            deleteButton.setAttribute('disabled', 'true');
-            editButton.classList.remove('enabled'); // Remove the "enabled" class for styling
-        duplicateButton.classList.remove('enabled'); // Remove the "enabled" class for styling
-        deleteButton.classList.remove('enabled'); // Remove the "enabled" class for styling
-    
+            if (enable) {
+                editButton.removeAttribute('disabled');
+                duplicateButton.removeAttribute('disabled');
+                deleteButton.removeAttribute('disabled');
+
+                editButton.classList.add('enabled');
+                duplicateButton.classList.add('enabled');
+                deleteButton.classList.add('enabled');
+            } else {
+                editButton.setAttribute('disabled', 'true');
+                duplicateButton.setAttribute('disabled', 'true');
+                deleteButton.setAttribute('disabled', 'true');
+                editButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+                duplicateButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+                deleteButton.classList.remove('enabled'); // Remove the "enabled" class for styling
+
+            }
         }
-    }
 
-       // Function to toggle row selection
-    function toggleRowSelection(row) {
-        if (row.classList.contains('selected')) {
-            // If the row is already selected, deselect it
-            row.classList.remove('selected');
-            toggleButtons(false);
-            selectedRow = null; // Clear the selectedRow reference
-        } else {
+        // Function to toggle row selection
+        function toggleRowSelection(row) {
+            if (row.classList.contains('selected')) {
+                return; // Do nothing if the row is already selected
+            }
+
             // Deselect all rows
             const allRows = document.querySelectorAll('.table_data tbody tr');
             allRows.forEach((row) => {
@@ -183,8 +193,6 @@ if ($conn->connect_error) {
             toggleButtons(true);
             selectedRow = row; // Update the selectedRow reference
         }
-    }
-
 
 
         // Event listener for row selection
@@ -248,6 +256,7 @@ if ($conn->connect_error) {
                     .then(data => {
                         // Handle the response from the server, if needed.
                         console.log(data);
+                        showSuccessMessage('Update Successful');
                     })
                     .catch(error => {
                         // Handle any errors that occur during the fetch.
@@ -306,6 +315,7 @@ if ($conn->connect_error) {
         document.getElementById('duplicate-button').addEventListener('click', () => {
             duplicateRow();
             toggleEditing();
+            showSuccessMessage('Duplicate Successful');
         });
 
 
@@ -347,9 +357,8 @@ if ($conn->connect_error) {
         document.getElementById('delete-button').addEventListener('click', () => {
             deleteRow();
             toggleEditing();
+            showSuccessMessage('Delete Successful');
         });
-
-
 
         // JavaScript function to populate the table with imported data
         function populateTable(importedData) {

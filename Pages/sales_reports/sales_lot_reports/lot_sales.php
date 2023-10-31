@@ -92,7 +92,7 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
 <body>
     <div class="dropdown-container">
         <select class="dropdown" id="lotNoDropdown">
-            <option value="" disabled selected>Select Lot No</option>
+            <option value="" selected>All Lot No</option>
             <?php
             // Fetch distinct lot_no values based on memo_no
             $sql = "SELECT DISTINCT lot_no FROM memo_data
@@ -193,16 +193,50 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
                 const selectedShape = ShapeDropdown.value;
 
                 const tableRows = tableBody.querySelectorAll("tr");
+                let rowsVisible = 0; // Count the visible rows
+
                 tableRows.forEach(row => {
-                    const lotNoCell = row.querySelector("td:nth-child(1)").textContent;
-                    const ShapeCell = row.querySelector("td:nth-child(2)").textContent;
+                    const lotNoCell = row.querySelector("td:nth-child(1)");
+                    const ShapeCell = row.querySelector("td:nth-child(2)");
 
-                    // Check if the row should be displayed based on filters
-                    const showRow = (selectedLotNo === "" || lotNoCell === selectedLotNo) &&
-                        (selectedShape === "" || ShapeCell === selectedShape);
+                    // Check if both lotNoCell and ShapeCell are not null
+                    if (lotNoCell && ShapeCell) {
+                        const lotNoText = lotNoCell.textContent;
+                        const shapeText = ShapeCell.textContent;
 
-                    row.style.display = showRow ? "table-row" : "none";
+                        // Check if the row should be displayed based on filters
+                        const showRow = (selectedLotNo === "" || lotNoText === selectedLotNo) &&
+                            (selectedShape === "" || shapeText === selectedShape);
+
+                        if (showRow) {
+                            row.style.display = "table-row";
+                            rowsVisible++;
+                        } else {
+                            row.style.display = "none";
+                        }
+                    }
                 });
+
+                // Check if there are no visible rows and display a message
+                if (rowsVisible === 0) {
+                    // Check if "No data found" message already exists
+                    const existingMessage = tableBody.querySelector(".no-data-message");
+                    if (!existingMessage) {
+                        const noDataMessage = document.createElement("tr");
+                        noDataMessage.classList.add("no-data-message"); // Apply the CSS class
+                        const messageCell = document.createElement("td");
+                        messageCell.textContent = "No data found";
+                        messageCell.setAttribute("colspan", "5"); // Span all columns
+                        noDataMessage.appendChild(messageCell);
+                        tableBody.appendChild(noDataMessage);
+                    }
+                } else {
+                    // Remove the "No data found" message if it exists
+                    const existingMessage = tableBody.querySelector(".no-data-message");
+                    if (existingMessage) {
+                        tableBody.removeChild(existingMessage);
+                    }
+                }
             }
         });
 

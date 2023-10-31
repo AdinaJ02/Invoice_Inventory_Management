@@ -213,5 +213,11 @@ function printMemo() {
 
 // JavaScript for the "Back" button
 function goBackOneStep() {
-    window.history.back(); // This will go back one step in the browser's history
+    window.location.href = '../landing_page/memo_landing.html';
+}
+
+function editMemo() {
+    const memo_no = document.getElementById("memo_no");
+    window.location.href = `edit_memo/edit_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
+
 }

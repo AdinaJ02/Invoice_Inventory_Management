@@ -73,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Get the checkboxes by their IDs
                 const receivedCheckbox = document.getElementById("receivedCheckbox");
                 const notReceivedCheckbox = document.getElementById("notReceivedCheckbox");
+                const addButton = document.getElementById("addButton");
+                const saveInvoiceButton = document.getElementById("saveInvoice");
+                const table = document.querySelector(".table_data tbody");
 
                 // Check the checkbox based on the paymentStatus value
                 if (paymentStatus === "Received") {
@@ -87,6 +90,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (paymentStatus === "Received") {
                     receivedCheckbox.disabled = true;
                     notReceivedCheckbox.disabled = true;
+
+                    addButton.disabled = true; // Disable the "Add Row" button
+                    saveInvoiceButton.disabled = true; // Disable the "Save" button
+                    // Make the entire table not editable
+                    const tableCells = document.querySelectorAll('.table_data tbody td.editable');
+                    tableCells.forEach(cell => {
+                        cell.contentEditable = "false"; // Use "false" as a string to set contentEditable to "false"
+                    });
                 }
 
                 recipientInput.value = data.customer_name;
@@ -554,11 +565,12 @@ function calculateTotals() {
     const totalTotField = document.querySelector('.total_final_tot');
     totalWtField.textContent = totalWt.toFixed(2);
     totalWtField.value = totalWt.toFixed(2);
-    totalTotField.textContent = totalTot.toFixed(2);
+    totalTotField.textContent = currency + " " + totalTot.toFixed(2);
     totalTotField.value = totalTot.toFixed(2);
 }
 
 document.getElementById('printButton').addEventListener('click', function (e) {
+    // saveData();
     const invoice_no = document.getElementById("invoice_no").value;
     window.location.href = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodeURIComponent(invoice_no)}`;
 });
