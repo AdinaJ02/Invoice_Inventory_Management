@@ -109,7 +109,7 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
         </select>
 
         <select class="dropdown" id="ShapeDropdown">
-            <option value="" disabled selected>Select Shape</option>
+            <option value="" selected>All Shapes</option>
             <?php
             // Fetch distinct lot_no values based on memo_no
             $sql = "SELECT DISTINCT shape FROM memo_data

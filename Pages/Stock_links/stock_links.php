@@ -79,6 +79,7 @@ if ($conn->connect_error) {
         Select Excel file to upload:
         <input type="file" name="fileToUpload" id="fileToUpload" class='uploadbutton'>
         <input type="submit" value="Upload File" name="import" class='btn-login' id='do-login'>
+        <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
         <div id='message'>
             <?php echo $message;
             ?>

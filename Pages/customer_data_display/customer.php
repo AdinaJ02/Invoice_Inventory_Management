@@ -101,6 +101,7 @@ $conn->close();
         </tr>
     </tbody>
 </table>
+<input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {

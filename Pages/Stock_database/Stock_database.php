@@ -47,6 +47,7 @@ if ($conn->connect_error) {
     <button id="update-button">Update</button>
     <button id="delete-button" disabled>Delete</button>
     <button id="download-button">Download</button>
+    <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
     </div>
     <table class="table_data">
         <thead>
