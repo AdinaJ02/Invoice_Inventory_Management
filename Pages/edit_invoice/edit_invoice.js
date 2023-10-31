@@ -565,11 +565,12 @@ function calculateTotals() {
     const totalTotField = document.querySelector('.total_final_tot');
     totalWtField.textContent = totalWt.toFixed(2);
     totalWtField.value = totalWt.toFixed(2);
-    totalTotField.textContent = totalTot.toFixed(2);
+    totalTotField.textContent = currency + " " + totalTot.toFixed(2);
     totalTotField.value = totalTot.toFixed(2);
 }
 
 document.getElementById('printButton').addEventListener('click', function (e) {
+    // saveData();
     const invoice_no = document.getElementById("invoice_no").value;
     window.location.href = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodeURIComponent(invoice_no)}`;
 });

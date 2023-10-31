@@ -1,4 +1,4 @@
-var currency;
+let currency;
 
 // Fetch data from fetch_data.php using JavaScript
 fetch('../php_data/fetch_data_company.php')
