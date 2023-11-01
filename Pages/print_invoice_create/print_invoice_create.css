@@ -206,7 +206,7 @@ p {
 /* CSS to style the "Submit Memo" button */
 #printButton,
 #goBack {
-    display: block;
+    /* display: block; */
     margin: 20px auto;
     background-color: #106f7b;
     /* Set the background color */
@@ -228,4 +228,10 @@ p {
 #goBack:hover {
     background-color: #0a525e;
     /* Change the background color on hover */
+}
+
+.form-group button,
+.form-group input[type="button"] {
+    display: inline-block;
+    margin-right: 10px; /* Adjust the margin as needed */
 }

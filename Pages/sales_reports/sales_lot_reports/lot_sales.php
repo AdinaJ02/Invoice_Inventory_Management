@@ -189,54 +189,38 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
             ShapeDropdown.addEventListener("change", filterTable);
 
             function filterTable() {
-                const selectedLotNo = lotNoDropdown.value;
-                const selectedShape = ShapeDropdown.value;
+                var lotNoDropdown = document.getElementById("lotNoDropdown");
+                var shapeDropdown = document.getElementById("ShapeDropdown");
 
-                const tableRows = tableBody.querySelectorAll("tr");
-                let rowsVisible = 0; // Count the visible rows
+                var lotNoFilter = lotNoDropdown.value;
+                var shapeFilter = shapeDropdown.value;
 
-                tableRows.forEach(row => {
-                    const lotNoCell = row.querySelector("td:nth-child(1)");
-                    const ShapeCell = row.querySelector("td:nth-child(2)");
+                var tableBody = document.getElementById("table-body");
+                var rows = tableBody.getElementsByTagName("tr");
+                var previousLotNo = null;
 
-                    // Check if both lotNoCell and ShapeCell are not null
-                    if (lotNoCell && ShapeCell) {
-                        const lotNoText = lotNoCell.textContent;
-                        const shapeText = ShapeCell.textContent;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    var lotNoCell = row.getElementsByTagName("td")[0];
+                    var shapeCell = row.getElementsByTagName("td")[1];
 
-                        // Check if the row should be displayed based on filters
-                        const showRow = (selectedLotNo === "" || lotNoText === selectedLotNo) &&
-                            (selectedShape === "" || shapeText === selectedShape);
-
-                        if (showRow) {
-                            row.style.display = "table-row";
-                            rowsVisible++;
+                    if (
+                        (lotNoFilter === "" || lotNoCell.innerHTML === lotNoFilter) &&
+                        (shapeFilter === "" || shapeCell.innerHTML === shapeFilter)
+                    ) {
+                        if (lotNoCell.innerHTML !== previousLotNo) {
+                            // Display only the first row of a merged group
+                            row.style.display = "";
+                            previousLotNo = lotNoCell.innerHTML;
                         } else {
-                            row.style.display = "none";
+                            // Display the rest of the merged group
+                            row.style.display = "";
                         }
-                    }
-                });
-
-                // Check if there are no visible rows and display a message
-                if (rowsVisible === 0) {
-                    // Check if "No data found" message already exists
-                    const existingMessage = tableBody.querySelector(".no-data-message");
-                    if (!existingMessage) {
-                        const noDataMessage = document.createElement("tr");
-                        noDataMessage.classList.add("no-data-message"); // Apply the CSS class
-                        const messageCell = document.createElement("td");
-                        messageCell.textContent = "No data found";
-                        messageCell.setAttribute("colspan", "5"); // Span all columns
-                        noDataMessage.appendChild(messageCell);
-                        tableBody.appendChild(noDataMessage);
-                    }
-                } else {
-                    // Remove the "No data found" message if it exists
-                    const existingMessage = tableBody.querySelector(".no-data-message");
-                    if (existingMessage) {
-                        tableBody.removeChild(existingMessage);
+                    } else {
+                        row.style.display = "none";
                     }
                 }
+
             }
         });
 
