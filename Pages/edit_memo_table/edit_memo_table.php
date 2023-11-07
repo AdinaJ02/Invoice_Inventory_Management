@@ -2,7 +2,7 @@
 include '../../connection.php';
 
 // SQL query to retrieve data from the database
-$sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total FROM memo";
+$sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total FROM memo where is_open='open'";
 $result = $conn->query($sql);
 
 // Store the retrieved data in an array

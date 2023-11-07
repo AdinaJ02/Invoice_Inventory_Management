@@ -1,4 +1,13 @@
 var currency;
+
+if (!localStorage.getItem('hasReloaded')) {
+    // Set a flag to indicate the page has been reloaded
+    localStorage.setItem('hasReloaded', 'true');
+    // Reload the page
+    location.reload();
+    location.reload();
+}
+
 // Fetch data from fetch_data.php using JavaScript
 fetch('../php_data/fetch_data_company.php')
     .then(response => response.json())
@@ -77,6 +86,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 const saveInvoiceButton = document.getElementById("saveInvoice");
                 const table = document.querySelector(".table_data tbody");
 
+                const finalTotColumn = document.querySelector('td[name="total_final_tot"]');
+                finalTotColumn.textContent = currency + " " + data.final_total || 0;
+
+                const totalTotFinalField = document.querySelectorAll('td[name="final_total"]');
+                let totalFinal = 0;
+
+                for (let i = 0; i < totalTotFinalField.length; i++) {
+                    const finalCell = totalTotFinalField[i];
+                    const finalValue = parseFloat(finalCell.textContent) || 0;
+                    totalFinal += finalValue;
+                }
+
+                const disc_price = document.getElementById("disc_price");
+                const disc_total = document.getElementById("disc_total");
+
+                const disc = data.final_total - totalFinal
+                disc_price.textContent = disc.toFixed(2);
+                disc_total.textContent = disc.toFixed(2);
+
                 // Check the checkbox based on the paymentStatus value
                 if (paymentStatus === "Received") {
                     receivedCheckbox.checked = true;
@@ -147,7 +175,6 @@ function fetchInvoiceData(invoiceNo) {
             });
 
             totalWeightTotal();
-            totalFinalTotal();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -541,6 +568,22 @@ function addRowEmpty() {
     })
 }
 
+// Add an event listener to disc_price
+const discPriceField = document.getElementById('disc_price');
+discPriceField.addEventListener('input', calculateDiscTotal);
+
+// Function to calculate disc_total based on disc_price
+function calculateDiscTotal() {
+    const discPriceValue = parseFloat(discPriceField.textContent) || 0;
+
+    // Calculate disc_total (assuming a fixed multiplier of 1)
+    const discTotal = discPriceValue * 1;
+    document.getElementById('disc_total').textContent = discTotal.toFixed(2);
+
+    // Calculate the final totals
+    calculateTotals();
+}
+
 // Function to calculate total_wt and total_tot
 function calculateTotals() {
     let totalWt = 0;
@@ -549,6 +592,7 @@ function calculateTotals() {
     // Calculate total_wt and total_tot based on input values in all rows
     const wtInputs = document.querySelectorAll('.editable[name="wt"]');
     const totalInputs = document.querySelectorAll('.editable[name="final_total"]');
+    const discTotalInputs = document.getElementById('disc_total');
 
     wtInputs.forEach((input) => {
         const wtValue = parseFloat(input.textContent) || 0;
@@ -559,6 +603,9 @@ function calculateTotals() {
         const totalValue = parseFloat(input.textContent) || 0;
         totalTot += totalValue;
     });
+
+    const discTotalValue = parseFloat(discTotalInputs.textContent) || 0;
+    totalTot += discTotalValue;
 
     // Update the corresponding <td> elements for the totals
     const totalWtField = document.querySelector('.total_wt');

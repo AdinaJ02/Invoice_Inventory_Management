@@ -19,7 +19,7 @@ if (isset($_GET['memo_no'])) {
 
         if ($is_open === 'open') {
             // Perform queries for open memos
-            $sql = "SELECT memo_data.lot_no, memo_data.description, memo_data.shape, memo_data.size, memo_data.pcs, stock_list.weight, memo_data.color, memo_data.clarity, memo_data.certificate_no, memo_data.rap, memo_data.discount, memo_data.price, memo_data.total, memo_data.return, memo_data.kept, memo_data.final_total 
+            $sql = "SELECT memo_data.lot_no, memo_data.description, memo_data.shape, memo_data.size, memo_data.pcs, memo_data.weight, memo_data.color, memo_data.clarity, memo_data.certificate_no, memo_data.rap, memo_data.discount, memo_data.price, memo_data.total, memo_data.return, memo_data.kept, memo_data.final_total 
                     FROM memo_data
                     JOIN stock_list ON memo_data.lot_no = stock_list.lot_no
                     WHERE memo_no = $memoNo";

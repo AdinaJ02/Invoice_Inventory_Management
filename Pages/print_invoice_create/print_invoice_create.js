@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 recipientInput.value = data.customer_name;
                 addressInput.value = data.address;
+
+                const finalTotalColumn = document.querySelector('td[name="total_final_tot"]');
+                finalTotalColumn.textContent = currency + " " + data.final_total || 0;
             })
             .catch(error => console.error('Error fetching memo details:', error));
     } else {
@@ -97,7 +100,6 @@ function fetchInvoiceData(invoiceNo) {
             });
 
             totalWeightTotal();
-            totalFinalTotal();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -116,20 +118,6 @@ function totalWeightTotal() {
 
     // Display the calculated values in the respective cells
     totalWtField.textContent = totalWt.toFixed(2);
-}
-
-function totalFinalTotal() {
-    const totalTotFinalField = document.querySelectorAll('td[name="final_total"]');
-    const finalTotalColumn = document.querySelector('td[name="total_final_tot"]');
-    let totalFinal = 0;
-
-    for (let i = 0; i < totalTotFinalField.length; i++) {
-        const finalCell = totalTotFinalField[i];
-        const finalValue = parseFloat(finalCell.textContent) || 0;
-        totalFinal += finalValue;
-    }
-
-    finalTotalColumn.textContent = currency + " " + totalFinal.toFixed(2) || 0;
 }
 
 // Function to add a new row
