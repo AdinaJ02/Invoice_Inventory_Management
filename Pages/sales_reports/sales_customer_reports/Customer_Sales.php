@@ -117,6 +117,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer final_totals</title>
     <link rel="stylesheet" href="customer_Sales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 
 <body>
@@ -227,6 +228,9 @@ $conn->close();
             window.history.back();
         });
     </script>
+    <a href="../../landing_page/landing_page.html" class="home-button">
+                <i class="fas fa-home"></i>
+            </a>
 </body>
 
 </html>

@@ -23,7 +23,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Now, you can fetch lot_no, shape, and size for each memo_no from memo_data table
-$importedData = array();
+$combinedData = array();
 
 foreach ($data as $memo_no) {
     $sql = "SELECT lot_no, shape, `size`, final_total FROM memo_data WHERE memo_no = '$memo_no'";
@@ -31,7 +31,7 @@ foreach ($data as $memo_no) {
 
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            $importedData[$row['lot_no']][] = array(
+            $combinedData[$row['lot_no']][] = array(
                 'shape' => $row['shape'],
                 'size' => $row['size'],
                 'final_total' => $row['final_total'],
@@ -39,9 +39,6 @@ foreach ($data as $memo_no) {
         }
     }
 }
-
-// Fetch invoice data
-$invoiceData = array();
 
 // Fetch invoice_no where payment_status is 'received' from invoice_wmemo
 $invoiceSql = "SELECT invoice_no FROM invoice_wmemo WHERE payment_status = 'received'";
@@ -57,8 +54,7 @@ if ($invoiceResult) {
 
         if ($invoiceDataResult) {
             while ($invoiceDataRow = $invoiceDataResult->fetch_assoc()) {
-                $invoiceData[] = array(
-                    'lot_no' => $invoiceDataRow['lot_no'],
+                $combinedData[$invoiceDataRow['lot_no']][] = array(
                     'shape' => $invoiceDataRow['shape'],
                     'total' => $invoiceDataRow['total'],
                 );
@@ -69,10 +65,14 @@ if ($invoiceResult) {
 
 // Calculate the total sales for each unique lot number
 $totalSalesPerLotNo = array();
-foreach ($importedData as $lot_no => $shapesAndSizes) {
+foreach ($combinedData as $lot_no => $lotData) {
     $totalSalesPerLotNo[$lot_no] = 0;
-    foreach ($shapesAndSizes as $data) {
-        $totalSalesPerLotNo[$lot_no] += $data['final_total'];
+    foreach ($lotData as $data) {
+        if (isset($data['final_total'])) {
+            $totalSalesPerLotNo[$lot_no] += $data['final_total'];
+        } elseif (isset($data['total'])) {
+            $totalSalesPerLotNo[$lot_no] += $data['total'];
+        }
     }
 }
 
@@ -87,6 +87,8 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock List</title>
     <link rel="stylesheet" href="lot_sales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
 </head>
 
 <body>
@@ -141,38 +143,38 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
         <tbody id="table-body">
             <?php
             $previousLotNo = null;
-            foreach ($importedData as $lot_no => $shapesAndSizes) {
-                echo '<tr>';
+            $rowspan = 0;
+            $totalSales = 0;
+
+            foreach ($combinedData as $lot_no => $lotData) {
+                $rowspan = count($lotData);
+                $totalSales = $totalSalesPerLotNo[$lot_no];
+
                 if ($lot_no !== $previousLotNo) {
-                    echo '<td rowspan="' . count($shapesAndSizes) . '">' . $lot_no . '</td>';
+                    echo '<tr>';
+                    echo '<td rowspan="' . $rowspan . '">' . $lot_no . '</td>';
                 }
+
                 $first = true;
-                foreach ($shapesAndSizes as $data) {
+
+                foreach ($lotData as $data) {
                     if (!$first) {
                         echo '<tr>';
                     }
-                    echo '<td>' . $data['shape'] . '</td>';
-                    echo '<td>' . $data['size'] . '</td>';
-                    echo '<td>' . $data['final_total'] . '</td>';
 
-                    // Display total sales for each unique lot number only once
-                    if ($lot_no !== $previousLotNo) {
-                        echo '<td rowspan="' . count($shapesAndSizes) . '">' . $totalSalesPerLotNo[$lot_no] . '</td>';
+                    echo '<td>' . $data['shape'] . '</td>';
+                    echo '<td>' . ($data['size'] ?? '') . '</td>';
+                    echo '<td>' . ($data['final_total'] ?? $data['total']) . '</td>';
+
+                    if ($first && $lot_no !== $previousLotNo) {
+                        echo '<td rowspan="' . $rowspan . '">' . $totalSales . '</td>';
                     }
+
                     echo '</tr>';
                     $first = false;
-                    $previousLotNo = $lot_no;
                 }
-            }
-            // Loop through the invoice data and display it
-            foreach ($invoiceData as $data) {
-                echo '<tr>';
-                echo '<td>' . $data['lot_no'] . '</td>';
-                echo '<td>' . $data['shape'] . '</td>';
-                echo '<td></td>';
-                echo '<td></td>';
-                echo '<td>' . $data['total'] . '</td>';
-                echo '</tr>';
+
+                $previousLotNo = $lot_no;
             }
             ?>
         </tbody>
@@ -180,54 +182,54 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
 
     <script>
+        var combinedData = <?php echo json_encode($combinedData); ?>;
+
         document.addEventListener("DOMContentLoaded", function () {
-            var tableBody = document.getElementById("table-body");
             var lotNoDropdown = document.getElementById("lotNoDropdown");
-            var ShapeDropdown = document.getElementById("ShapeDropdown");
+            var shapeDropdown = document.getElementById("ShapeDropdown");
 
             lotNoDropdown.addEventListener("change", filterTable);
-            ShapeDropdown.addEventListener("change", filterTable);
+            shapeDropdown.addEventListener("change", filterTable);
 
             function filterTable() {
                 var lotNoDropdown = document.getElementById("lotNoDropdown");
                 var shapeDropdown = document.getElementById("ShapeDropdown");
 
-                var lotNoFilter = lotNoDropdown.value;
-                var shapeFilter = shapeDropdown.value;
+                var selectedLotNo = lotNoDropdown.value;
+                var selectedShape = shapeDropdown.value;
 
                 var tableBody = document.getElementById("table-body");
-                var rows = tableBody.getElementsByTagName("tr");
-                var previousLotNo = null;
 
-                for (var i = 0; i < rows.length; i++) {
-                    var row = rows[i];
-                    var lotNoCell = row.getElementsByTagName("td")[0];
-                    var shapeCell = row.getElementsByTagName("td")[1];
+                for (var lot_no in combinedData) {
+                    var lotData = combinedData[lot_no];
+                    var shouldDisplay = false;
 
-                    if (
-                        (lotNoFilter === "" || lotNoCell.innerHTML === lotNoFilter) &&
-                        (shapeFilter === "" || shapeCell.innerHTML === shapeFilter)
-                    ) {
-                        if (lotNoCell.innerHTML !== previousLotNo) {
-                            // Display only the first row of a merged group
-                            row.style.display = "";
-                            previousLotNo = lotNoCell.innerHTML;
-                        } else {
-                            // Display the rest of the merged group
-                            row.style.display = "";
+                    for (var i = 0; i < lotData.length; i++) {
+                        var data = lotData[i];
+                        if (
+                            (selectedLotNo === "" || lot_no === selectedLotNo) &&
+                            (selectedShape === "" || data.shape === selectedShape)
+                        ) {
+                            shouldDisplay = true;
+                            break; // At least one row matches the filter
                         }
-                    } else {
-                        row.style.display = "none";
+                    }
+
+                    var rows = tableBody.getElementsByTagName("tr");
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        var lotNoCell = row.getElementsByTagName("td")[0];
+                        if (lotNoCell.innerHTML === lot_no) {
+                            row.style.display = shouldDisplay ? "" : "none";
+                        }
                     }
                 }
-
             }
         });
 
         var removeFiltersButton = document.getElementById("removeFiltersButton");
 
         removeFiltersButton.addEventListener("click", function () {
-            // Reload the page
             location.reload();
         });
 
@@ -253,6 +255,9 @@ foreach ($importedData as $lot_no => $shapesAndSizes) {
         });
 
     </script>
+    <a href="../../landing_page/landing_page.html" class="home-button">
+                <i class="fas fa-home"></i>
+            </a>
 </body>
 
 </html>
