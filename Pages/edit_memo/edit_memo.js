@@ -232,29 +232,59 @@ function addRow(data) {
         }
     });
 
-    const shapeInput = newRow.querySelector('[name="shape"]');
-    const sizeInput = newRow.querySelector('[name="size"]');
+    const shapeCells = document.querySelectorAll('td[name="shape"]');
+    const sizeCells = document.querySelectorAll('td[name="size"]');
+    let inputTimeout; // Variable to store the input delay timer
 
-    let shapeFlag = 0;
-    let sizeFlag = 0;
+    shapeCells.forEach(shapeCell => {
+        let isCellFocused = false;
+        shapeCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const shape = shapeCell.textContent.trim();
+                    if (shape !== '') {
+                        fetchDropdownData(shape, 'shape', shapeCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
 
-    shapeInput.addEventListener('input', function () {
-        const shape = this.textContent.trim();
-        if (shape !== '') {
-            fetchDropdownData(shape, shapeInput);
-            shapeFlag = 1;
-        }
+        shapeCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        shapeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
     });
 
-    sizeInput.addEventListener('input', function () {
-        const size = this.textContent.trim();
-        if (size !== '') {
-            fetchDropdownData(size, sizeInput);
-            sizeFlag = 1;
-        }
+    sizeCells.forEach(sizeCell => {
+        let isCellFocused = false;
+        sizeCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const size = sizeCell.textContent.trim();
+                    if (size !== '') {
+                        fetchDropdownData(size, 'size', sizeCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
+
+        sizeCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        sizeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
     });
 
-    function fetchDropdownData(value, otherInput) {
+    function fetchDropdownData(value, type, cellElement) {
         // Make an AJAX request to fetch dropdown data from the server based on the value (shape/size)
         // Replace 'fetch_dropdown_data.php' with the actual URL for fetching dropdown data
         fetch(`../Memo/fetch_dropdown_data.php?value=${value}`)
@@ -264,27 +294,29 @@ function addRow(data) {
                     // Create and populate the dropdown
                     const dropdown = document.createElement('select');
                     dropdown.classList.add('dropdown');
-                    const option = document.createElement('option');
-                    option.textContent = '';
-                    dropdown.appendChild(option);
+
+                    // Add a default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.textContent = `Select ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                    dropdown.appendChild(defaultOption);
+
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.wt}`;
+                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
-                    // Clear the other input field
-                    otherInput.textContent = '';
+                    // Clear the content of the cell
+                    cellElement.textContent = '';
 
-                    // Replace the current input field with the dropdown
-                    newRow.replaceChild(dropdown, otherInput);
+                    // Append the dropdown to the cell
+                    cellElement.appendChild(dropdown);
 
                     // Add an event listener to handle dropdown selection
                     dropdown.addEventListener('change', function () {
                         const selectedValue = this.value;
-                        previousInput = otherInput;
-                        populateFieldsFromDropdown(selectedValue, otherInput);
+                        populateFieldsFromDropdown(selectedValue, cellElement);
                     });
                 }
             })
@@ -294,7 +326,7 @@ function addRow(data) {
     }
 
     // Function to populate fields based on the selected value from the dropdown
-    function populateFieldsFromDropdown(selectedValue, otherInput) {
+    function populateFieldsFromDropdown(selectedValue, cellElement) {
         console.log(selectedValue);
         // Make an AJAX request to fetch data for the selected lot_no from the server
         // Replace 'fetch_lot_data.php' with the actual URL for fetching lot data
@@ -302,31 +334,23 @@ function addRow(data) {
             .then(response => response.json())
             .then(data => {
                 if (data) {
-                    // Populate fields in the current row with data from the server
-                    newRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
-                    newRow.querySelector('[name="wt"]').textContent = data.weight;
-                    newRow.querySelector('[name="pcs"]').textContent = data.pcs;
-                    newRow.querySelector('[name="color"]').textContent = data.color;
-                    newRow.querySelector('[name="clarity"]').textContent = data.clarity;
-                    newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
-                    newRow.querySelector('[name="rap"]').textContent = data.rap;
-                    newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
+                    // Populate the cell with the selected value
+                    cellElement.textContent = selectedValue;
 
-                    // Remove the dropdown from the current row
-                    const dropdown = newRow.querySelector('.dropdown');
-                    if (dropdown) {
-                        // Update the corresponding field in the current row
-                        if (otherInput === shapeInput) {
-                            newRow.querySelector('[name="size"]').textContent = data.size;
-                            otherInput.textContent = data.shape;
-                        } else {
-                            newRow.querySelector('[name="shape"]').textContent = data.shape;
-                            otherInput.textContent = data.size;
-                        }
+                    // Find the parent row (assuming your table row structure)
+                    const currentRow = cellElement.closest('tr');
 
-                        // Replace the dropdown with the text input
-                        dropdown.parentNode.replaceChild(otherInput, dropdown);
-                    }
+                    // Populate other fields in the current row with data from the server
+                    currentRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    currentRow.querySelector('[name="shape"]').textContent = data.shape;
+                    currentRow.querySelector('[name="size"]').textContent = data.size;
+                    currentRow.querySelector('[name="wt"]').textContent = data.weight;
+                    currentRow.querySelector('[name="pcs"]').textContent = data.pcs;
+                    currentRow.querySelector('[name="color"]').textContent = data.color;
+                    currentRow.querySelector('[name="clarity"]').textContent = data.clarity;
+                    currentRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
+                    currentRow.querySelector('[name="rap"]').textContent = data.rap;
+                    currentRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                     calculatePriceAndTotal();
                 }
@@ -338,51 +362,37 @@ function addRow(data) {
 
     // Attach a click event listener to the delete icon
     const deleteIcon = newRow.querySelector('.delete-icon');
+    // Attach a click event listener to the delete icon
     deleteIcon.addEventListener('click', function () {
-        const dropdown = newRow.querySelector('.dropdown'); // Define dropdown within the click event handler
-        if (dropdown) {
-            if (shapeFlag === 1) {
-                const dropdownParent = dropdown.parentNode;
-                shapeInput.textContent = '';
-                dropdownParent.replaceChild(shapeInput, dropdown);
-                shapeFlag = 0;
-            }
-            else if (sizeFlag === 1) {
-                const dropdownParentSize = dropdown.parentNode;
-                sizeInput.textContent = '';
-                dropdownParentSize.replaceChild(sizeInput, dropdown);
-                sizeFlag = 0;
-            }
+        const shapeDropdown = newRow.querySelector('[name="shape"] + .dropdown');
+        const sizeDropdown = newRow.querySelector('[name="size"] + .dropdown');
 
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
-        }
-        else {
+        if (shapeDropdown) {
+            shapeDropdown.parentNode.removeChild(shapeDropdown);
+            shapeInput.textContent = '';
+        } else {
             newRow.querySelector('[name="shape"]').textContent = '';
-            newRow.querySelector('[name="size"]').textContent = '';
-
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
         }
-        newRow.querySelector('[name="lot_no"]').textContent = '';
-        newRow.querySelector('[name="desc"]').textContent = '';
-        newRow.querySelector('[name="pcs"]').textContent = '';
-        newRow.querySelector('[name="wt"]').textContent = '';
-        newRow.querySelector('[name="color"]').textContent = '';
-        newRow.querySelector('[name="clarity"]').textContent = '';
-        newRow.querySelector('[name="certificate"]').textContent = '';
-        newRow.querySelector('[name="rap"]').textContent = '';
-        newRow.querySelector('[name="disc"]').textContent = '';
-        newRow.querySelector('[name="price"]').textContent = '';
-        newRow.querySelector('[name="total"]').textContent = '';
-        newRow.querySelector('[name="return"]').textContent = '';
-        newRow.querySelector('[name="kept"]').textContent = '';
-        newRow.querySelector('[name="final_total"]').textContent = '';
 
-        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
+        if (sizeDropdown) {
+            sizeDropdown.parentNode.removeChild(sizeDropdown);
+            sizeInput.textContent = '';
+        } else {
+            newRow.querySelector('[name="size"]').textContent = '';
+        }
 
+        // Clear other cell contents without affecting the cells themselves
+        const cellsToClear = newRow.querySelectorAll('.editable');
+        cellsToClear.forEach((cell) => {
+            cell.textContent = ''; // Clear the content
+            // You may want to add additional logic here to handle other elements
+        });
+
+        // Enable content editing for certain cells
+        newRow.querySelector('[name="size"]').setAttribute('contenteditable', 'true');
+        newRow.querySelector('[name="shape"]').setAttribute('contenteditable', 'true');
+
+        // Calculate totals based on the updated data
         calculateTotals();
     });
 
@@ -526,29 +536,59 @@ function addRowEmpty() {
 `;
     tableBody.appendChild(newRow);
 
-    const shapeInput = newRow.querySelector('[name="shape"]');
-    const sizeInput = newRow.querySelector('[name="size"]');
+    const shapeCells = document.querySelectorAll('td[name="shape"]');
+    const sizeCells = document.querySelectorAll('td[name="size"]');
+    let inputTimeout; // Variable to store the input delay timer
 
-    let shapeFlag = 0;
-    let sizeFlag = 0;
+    shapeCells.forEach(shapeCell => {
+        let isCellFocused = false;
+        shapeCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const shape = shapeCell.textContent.trim();
+                    if (shape !== '') {
+                        fetchDropdownData(shape, 'shape', shapeCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
 
-    shapeInput.addEventListener('input', function () {
-        const shape = this.textContent.trim();
-        if (shape !== '') {
-            fetchDropdownData(shape, shapeInput);
-            shapeFlag = 1;
-        }
+        shapeCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        shapeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
     });
 
-    sizeInput.addEventListener('input', function () {
-        const size = this.textContent.trim();
-        if (size !== '') {
-            fetchDropdownData(size, sizeInput);
-            sizeFlag = 1;
-        }
+    sizeCells.forEach(sizeCell => {
+        let isCellFocused = false;
+        sizeCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const size = sizeCell.textContent.trim();
+                    if (size !== '') {
+                        fetchDropdownData(size, 'size', sizeCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
+
+        sizeCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        sizeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
     });
 
-    function fetchDropdownData(value, otherInput) {
+    function fetchDropdownData(value, type, cellElement) {
         // Make an AJAX request to fetch dropdown data from the server based on the value (shape/size)
         // Replace 'fetch_dropdown_data.php' with the actual URL for fetching dropdown data
         fetch(`../Memo/fetch_dropdown_data.php?value=${value}`)
@@ -558,27 +598,29 @@ function addRowEmpty() {
                     // Create and populate the dropdown
                     const dropdown = document.createElement('select');
                     dropdown.classList.add('dropdown');
-                    const option = document.createElement('option');
-                    option.textContent = '';
-                    dropdown.appendChild(option);
+
+                    // Add a default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.textContent = `Select ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                    dropdown.appendChild(defaultOption);
+
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.wt}`;
+                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
-                    // Clear the other input field
-                    otherInput.textContent = '';
+                    // Clear the content of the cell
+                    cellElement.textContent = '';
 
-                    // Replace the current input field with the dropdown
-                    newRow.replaceChild(dropdown, otherInput);
+                    // Append the dropdown to the cell
+                    cellElement.appendChild(dropdown);
 
                     // Add an event listener to handle dropdown selection
                     dropdown.addEventListener('change', function () {
                         const selectedValue = this.value;
-                        previousInput = otherInput;
-                        populateFieldsFromDropdown(selectedValue, otherInput);
+                        populateFieldsFromDropdown(selectedValue, cellElement);
                     });
                 }
             })
@@ -588,7 +630,7 @@ function addRowEmpty() {
     }
 
     // Function to populate fields based on the selected value from the dropdown
-    function populateFieldsFromDropdown(selectedValue, otherInput) {
+    function populateFieldsFromDropdown(selectedValue, cellElement) {
         console.log(selectedValue);
         // Make an AJAX request to fetch data for the selected lot_no from the server
         // Replace 'fetch_lot_data.php' with the actual URL for fetching lot data
@@ -596,31 +638,23 @@ function addRowEmpty() {
             .then(response => response.json())
             .then(data => {
                 if (data) {
-                    // Populate fields in the current row with data from the server
-                    newRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
-                    newRow.querySelector('[name="wt"]').textContent = data.weight;
-                    newRow.querySelector('[name="pcs"]').textContent = data.pcs;
-                    newRow.querySelector('[name="color"]').textContent = data.color;
-                    newRow.querySelector('[name="clarity"]').textContent = data.clarity;
-                    newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
-                    newRow.querySelector('[name="rap"]').textContent = data.rap;
-                    newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
+                    // Populate the cell with the selected value
+                    cellElement.textContent = selectedValue;
 
-                    // Remove the dropdown from the current row
-                    const dropdown = newRow.querySelector('.dropdown');
-                    if (dropdown) {
-                        // Update the corresponding field in the current row
-                        if (otherInput === shapeInput) {
-                            newRow.querySelector('[name="size"]').textContent = data.size;
-                            otherInput.textContent = data.shape;
-                        } else {
-                            newRow.querySelector('[name="shape"]').textContent = data.shape;
-                            otherInput.textContent = data.size;
-                        }
+                    // Find the parent row (assuming your table row structure)
+                    const currentRow = cellElement.closest('tr');
 
-                        // Replace the dropdown with the text input
-                        dropdown.parentNode.replaceChild(otherInput, dropdown);
-                    }
+                    // Populate other fields in the current row with data from the server
+                    currentRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    currentRow.querySelector('[name="shape"]').textContent = data.shape;
+                    currentRow.querySelector('[name="size"]').textContent = data.size;
+                    currentRow.querySelector('[name="wt"]').textContent = data.weight;
+                    currentRow.querySelector('[name="pcs"]').textContent = data.pcs;
+                    currentRow.querySelector('[name="color"]').textContent = data.color;
+                    currentRow.querySelector('[name="clarity"]').textContent = data.clarity;
+                    currentRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
+                    currentRow.querySelector('[name="rap"]').textContent = data.rap;
+                    currentRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                     calculatePriceAndTotal();
                 }
@@ -633,50 +667,35 @@ function addRowEmpty() {
     // Attach a click event listener to the delete icon
     const deleteIcon = newRow.querySelector('.delete-icon');
     deleteIcon.addEventListener('click', function () {
-        const dropdown = newRow.querySelector('.dropdown'); // Define dropdown within the click event handler
-        if (dropdown) {
-            if (shapeFlag === 1) {
-                const dropdownParent = dropdown.parentNode;
-                shapeInput.textContent = '';
-                dropdownParent.replaceChild(shapeInput, dropdown);
-                shapeFlag = 0;
-            }
-            else if (sizeFlag === 1) {
-                const dropdownParentSize = dropdown.parentNode;
-                sizeInput.textContent = '';
-                dropdownParentSize.replaceChild(sizeInput, dropdown);
-                sizeFlag = 0;
-            }
+        const shapeDropdown = newRow.querySelector('[name="shape"] + .dropdown');
+        const sizeDropdown = newRow.querySelector('[name="size"] + .dropdown');
 
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
-        }
-        else {
+        if (shapeDropdown) {
+            shapeDropdown.parentNode.removeChild(shapeDropdown);
+            shapeInput.textContent = '';
+        } else {
             newRow.querySelector('[name="shape"]').textContent = '';
-            newRow.querySelector('[name="size"]').textContent = '';
-
-            newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'true');
-            newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'true');
         }
-        newRow.querySelector('[name="lot_no"]').textContent = '';
-        newRow.querySelector('[name="desc"]').textContent = '';
-        newRow.querySelector('[name="pcs"]').textContent = '';
-        newRow.querySelector('[name="wt"]').textContent = '';
-        newRow.querySelector('[name="color"]').textContent = '';
-        newRow.querySelector('[name="clarity"]').textContent = '';
-        newRow.querySelector('[name="certificate"]').textContent = '';
-        newRow.querySelector('[name="rap"]').textContent = '';
-        newRow.querySelector('[name="disc"]').textContent = '';
-        newRow.querySelector('[name="price"]').textContent = '';
-        newRow.querySelector('[name="total"]').textContent = '';
-        newRow.querySelector('[name="return"]').textContent = '';
-        newRow.querySelector('[name="kept"]').textContent = '';
-        newRow.querySelector('[name="final_total"]').textContent = '';
 
-        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'true');
-        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'true');
+        if (sizeDropdown) {
+            sizeDropdown.parentNode.removeChild(sizeDropdown);
+            sizeInput.textContent = '';
+        } else {
+            newRow.querySelector('[name="size"]').textContent = '';
+        }
 
+        // Clear other cell contents without affecting the cells themselves
+        const cellsToClear = newRow.querySelectorAll('.editable');
+        cellsToClear.forEach((cell) => {
+            cell.textContent = ''; // Clear the content
+            // You may want to add additional logic here to handle other elements
+        });
+
+        // Enable content editing for certain cells
+        newRow.querySelector('[name="size"]').setAttribute('contenteditable', 'true');
+        newRow.querySelector('[name="shape"]').setAttribute('contenteditable', 'true');
+
+        // Calculate totals based on the updated data
         calculateTotals();
     });
 
@@ -1029,4 +1048,10 @@ function printInvoice() {
 // JavaScript for the "Back" button
 function goBackOneStep() {
     window.history.back(); // This will go back one step in the browser's history
+}
+
+function printMemo() {
+    saveData();
+    const memo_no = document.getElementById("memo_no").value;
+    window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
 }

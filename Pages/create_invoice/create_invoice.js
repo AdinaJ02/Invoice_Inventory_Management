@@ -234,6 +234,22 @@ function addRow() {
     }
 }
 
+// Add an event listener to disc_price
+const discPriceField = document.getElementById('disc_price');
+discPriceField.addEventListener('input', calculateDiscTotal);
+
+// Function to calculate disc_total based on disc_price
+function calculateDiscTotal() {
+    const discPriceValue = parseFloat(discPriceField.textContent) || 0;
+
+    // Calculate disc_total (assuming a fixed multiplier of 1)
+    const discTotal = discPriceValue * 1;
+    document.getElementById('disc_total').textContent = discTotal.toFixed(2);
+
+    // Calculate the final totals
+    calculateTotals();
+}
+
 // Listen for changes in the last row and add a new row if necessary
 document.getElementById('table-body').addEventListener('input', function (e) {
     const lastRow = this.lastElementChild;
@@ -255,6 +271,7 @@ function calculateTotals() {
     // Calculate total_wt and total_tot based on input values in all rows
     const wtInputs = document.querySelectorAll('.editable[name="wt"]');
     const totalInputs = document.querySelectorAll('.editable[name="final_total"]');
+    const discTotalInputs = document.getElementById('disc_total'); // Add this line
 
     wtInputs.forEach((input) => {
         const wtValue = parseFloat(input.textContent) || 0;
@@ -265,6 +282,9 @@ function calculateTotals() {
         const totalValue = parseFloat(input.textContent) || 0;
         totalTot += totalValue;
     });
+
+    const discTotalValue = parseFloat(discTotalInputs.textContent) || 0;
+    totalTot += discTotalValue;
 
     // Update the corresponding <td> elements for the totals
     const totalWtField = document.querySelector('.total_wt');

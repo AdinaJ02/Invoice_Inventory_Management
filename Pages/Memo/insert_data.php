@@ -14,9 +14,9 @@ if ($conn->connect_error) {
         $name = $request_data["name"];
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
-        // $total_total = $request_data["total_total"];
+        $total_total = $request_data["total_total"];
         $data = $request_data["data"];
-        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, total_wt, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', '$total_wt', 'open')";
+        $sql_insert_memo = "INSERT INTO memo (memo_no, memorandum_day, memo_date, customer_name, `address`, total_wt, total_total, is_open) VALUES ('$memo_no', '$memorandum_day', '$date', '$name', '$address', '$total_wt', '$total_total', 'open')";
 
         // Create a SQL query to insert data into the customer_data table
         $sql_insert_customer = "INSERT INTO customer_data (memo_no, customer_name, `address`) VALUES ('$memo_no', '$name', '$address')";
@@ -37,7 +37,7 @@ if ($conn->connect_error) {
         } else {
             echo "<p style='color:red; text-align:center;'>Error: " . $sql . "<br>" . $conn->error . "</p>";
         }
-        
+
         // Iterate through the data and insert each row into the database
         foreach ($data as $row) {
             $lotNo = (string) $row['lot_no'];
@@ -66,16 +66,32 @@ if ($conn->connect_error) {
                     // Lot number doesn't exist, perform an insert
                     $sql_insert_stock = "INSERT INTO `stock_list`(`lot_no`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `total`, `price`) 
                     VALUES ('$lotNo','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc', '$total', '$price')";
+
+                    if ($conn->query($sql_insert_stock) === TRUE) {
+                        echo 'Data Inserted successfully';
+                    } else {
+                        echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
+                    }
+                } else {
+                    $sql_insert_stock = "UPDATE `stock_list` SET
+                    `weight` = `weight` - $wt
+                    WHERE `lot_no` = '$lotNo'";
+
+                    if ($conn->query($sql_insert_stock) === TRUE) {
+                        echo 'Data Inserted successfully';
+                    } else {
+                        echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
+                    }
                 }
 
-                if ($conn->query($sql_insert_memo_data) === TRUE || $conn->query($sql_insert_stock) === TRUE) {
+                if ($conn->query($sql_insert_memo_data) === TRUE) {
                     echo 'Data Inserted successfully';
                 } else {
                     echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
                 }
             }
         }
-      
+
         $conn->close();
     }
 }

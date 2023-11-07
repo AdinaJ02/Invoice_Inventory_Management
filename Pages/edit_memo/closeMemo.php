@@ -26,7 +26,7 @@ if ($conn->connect_error) {
             // Iterate through the data and insert each row into the database
             foreach ($data as $row) {
                 $lotNo = (string) $row['lot_no'];
-                $kept = (float) $row['kept'];
+                $return = (float) $row['return'];
 
                 if (!empty($lotNo)) {
                     // Check if the lot number exists in stock_list
@@ -36,7 +36,7 @@ if ($conn->connect_error) {
                     if ($check_result->num_rows > 0) {
                         // Lot number already exists, perform an update
                         $sql_insert_stock = "UPDATE `stock_list` SET
-                    `weight` = `weight` - $kept
+                    `weight` = `weight` + $return
                     WHERE `lot_no` = '$lotNo'";
                     }
 
