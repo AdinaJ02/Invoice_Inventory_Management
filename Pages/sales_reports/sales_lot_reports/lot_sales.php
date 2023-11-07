@@ -75,8 +75,6 @@ foreach ($combinedData as $lot_no => $lotData) {
         }
     }
 }
-
-// Display the results
 ?>
 
 <!DOCTYPE html>
@@ -96,16 +94,43 @@ foreach ($combinedData as $lot_no => $lotData) {
         <select class="dropdown" id="lotNoDropdown">
             <option value="" selected>All Lot No</option>
             <?php
-            // Fetch distinct lot_no values based on memo_no
-            $sql = "SELECT DISTINCT lot_no FROM memo_data
-        WHERE memo_no IN (SELECT memo_no FROM memo WHERE is_open = 'close')";
+            // Fetch distinct lot_no values based on memo_no from memo_data
+            $memoSql = "SELECT DISTINCT lot_no FROM memo_data
+            WHERE memo_no IN (SELECT memo_no FROM memo WHERE is_open = 'close')";
+            $memoResult = $conn->query($memoSql);
 
-            $result = $conn->query($sql);
+            if (!$memoResult) {
+                die('Error: ' . $conn->error);
+            }
 
-            if ($result) {
-                while ($row = $result->fetch_assoc()) {
-                    echo '<option value="' . $row['lot_no'] . '">' . $row['lot_no'] . '</option>';
-                }
+            $memoLotNos = array();
+            while ($row = $memoResult->fetch_assoc()) {
+                $memoLotNos[] = $row['lot_no'];
+            }
+
+            // Fetch distinct lot_no values from invoice_data where invoice_no is from invoice_wmemo with payment_status 'Received'
+            $invoiceSql = "SELECT DISTINCT i.lot_no
+              FROM invoice_data i
+              INNER JOIN invoice_wmemo iw ON i.invoice_no = iw.invoice_no
+              WHERE iw.payment_status = 'Received'";
+
+            $invoiceResult = $conn->query($invoiceSql);
+
+            if (!$invoiceResult) {
+                die('Error: ' . $conn->error);
+            }
+
+            $invoiceLotNos = array();
+            while ($row = $invoiceResult->fetch_assoc()) {
+                $invoiceLotNos[] = $row['lot_no'];
+            }
+
+            // Combine the lot numbers and make them distinct
+            $distinctLotNos = array_unique(array_merge($memoLotNos, $invoiceLotNos));
+
+            // Display the distinct lot numbers in a dropdown
+            foreach ($distinctLotNos as $lotNo) {
+                echo '<option value="' . $lotNo . '">' . $lotNo . '</option>';
             }
             ?>
         </select>
@@ -113,16 +138,43 @@ foreach ($combinedData as $lot_no => $lotData) {
         <select class="dropdown" id="ShapeDropdown">
             <option value="" selected>All Shapes</option>
             <?php
-            // Fetch distinct lot_no values based on memo_no
-            $sql = "SELECT DISTINCT shape FROM memo_data
-        WHERE memo_no IN (SELECT memo_no FROM memo WHERE is_open = 'close')";
+            // Fetch distinct shape values based on memo_no from memo_data
+            $memoSql = "SELECT DISTINCT shape FROM memo_data
+            WHERE memo_no IN (SELECT memo_no FROM memo WHERE is_open = 'close')";
+            $memoResult = $conn->query($memoSql);
 
-            $result = $conn->query($sql);
+            if (!$memoResult) {
+                die('Error: ' . $conn->error);
+            }
 
-            if ($result) {
-                while ($row = $result->fetch_assoc()) {
-                    echo '<option value="' . $row['shape'] . '">' . $row['shape'] . '</option>';
-                }
+            $memoShapes = array();
+            while ($row = $memoResult->fetch_assoc()) {
+                $memoShapes[] = $row['shape'];
+            }
+
+            // Fetch distinct shape values from invoice_data where invoice_no is from invoice_wmemo with payment_status 'Received'
+            $invoiceSql = "SELECT DISTINCT i.shape
+              FROM invoice_data i
+              INNER JOIN invoice_wmemo iw ON i.invoice_no = iw.invoice_no
+              WHERE iw.payment_status = 'Received'";
+
+            $invoiceResult = $conn->query($invoiceSql);
+
+            if (!$invoiceResult) {
+                die('Error: ' . $conn->error);
+            }
+
+            $invoiceShapes = array();
+            while ($row = $invoiceResult->fetch_assoc()) {
+                $invoiceShapes[] = $row['shape'];
+            }
+
+            // Combine the shape values and make them distinct
+            $distinctShapes = array_unique(array_merge($memoShapes, $invoiceShapes));
+
+            // Display the distinct shape values in a dropdown
+            foreach ($distinctShapes as $shape) {
+                echo '<option value="' . $shape . '">' . $shape . '</option>';
             }
             ?>
         </select>
@@ -194,11 +246,22 @@ foreach ($combinedData as $lot_no => $lotData) {
             function filterTable() {
                 var lotNoDropdown = document.getElementById("lotNoDropdown");
                 var shapeDropdown = document.getElementById("ShapeDropdown");
+                var noDataMessage = document.getElementById("noDataMessage");
 
                 var selectedLotNo = lotNoDropdown.value;
                 var selectedShape = shapeDropdown.value;
 
                 var tableBody = document.getElementById("table-body");
+
+                // Clear the existing table rows
+                while (tableBody.firstChild) {
+                    tableBody.removeChild(tableBody.firstChild);
+                }
+
+                var previousLotNo = null;
+                var rowSpan = 0;
+                var totalSales = 0;
+                var foundData = false;
 
                 for (var lot_no in combinedData) {
                     var lotData = combinedData[lot_no];
@@ -215,17 +278,88 @@ foreach ($combinedData as $lot_no => $lotData) {
                         }
                     }
 
-                    var rows = tableBody.getElementsByTagName("tr");
-                    for (var i = 0; i < rows.length; i++) {
-                        var row = rows[i];
-                        var lotNoCell = row.getElementsByTagName("td")[0];
-                        if (lotNoCell.innerHTML === lot_no) {
-                            row.style.display = shouldDisplay ? "" : "none";
+                    if (shouldDisplay) {
+                        if (lot_no !== previousLotNo) {
+                            var row = document.createElement("tr");
+                            rowSpan = countRows(lot_no, selectedLotNo);
+                            totalSales = getTotalSales(lot_no);
+
+                            var lotNoCell = document.createElement("td");
+                            lotNoCell.innerHTML = lot_no;
+                            lotNoCell.setAttribute("rowspan", rowSpan);
+                            row.appendChild(lotNoCell);
+
+                            var first = true;
+
+                            for (var i = 0; i < lotData.length; i++) {
+                                var data = lotData[i];
+                                if (!first) {
+                                    row = document.createElement("tr");
+                                }
+
+                                var shapeCell = document.createElement("td");
+                                shapeCell.innerHTML = data.shape;
+                                row.appendChild(shapeCell);
+
+                                var sizeCell = document.createElement("td");
+                                sizeCell.innerHTML = data.size || '';
+                                row.appendChild(sizeCell);
+
+                                var salesCell = document.createElement("td");
+                                salesCell.innerHTML = data.final_total || data.total;
+                                row.appendChild(salesCell);
+
+                                if (first) {
+                                    var totalSalesCell = document.createElement("td");
+                                    totalSalesCell.innerHTML = totalSales;
+                                    totalSalesCell.setAttribute("rowspan", rowSpan);
+                                    row.appendChild(totalSalesCell);
+                                }
+
+                                tableBody.appendChild(row);
+                                first = false;
+                            }
+
+                            previousLotNo = lot_no;
+                            foundData = true;
                         }
                     }
                 }
+
+                if (!foundData) {
+                    // If no data is found, display a "No data found" message
+                    var row = document.createElement("tr");
+                    var noDataCell = document.createElement("td");
+                    noDataCell.className = "no-data-cell"; // Apply the custom style
+                    noDataCell.colSpan = 5; // Span all columns
+                    noDataCell.innerHTML = "No data found";
+                    row.appendChild(noDataCell);
+                    tableBody.appendChild(row);
+                }
             }
         });
+
+        function countRows(lotNo, selectedLotNo) {
+            if (selectedLotNo === "") {
+                return combinedData[lotNo].length;
+            } else {
+                return combinedData[lotNo].filter(function (data) {
+                    return data.lot_no === selectedLotNo;
+                }).length;
+            }
+        }
+
+        function getTotalSales(lotNo) {
+            var totalSales = 0;
+            combinedData[lotNo].forEach(function (data) {
+                if (data.final_total) {
+                    totalSales += parseFloat(data.final_total); // Parse as a float
+                } else if (data.total) {
+                    totalSales += parseFloat(data.total); // Parse as a float
+                }
+            });
+            return totalSales;
+        }
 
         var removeFiltersButton = document.getElementById("removeFiltersButton");
 
@@ -256,8 +390,8 @@ foreach ($combinedData as $lot_no => $lotData) {
 
     </script>
     <a href="../../landing_page/landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+        <i class="fas fa-home"></i>
+    </a>
 </body>
 
 </html>

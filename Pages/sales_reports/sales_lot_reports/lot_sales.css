@@ -158,3 +158,8 @@ input::file-selector-button:hover {
     font-size: 20px;
     vertical-align: middle;
 }
+
+.no-data-cell {
+  text-align: center; 
+  padding: 10px; 
+}
