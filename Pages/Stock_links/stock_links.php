@@ -72,6 +72,7 @@ if ($conn->connect_error) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock List</title>
     <link rel="stylesheet" href="stock_links.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 
 <body>
@@ -125,6 +126,10 @@ if ($conn->connect_error) {
         const importedData = <?php echo json_encode($importedData); ?>;
         populateTable(importedData);
     </script>
+
+<a href="../landing_page/landing_page.html" class="home-button">
+                <i class="fas fa-home"></i>
+            </a>
 </body>
 
 </html>

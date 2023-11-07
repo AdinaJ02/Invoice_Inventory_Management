@@ -36,11 +36,12 @@ if ($conn->connect_error) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock List</title>
     <link rel="stylesheet" href="Stock_database.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 
 <body>
     <!-- Add buttons at the top of the table -->
-    <div id="table-buttons">
+    <div id="table-buttons" class="fixed-buttons">
     <button id="add-button">Add</button>
     <button id="edit-button" disabled>Edit</button>
     <button id="duplicate-button" disabled>Duplicate</button>
@@ -415,6 +416,9 @@ if ($conn->connect_error) {
 
 
     </script>
+    <a href="../landing_page/landing_page.html" class="home-button">
+                <i class="fas fa-home"></i>
+            </a>
 </body>
 
 </html>

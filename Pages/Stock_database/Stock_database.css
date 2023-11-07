@@ -7,7 +7,7 @@ body {
 .table_data {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 50px;
 }
 
 .table_data th,
@@ -20,6 +20,15 @@ body {
     background-color: #106f7b;
     color: white;
 
+}
+.fixed-buttons {
+  position: fixed;
+  top: 10;
+  margin-left: 6%;
+  /* background-color: white; You can set a background color for the fixed buttons if needed */
+  z-index: 1; /* Ensure the buttons are above other content */
+  width: 100%; /* Make the buttons span the entire width */
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); Add a shadow for a nice effect */
 }
 #download-button{
   color: white;
@@ -117,4 +126,27 @@ body {
   margin: 10px auto;
   width: 50%;
   border-radius: 5px;
+}
+
+.home-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgb(0, 128, 128);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  color: aliceblue;
+  font-size: larger;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.home-button:hover {
+  transform: translateY(-5px);
+}
+
+.home-button i {
+  font-size: 20px;
+  vertical-align: middle;
 }

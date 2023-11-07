@@ -24,6 +24,13 @@
         background-color: #106f7b;
         color: white;
     }
+
+    #header {
+        font-size: 14px;
+        /* Adjust the font size as needed */
+        white-space: nowrap;
+        /* Prevent text from wrapping to the next line */
+      }
 }
 
 /* Style for the select dropdown wrapper */
@@ -234,4 +241,27 @@ p {
 .form-group input[type="button"] {
     display: inline-block;
     margin-right: 10px; /* Adjust the margin as needed */
+}
+
+.home-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgb(0, 128, 128);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    color: aliceblue;
+    font-size: larger;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.home-button:hover {
+    transform: translateY(-5px);
+}
+
+.home-button i {
+    font-size: 20px;
+    vertical-align: middle;
 }
