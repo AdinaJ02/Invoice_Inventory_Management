@@ -338,7 +338,8 @@ function saveData() {
     const address = document.getElementById("addressInput").value;
     const total_wt = document.querySelector('.total_wt').value;
     const total_final_tot = document.querySelector('.total_final_tot').value;
-    const disc_total = document.getElementById("disc_total").textContent;
+    let discTotalElement = document.getElementById("disc_total");
+    let disc_total = discTotalElement.textContent.trim() !== '' ? parseFloat(discTotalElement.textContent) : 0;
     // Determine if "Received" or "Not Received" checkbox is checked
     const paymentStatus = document.getElementById("receivedCheckbox").checked ? "Received" : "Not Received";
 
