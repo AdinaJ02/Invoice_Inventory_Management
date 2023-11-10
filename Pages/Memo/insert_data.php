@@ -55,8 +55,8 @@ if ($conn->connect_error) {
             $total = (float) $row['total'];
 
             if (!empty($lotNo)) {
-                $sql_insert_memo_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`) 
-                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
+                $sql_insert_memo_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`, kept, final_total) 
+                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc','$price','$total','$wt','$total')";
 
                 // Check if the lot number exists in stock_list
                 $check_sql = "SELECT * FROM stock_list WHERE lot_no = '$lotNo'";
