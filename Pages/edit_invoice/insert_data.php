@@ -13,6 +13,7 @@ if ($conn->connect_error) {
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
         $total_final_tot = $request_data["total_final_tot"];
+        $disc_total = $request_data["disc_total"];
         $paymentStatus = $request_data["paymentStatus"];
         $data = $request_data["data"];
 
@@ -36,7 +37,7 @@ if ($conn->connect_error) {
         }
 
         // Check if the invoice already exists
-        $sql_update_invoice = "UPDATE invoice_wmemo SET customer_name='$name', total_wt='$total_wt', final_total='$total_final_tot', payment_status='$paymentStatus' WHERE invoice_no='$invoice_no'";
+        $sql_update_invoice = "UPDATE invoice_wmemo SET customer_name='$name', total_wt='$total_wt', final_total='$total_final_tot', disc_total='$disc_total', payment_status='$paymentStatus' WHERE invoice_no='$invoice_no'";
         if ($conn->query($sql_update_invoice) === TRUE) {
             echo "<p style='color:green; text-align:center;'>Invoice updated successfully.</p>";
         } else {

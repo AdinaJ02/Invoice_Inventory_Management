@@ -156,8 +156,8 @@ function addRow() {
             const price = (rapValue * (100 + discValue)) / 100;
             priceField.textContent = price.toFixed(2);
         }
-        const price = parseFloat(priceField.textContent);
-        const total = price * wtValue;
+        const price = Math.abs(parseFloat(priceField.textContent));
+        const total = Math.abs(price * wtValue);
         totalField.textContent = total.toFixed(2);
         calculateTotals();
     }
@@ -274,7 +274,7 @@ function calculateTotals() {
     const discTotalInputs = document.getElementById('disc_total'); // Add this line
 
     wtInputs.forEach((input) => {
-        const wtValue = parseFloat(input.textContent) || 0;
+        const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
         totalWt += wtValue;
     });
 
@@ -338,6 +338,7 @@ function saveData() {
     const address = document.getElementById("addressInput").value;
     const total_wt = document.querySelector('.total_wt').value;
     const total_final_tot = document.querySelector('.total_final_tot').value;
+    const disc_total = document.getElementById("disc_total").textContent;
     // Determine if "Received" or "Not Received" checkbox is checked
     const paymentStatus = document.getElementById("receivedCheckbox").checked ? "Received" : "Not Received";
 
@@ -357,6 +358,7 @@ function saveData() {
         address: address,
         total_wt: total_wt,
         total_final_tot: total_final_tot,
+        disc_total: disc_total,
         paymentStatus: paymentStatus,
         data: data,
     };

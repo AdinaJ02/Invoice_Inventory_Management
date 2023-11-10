@@ -73,8 +73,8 @@ $conn->close();
             <?php
             foreach ($data as $row) {
                 echo '<tr>';
-                echo '<td>' . $row['memo_no'] . '</td>';
-                $memoDate = date('F j, Y', strtotime($row['memo_date']));
+                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
+    $memoDate = date('F j, Y', strtotime($row['memo_date']));
                 echo '<td>' . $memoDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
                 echo '<td>' . $row['total_wt'] . '</td>';

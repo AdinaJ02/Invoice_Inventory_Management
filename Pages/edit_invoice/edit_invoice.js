@@ -89,21 +89,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const finalTotColumn = document.querySelector('td[name="total_final_tot"]');
                 finalTotColumn.textContent = currency + " " + data.final_total || 0;
 
-                const totalTotFinalField = document.querySelectorAll('td[name="final_total"]');
-                let totalFinal = 0;
-
-                for (let i = 0; i < totalTotFinalField.length; i++) {
-                    const finalCell = totalTotFinalField[i];
-                    const finalValue = parseFloat(finalCell.textContent) || 0;
-                    totalFinal += finalValue;
-                }
-
                 const disc_price = document.getElementById("disc_price");
                 const disc_total = document.getElementById("disc_total");
 
-                const disc = data.final_total - totalFinal
-                disc_price.textContent = disc.toFixed(2);
-                disc_total.textContent = disc.toFixed(2);
+                disc_price.textContent = data.disc_total;
+                disc_total.textContent = data.disc_total;
 
                 // Check the checkbox based on the paymentStatus value
                 if (paymentStatus === "Received") {
@@ -501,8 +491,8 @@ function addRowEmpty() {
             const price = (rapValue * (100 + discValue)) / 100;
             priceField.textContent = price.toFixed(2);
         }
-        const price = parseFloat(priceField.textContent);
-        const total = price * wtValue;
+        const price = Math.abs(parseFloat(priceField.textContent));
+        const total = Math.abs(price * wtValue);
         totalField.textContent = total.toFixed(2);
         calculateTotals();
     }
@@ -595,7 +585,7 @@ function calculateTotals() {
     const discTotalInputs = document.getElementById('disc_total');
 
     wtInputs.forEach((input) => {
-        const wtValue = parseFloat(input.textContent) || 0;
+        const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
         totalWt += wtValue;
     });
 
@@ -631,6 +621,8 @@ function saveData() {
     const total_wt = parseFloat(document.querySelector('.total_wt').textContent) || 0;;
     const totalFinalTotElement = document.querySelector('.total_final_tot');
     const total_final_tot = parseFloat(totalFinalTotElement.textContent.replace(/[^\d.]/g, '')) || 0;
+    const disc_total = document.getElementById("disc_total").textContent;
+    console.log(disc_total);
 
     // Determine if "Received" or "Not Received" checkbox is checked
     const paymentStatus = document.getElementById("receivedCheckbox").checked ? "Received" : "Not Received";
@@ -650,6 +642,7 @@ function saveData() {
         address: address,
         total_wt: total_wt,
         total_final_tot: total_final_tot,
+        disc_total: disc_total,
         paymentStatus: paymentStatus,
         data: data,
     };

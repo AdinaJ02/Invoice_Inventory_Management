@@ -8,7 +8,7 @@ if ($conn->connect_error) {
         $invoiceNo = $_GET["invoice_no"];
 
         // Construct the SQL query to fetch data based on memo_no
-        $sql = "SELECT i.`date`, i.customer_name, c.address, i.final_total, i.payment_status
+        $sql = "SELECT i.`date`, i.customer_name, c.address, i.final_total, i.disc_total, i.payment_status
         FROM invoice_wmemo i 
         LEFT JOIN customers c ON i.customer_name = c.customer_name
         WHERE i.invoice_no = $invoiceNo";
