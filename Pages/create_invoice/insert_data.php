@@ -14,6 +14,7 @@ if ($conn->connect_error) {
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
         $total_final_tot = $request_data["total_final_tot"];
+        $disc_total = $request_data["disc_total"];
         $paymentStatus = $request_data["paymentStatus"];
         $data = $request_data["data"];
 
@@ -27,7 +28,7 @@ if ($conn->connect_error) {
             $paymentStatusInDatabase = ''; // Set a default value if no record is found
         }
 
-        $sql_insert_invoice = "INSERT INTO invoice_wmemo (invoice_no, `date`, customer_name, total_wt, final_total, payment_status) VALUES ('$invoice_no', '$date', '$name', '$total_wt', '$total_final_tot', '$paymentStatus')";
+        $sql_insert_invoice = "INSERT INTO invoice_wmemo (invoice_no, `date`, customer_name, total_wt, final_total, disc_total, payment_status) VALUES ('$invoice_no', '$date', '$name', '$total_wt', '$total_final_tot', $disc_total, '$paymentStatus')";
 
         // Check if the combination of customer_name and address exists
         $check_sql_customers = "SELECT * FROM customers WHERE customer_name = '$name' AND `address` = '$address'";

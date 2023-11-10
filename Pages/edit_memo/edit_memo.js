@@ -474,8 +474,8 @@ function addRow(data) {
             const price = (rapValue * (100 + discValue)) / 100;
             priceField.textContent = price.toFixed(2);
         }
-        const price = parseFloat(priceField.textContent);
-        const total = price * wtValue;
+        const price = Math.abs(parseFloat(priceField.textContent));
+        const total = Math.abs(price * wtValue);
         totalField.textContent = total.toFixed(2);
         calculateTotals();
     }
@@ -490,7 +490,7 @@ function addRow(data) {
         const totalInputs = document.querySelectorAll('.editable[name="total"]');
 
         wtInputs.forEach((input) => {
-            const wtValue = parseFloat(input.textContent) || 0;
+            const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
             totalWt += wtValue;
         });
 
@@ -777,8 +777,8 @@ function addRowEmpty() {
             const price = (rapValue * (100 + discValue)) / 100;
             priceField.textContent = price.toFixed(2);
         }
-        const price = parseFloat(priceField.textContent);
-        const total = price * wtValue;
+        const price = Math.abs(parseFloat(priceField.textContent));
+        const total = Math.abs(price * wtValue);
         totalField.textContent = total.toFixed(2);
         calculateTotals();
     }
@@ -793,7 +793,7 @@ function addRowEmpty() {
         const totalInputs = document.querySelectorAll('.editable[name="total"]');
 
         wtInputs.forEach((input) => {
-            const wtValue = parseFloat(input.textContent) || 0;
+            const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
             totalWt += wtValue;
         });
 
