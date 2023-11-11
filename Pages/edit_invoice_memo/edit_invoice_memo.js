@@ -1,4 +1,4 @@
-var currency;
+var currency ="";
 
 if (!localStorage.getItem('hasReloaded')) {
     // Set a flag to indicate the page has been reloaded
@@ -232,41 +232,41 @@ function addRow(data) {
             .catch(error => {
                 console.error('Error:', error);
             });
-
-        // Add event listeners to rap and disc fields for calculations
-        const rapField = newRow.querySelector('.rap');
-        const discField = newRow.querySelector('.disc');
-        const priceField = newRow.querySelector('.price');
-        const totalField = newRow.querySelector('.final_total');
-        const wtField = newRow.querySelector('.wt');
-
-        rapField.addEventListener('input', calculatePriceAndTotal);
-        discField.addEventListener('input', calculatePriceAndTotal);
-        priceField.addEventListener('input', calculatePriceAndTotal);
-        wtField.addEventListener('input', calculatePriceAndTotal);
-
-        // Function to calculate price and total
-        function calculatePriceAndTotal() {
-            const rapValue = parseFloat(rapField.textContent) || 0;
-            const discValue = parseFloat(discField.textContent) || 0;
-            const priceValue = parseFloat(priceField.textContent) || 0;
-            const wtValue = parseFloat(wtField.textContent) || 0;
-            if (rapField && discField && priceField && wtField) {
-                if (rapValue === 0 && discValue === 0) {
-                } else {
-                    // Calculate the Price
-                    const price = (rapValue * (100 + discValue)) / 100;
-                    priceField.textContent = price.toFixed(2);
-                }
-
-                const price = parseFloat(priceField.textContent);
-                const total = price * wtValue;
-                totalField.textContent = total.toFixed(2);
-                calculateTotals();
-            }
-        }
     })
 
+
+    // Add event listeners to rap and disc fields for calculations
+    const rapField = newRow.querySelector('.rap');
+    const discField = newRow.querySelector('.disc');
+    const priceField = newRow.querySelector('.price');
+    const totalField = newRow.querySelector('.final_total');
+    const wtField = newRow.querySelector('.wt');
+
+    rapField.addEventListener('input', calculatePriceAndTotal);
+    discField.addEventListener('input', calculatePriceAndTotal);
+    priceField.addEventListener('input', calculatePriceAndTotal);
+    wtField.addEventListener('input', calculatePriceAndTotal);
+
+    // Function to calculate price and total
+    function calculatePriceAndTotal() {
+        const rapValue = parseFloat(rapField.textContent) || 0;
+        const discValue = parseFloat(discField.textContent) || 0;
+        const priceValue = parseFloat(priceField.textContent) || 0;
+        const wtValue = parseFloat(wtField.textContent) || 0;
+        if (rapField && discField && priceField && wtField) {
+            if (rapValue === 0 && discValue === 0) {
+            } else {
+                // Calculate the Price
+                const price = (rapValue * (100 + discValue)) / 100;
+                priceField.textContent = price.toFixed(2);
+            }
+
+            const price = parseFloat(priceField.textContent);
+            const total = price * wtValue;
+            totalField.textContent = total.toFixed(2);
+            calculateTotals();
+        }
+    }
 
     // Add an event listener to the table body to calculate "Price" and "Total" on input changes
     tableBody.addEventListener('input', function (event) {

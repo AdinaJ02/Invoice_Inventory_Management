@@ -63,20 +63,50 @@ if ($conn->connect_error) {
                 $check_lot_result = $conn->query($check_sql_lot);
 
                 if ($check_lot_result->num_rows > 0) {
-                    // Update the existing row in invoice_data
-                    $sql_update_data = "UPDATE memo_data 
-                    SET kept = '$wt', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
-                    WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
-                    if ($conn->query($sql_update_data) === TRUE) {
-                        echo 'Data updated successfully';
+                    // Fetch the existing 'kept' value from the memo_data table
+                    $kept_query = "SELECT kept FROM memo_data WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                    $kept_result = $conn->query($kept_query);
 
-                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                        if ($conn->query($update_stock_sql) !== TRUE) {
-                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                            echo 'Error updating stock: ' . $conn->error;
+                    if ($kept_result->num_rows > 0) {
+                        // Fetch the 'kept' value
+                        $row = $kept_result->fetch_assoc();
+                        $kept = $row['kept']; // This retrieves the 'kept' value from the database
+
+                        if ($wt > $kept) {
+                            $diff = $wt - $kept; // Calculate the difference
+                            // Update memo_data
+                            $sql_update_data = "UPDATE memo_data 
+                                                SET kept = '$wt', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
+                                                WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by subtracting the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight - $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
+                            }
+                        } else {
+                            $diff = $kept - $wt; // Calculate the difference
+                            // Update memo_data
+                            $sql_update_data = "UPDATE memo_data 
+                                                SET kept = '$wt', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
+                                                WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by adding the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight + $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
+                            }
                         }
-                    } else {
-                        echo 'Error updating data: ' . $conn->error;
                     }
                 } else {
                     // Insert a new row into invoice_data
@@ -84,12 +114,6 @@ if ($conn->connect_error) {
                     VALUES ('$memo_no','$lotNo','$wt','$shape','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
                     if ($conn->query($sql_insert_data) === TRUE) {
                         echo 'Data inserted successfully';
-
-                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                        if ($conn->query($update_stock_sql) !== TRUE) {
-                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                            echo 'Error updating stock: ' . $conn->error;
-                        }
                     } else {
                         echo 'Error: ' . $sql_insert_data . '<br>' . $conn->error;
                     }
