@@ -1,27 +1,88 @@
 <?php
 include '../../connection.php';
 
-// SQL query to retrieve data from the database
-$sql = "SELECT invoice_no, `date`, customer_name, total_wt, final_total, payment_status FROM invoice_wmemo";
+$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status 
+        FROM invoice i
+        JOIN memo m ON i.memo_no = m.memo_no
+        AND i.payment_status = 'Received'
+        ORDER BY i.invoice_no ASC";
 $result = $conn->query($sql);
 
-// Store the retrieved data in an array
 $data = array();
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data[] = $row;
+if ($result === false) {
+    echo "Error: " . $conn->error;
+} else {
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = array(
+                'invoice_no' => $row['invoice_no'],
+                'invoice_date' => $row['invoice_date'],
+                'customer_name' => $row['customer_name'],
+                'total_wt' => $row['total_wt'],
+                'total_total' => $row['total_total'],
+                'payment_status' => $row['payment_status'],
+                'source' => 'invoice'
+            );
+        }
     }
 }
 
-// Fetch and populate customer names from the customers table
-$sqlCustomer = "SELECT distinct customer_name FROM invoice_wmemo";
-$resultCustomer = $conn->query($sqlCustomer);
+$sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status 
+                    FROM invoice_wmemo iw
+                    WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i)
+                    AND iw.payment_status = 'Received'
+                    ORDER BY iw.invoice_no ASC";
+$resultInvoiceWMemo = $conn->query($sqlInvoiceWMemo);
+
+if ($resultInvoiceWMemo === false) {
+    echo "Error: " . $conn->error;
+} else {
+    if ($resultInvoiceWMemo->num_rows > 0) {
+        while ($row = $resultInvoiceWMemo->fetch_assoc()) {
+            $data[] = array(
+                'invoice_no' => $row['invoice_no'],
+                'invoice_date' => $row['invoice_date'],
+                'customer_name' => $row['customer_name'],
+                'total_wt' => $row['total_wt'],
+                'total_total' => $row['final_total'],
+                'payment_status' => $row['payment_status'],
+                'source' => 'invoice_wmemo'
+            );
+        }
+    }
+}
+
+// Sort the $data array by invoice_no in ascending order
+usort($data, function ($a, $b) {
+    return $a['invoice_no'] - $b['invoice_no'];
+});
+
+// Fetch distinct customer names from the invoice table
+$sqlInvoiceCustomer = "SELECT DISTINCT m.customer_name 
+                       FROM invoice i
+                       JOIN memo m ON i.memo_no = m.memo_no
+                       AND i.payment_status = 'Received'";
+$resultInvoiceCustomer = $conn->query($sqlInvoiceCustomer);
+
+// Fetch distinct customer names from the invoice_wmemo table
+$sqlInvoiceWMemoCustomer = "SELECT DISTINCT customer_name FROM invoice_wmemo where payment_status='Received'";
+$resultInvoiceWMemoCustomer = $conn->query($sqlInvoiceWMemoCustomer);
 
 // Store customer names in an array
 $customerNames = array();
-while ($rowCustomer = $resultCustomer->fetch_assoc()) {
-    $customerNames[] = $rowCustomer['customer_name'];
+
+// Fetch and store customer names from the invoice table
+while ($rowInvoiceCustomer = $resultInvoiceCustomer->fetch_assoc()) {
+    $customerNames[] = $rowInvoiceCustomer['customer_name'];
 }
+
+// Fetch and store customer names from the invoice_wmemo table
+while ($rowInvoiceWMemoCustomer = $resultInvoiceWMemoCustomer->fetch_assoc()) {
+    $customerNames[] = $rowInvoiceWMemoCustomer['customer_name'];
+}
+
+// Filter out duplicate customer names and keep only distinct ones
+$distinctCustomerNames = array_unique($customerNames);
 
 // Close the database connection
 $conn->close();
@@ -42,7 +103,7 @@ $conn->close();
         <select class="dropdown" id="customerDropdown">
             <option value="">All Customers</option>
             <?php
-            foreach ($customerNames as $customerName) {
+            foreach ($distinctCustomerNames as $customerName) {
                 echo '<option value="' . $customerName . '">' . $customerName . '</option>';
             }
             ?>
@@ -52,33 +113,38 @@ $conn->close();
             <option value="date-asc">Date Ascending</option>
             <option value="date-desc">Date Descending</option>
         </select>
-        <select class="dropdown" id="statusDropdown">
-            <option value="" disabled selected>Payment Status</option>
-            <option value="open">Recieved</option>
-            <option value="close">Not Recieved</option>
-        </select>
     </div>
     <table class="table_data">
         <thead>
             <tr id="header">
-                <th>Invoice no.</th>
-                <th>Date</th>
-                <th>Customer name</th>
-                <th>Total Weight</th>
-                <th>Final Total</th>
-                <th>Payment Recieved</th>
+                <th>invoice no.</th>
+                <th>date</th>
+                <th>name</th>
+                <th>totalwt</th>
+                <th>totalvalue</th>
+                <th>Payment Status</th>
             </tr>
         </thead>
         <tbody>
             <?php
             foreach ($data as $row) {
+                // Skip rows with total_total equal to 0.0
+                if ($row['total_total'] == 0.0) {
+                    continue;
+                }
+
                 echo '<tr>';
-                echo '<td><a class="invoice-link" href="../edit_invoice/edit_invoice.html?invoice_no=' . $row['invoice_no'] . '">' . $row['invoice_no'] . '</a></td>';
-        $memoDate = date('F j, Y', strtotime($row['date']));
-                echo '<td>' . $memoDate . '</td>';
+                // Check the source of invoice_no and provide the appropriate link
+                $editLink = ($row['source'] === 'invoice_wmemo') ?
+                    '../edit_invoice/edit_invoice.html' :
+                    '../edit_invoice_memo/edit_invoice_memo.html';
+
+                echo '<td><a class="invoice-link" href="' . $editLink . '?invoice_no=' . $row['invoice_no'] . '">' . $row['invoice_no'] . '</a></td>';
+                $invoiceDate = date('F j, Y', strtotime($row['invoice_date']));
+                echo '<td>' . $invoiceDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
                 echo '<td>' . $row['total_wt'] . '</td>';
-                echo '<td>' . $row['final_total'] . '</td>';
+                echo '<td>' . $row['total_total'] . '</td>';
                 echo '<td>' . $row['payment_status'] . '</td>';
                 echo '</tr>';
             }
@@ -99,12 +165,10 @@ $conn->close();
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
         const sortDropdown = document.getElementById("sortDropdown");
-        const filterDropdown = document.getElementById("statusDropdown");
         const tableRows = document.querySelectorAll(".table_data tbody tr");
 
         customerDropdown.addEventListener("change", filterTable);
         sortDropdown.addEventListener("change", filterTableDate);
-        filterDropdown.addEventListener("change", filterTableInvoice);
 
         function filterTable() {
             const selectedCustomer = customerDropdown.value;
@@ -143,48 +207,10 @@ $conn->close();
             }
         }
 
-        function filterTableInvoice() {
-            const selectedStatus = filterDropdown.value.toLowerCase();
-            const tbody = document.querySelector(".table_data tbody");
-            const rows = Array.from(tbody.querySelectorAll("tr"));
-
-            rows.sort((rowA, rowB) => {
-                const statusCellA = rowA.querySelector("td:nth-child(6)").textContent.trim().toLowerCase();
-                const statusCellB = rowB.querySelector("td:nth-child(6)").textContent.trim().toLowerCase();
-
-                if (selectedStatus === "open") {
-                    // Sort by "Recieved" first, then "Not Recieved"
-                    if (statusCellA === "received" && statusCellB === "not received") {
-                        return -1;
-                    } else if (statusCellA === "not received" && statusCellB === "received") {
-                        return 1;
-                    }
-                } else if (selectedStatus === "close") {
-                    // Sort by "Not Recieved" first, then "Recieved"
-                    if (statusCellA === "not received" && statusCellB === "received") {
-                        return -1;
-                    } else if (statusCellA === "received" && statusCellB === "not received") {
-                        return 1;
-                    }
-                }
-                return 0;
-            });
-
-            // Clear the table and append the sorted rows
-            tbody.innerHTML = "";
-            rows.forEach((row) => tbody.appendChild(row));
-        }
-
-        // JavaScript for the "Remove Filters" button
-        const removeFiltersButton = document.getElementById("removeFilters");
-        removeFiltersButton.addEventListener("click", function () {
-            // Reload the page to remove filters
-            window.location.reload();
-        });
     </script>
     <a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
-            </a>
+    </a>
 </body>
 
 </html>

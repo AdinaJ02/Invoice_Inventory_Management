@@ -1,9 +1,10 @@
 <?php
 include '../../connection.php';
 
-$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total 
+$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status 
         FROM invoice i
         JOIN memo m ON i.memo_no = m.memo_no
+        AND i.payment_status = 'Not Received'
         ORDER BY i.invoice_no ASC";
 $result = $conn->query($sql);
 
@@ -19,15 +20,17 @@ if ($result === false) {
                 'customer_name' => $row['customer_name'],
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['total_total'],
+                'payment_status' => $row['payment_status'],
                 'source' => 'invoice'
             );
         }
     }
 }
 
-$sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total 
+$sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status 
                     FROM invoice_wmemo iw
                     WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i)
+                    AND iw.payment_status = 'Not Received'
                     ORDER BY iw.invoice_no ASC";
 $resultInvoiceWMemo = $conn->query($sqlInvoiceWMemo);
 
@@ -42,6 +45,7 @@ if ($resultInvoiceWMemo === false) {
                 'customer_name' => $row['customer_name'],
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['final_total'],
+                'payment_status' => $row['payment_status'],
                 'source' => 'invoice_wmemo'
             );
         }
@@ -56,11 +60,12 @@ usort($data, function ($a, $b) {
 // Fetch distinct customer names from the invoice table
 $sqlInvoiceCustomer = "SELECT DISTINCT m.customer_name 
                        FROM invoice i
-                       JOIN memo m ON i.memo_no = m.memo_no";
+                       JOIN memo m ON i.memo_no = m.memo_no
+                       AND i.payment_status = 'Not Received'";
 $resultInvoiceCustomer = $conn->query($sqlInvoiceCustomer);
 
 // Fetch distinct customer names from the invoice_wmemo table
-$sqlInvoiceWMemoCustomer = "SELECT DISTINCT customer_name FROM invoice_wmemo";
+$sqlInvoiceWMemoCustomer = "SELECT DISTINCT customer_name FROM invoice_wmemo where payment_status='Not Received'";
 $resultInvoiceWMemoCustomer = $conn->query($sqlInvoiceWMemoCustomer);
 
 // Store customer names in an array
@@ -117,23 +122,30 @@ $conn->close();
                 <th>Name</th>
                 <th>Total Wt</th>
                 <th>Total Value</th>
+                <th>Payment Status</th>
             </tr>
         </thead>
         <tbody>
             <?php
             foreach ($data as $row) {
+                // Skip rows with total_total equal to 0.0
+                if ($row['total_total'] == 0.0) {
+                    continue;
+                }
+        
                 echo '<tr>';
                 // Check the source of invoice_no and provide the appropriate link
                 $editLink = ($row['source'] === 'invoice_wmemo') ?
                     '../edit_invoice/edit_invoice.html' :
                     '../edit_invoice_memo/edit_invoice_memo.html';
-
+        
                 echo '<td><a class="invoice-link" href="' . $editLink . '?invoice_no=' . $row['invoice_no'] . '">' . $row['invoice_no'] . '</a></td>';
                 $invoiceDate = date('F j, Y', strtotime($row['invoice_date']));
                 echo '<td>' . $invoiceDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
                 echo '<td>' . $row['total_wt'] . '</td>';
                 echo '<td>' . $row['total_total'] . '</td>';
+                echo '<td>' . $row['payment_status'] . '</td>';
                 echo '</tr>';
             }
             ?>

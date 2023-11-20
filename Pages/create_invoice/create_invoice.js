@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Fetch the next memo number from the PHP script
-fetch('../print_invoice/generate_invoice.php')
+fetch('generate_invoice.php')
     .then(response => response.json())
     .then(data => {
-        document.getElementById('invoice_no').value = data.next_memo_no;
+        document.getElementById('invoice_no').value = data.next_invoice_no;
     })
     .catch(error => {
         console.error('Error:', error);

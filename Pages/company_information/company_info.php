@@ -7,7 +7,7 @@ if ($conn->connect_error) {
 }
 
 // Define the columns to retrieve
-$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice, `currency`';
+$columns = 'company_name, `desc`, phone_no, address, email, disclaimer_memo, terms_invoice, `currency`, bank_details';
 
 // Construct the SQL query
 $sql = "SELECT $columns FROM `company_info`";
@@ -34,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $disclaimer = mysqli_real_escape_string($conn, $_POST["disclaimer"]);
     $terms = mysqli_real_escape_string($conn, $_POST["terms"]);
     $currency = mysqli_real_escape_string($conn, $_POST["currency"]);
+    $bank_details = mysqli_real_escape_string($conn, $_POST["bank_details"]);
 
     // Handle logo file upload
     if ($_FILES["logo"]["error"] == UPLOAD_ERR_OK) {
@@ -74,7 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               email = '$email', 
               disclaimer_memo = '$disclaimer', 
               terms_invoice = '$terms',
-              currency = '$currency' 
+              currency = '$currency',
+              bank_details = '$bank_details'
               WHERE id = 1";
 
     if ($conn->query($queryupdate)) {

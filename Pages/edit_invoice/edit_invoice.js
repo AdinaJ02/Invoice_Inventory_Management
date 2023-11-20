@@ -104,20 +104,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     notReceivedCheckbox.checked = true;
                 }
 
-                // Disable both checkboxes if paymentStatus is "received"
-                if (paymentStatus === "Received") {
-                    receivedCheckbox.disabled = true;
-                    notReceivedCheckbox.disabled = true;
-
-                    addButton.disabled = true; // Disable the "Add Row" button
-                    saveInvoiceButton.disabled = true; // Disable the "Save" button
-                    // Make the entire table not editable
-                    const tableCells = document.querySelectorAll('.table_data tbody td.editable');
-                    tableCells.forEach(cell => {
-                        cell.contentEditable = "false"; // Use "false" as a string to set contentEditable to "false"
-                    });
-                }
-
                 recipientInput.value = data.customer_name;
                 addressInput.value = data.address;
             })
@@ -665,6 +651,7 @@ function saveData() {
                 // Optionally, you can clear the message after a few seconds
                 setTimeout(() => {
                     successMessage.textContent = '';
+                    location.reload();
                 }, 3000); // Clear the message after 3 seconds
             } else {
                 // Handle other response statuses here if needed
