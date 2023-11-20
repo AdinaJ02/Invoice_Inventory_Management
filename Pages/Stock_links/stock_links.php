@@ -91,7 +91,7 @@ if ($conn->connect_error) {
             <tr id="header">
                 <th>Lot No</th>
                 <th>Certificate</th>
-                <th>video</th>
+                <th>Video</th>
             </tr>
         </thead>
         <tbody id="table-body">
@@ -127,7 +127,7 @@ if ($conn->connect_error) {
         populateTable(importedData);
     </script>
 
-<a href="../landing_page/landing_page.html" class="home-button">
+<a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>
