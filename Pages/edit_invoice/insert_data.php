@@ -63,21 +63,50 @@ if ($conn->connect_error) {
                 $check_lot_result = $conn->query($check_sql_lot);
 
                 if ($check_lot_result->num_rows > 0) {
-                    // Update the existing row in invoice_data
-                    $sql_update_data = "UPDATE invoice_data SET `wt`='$wt', `shape`='$shape', `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', `discount`='$disc', `price`='$price', `total`='$total' WHERE invoice_no='$invoice_no' AND lot_no='$lotNo'";
-                    if ($conn->query($sql_update_data) === TRUE) {
-                        echo 'Data updated successfully';
+                    // Fetch the existing 'total' value from the invoice_data table
+                    $total_query = "SELECT wt FROM invoice_data WHERE invoice_no = '$invoice_no' AND lot_no = '$lotNo'";
+                    $total_result = $conn->query($total_query);
 
-                        if (strcasecmp($paymentStatus, "Received") === 0 && strcasecmp($paymentStatusInDatabase, "Received") !== 0) {
-                            // Payment received in the passed data but not received in the database, update stock_list
-                            $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                            if ($conn->query($update_stock_sql) !== TRUE) {
-                                // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                                echo 'Error updating stock: ' . $conn->error;
+                    if ($total_result->num_rows > 0) {
+                        // Fetch the 'total' value
+                        $row = $total_result->fetch_assoc();
+                        $existingTotal = $row['wt']; // This retrieves the 'total' value from the database
+
+                        if ($wt > $existingTotal) {
+                            $diff = $wt - $existingTotal; // Calculate the difference
+                            // Update invoice_data
+                            $sql_update_data = "UPDATE invoice_data 
+                                                SET `wt`='$wt', `shape`='$shape', `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', `discount`='$disc', `price`='$price', `total`='$total' 
+                                                WHERE invoice_no='$invoice_no' AND lot_no='$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by subtracting the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight - $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
+                            }
+                        } else {
+                            $diff = $existingTotal - $wt; // Calculate the difference
+                            // Update invoice_data
+                            $sql_update_data = "UPDATE invoice_data 
+                                                SET `wt`='$wt', `shape`='$shape', `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', `discount`='$disc', `price`='$price', `total`='$total' 
+                                                WHERE invoice_no='$invoice_no' AND lot_no='$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by adding the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight + $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
                             }
                         }
-                    } else {
-                        echo 'Error updating data: ' . $conn->error;
                     }
                 } else {
                     // Insert a new row into invoice_data

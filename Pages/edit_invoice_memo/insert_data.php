@@ -13,6 +13,7 @@ if ($conn->connect_error) {
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
         $total_final_tot = $request_data["total_final_tot"];
+        $paymentStatus = $request_data["paymentStatus"];
         $data = $request_data["data"];
 
         // Create an array to store all the lot_no values from the data
@@ -42,6 +43,14 @@ if ($conn->connect_error) {
             }
         } else {
             echo "<p style='color:red; text-align:center;'>No memo found for the given invoice.</p>";
+        }
+
+        // Check if the invoice already exists
+        $sql_update_invoice = "UPDATE invoice SET payment_status='$paymentStatus' WHERE invoice_no='$invoice_no'";
+        if ($conn->query($sql_update_invoice) === TRUE) {
+            echo "<p style='color:green; text-align:center;'>Invoice updated successfully.</p>";
+        } else {
+            echo "<p style='color:red; text-align:center;'>Error updating invoice: " . $conn->error . "</p>";
         }
 
         // Iterate through the data and insert or update each row into the database
