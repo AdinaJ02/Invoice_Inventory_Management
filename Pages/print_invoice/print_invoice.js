@@ -23,15 +23,24 @@ fetch('../php_data/fetch_data_company.php')
         console.error('Error:', error);
     });
 
-// Fetch the next memo number from the PHP script
-fetch('generate_invoice.php')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('invoice_no').value = data.next_memo_no;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+// Assuming this code is in a function or script block
+function fetchInvoiceData() {
+    const memo_no = getQueryParam('memo_no');
+
+    console.log(`generate_invoice.php?memo_no=${memo_no}`);
+    fetch(`generate_invoice.php?memo_no=${memo_no}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            document.getElementById('invoice_no').value = data.next_invoice_no; 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Call the function to fetch invoice data
+fetchInvoiceData();
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 

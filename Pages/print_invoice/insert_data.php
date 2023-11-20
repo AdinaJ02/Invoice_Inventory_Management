@@ -13,7 +13,7 @@ if ($conn->connect_error) {
         $date = $request_data["date"];
 
         // Create a SQL query to insert data into the memo table
-        $sql_insert_invoice = "INSERT INTO invoice (invoice_no, invoice_date, memo_no, payment_status) VALUES ('$invoice_no', '$date', '$memo_no', 'Recieved')";
+        $sql_insert_invoice = "INSERT INTO invoice (invoice_no, invoice_date, memo_no, payment_status) VALUES ('$invoice_no', '$date', '$memo_no', 'Not Received')";
 
         if ($conn->query($sql_insert_invoice) === TRUE) {
             // Now, insert the invoice_no into the "invoice_nos" table

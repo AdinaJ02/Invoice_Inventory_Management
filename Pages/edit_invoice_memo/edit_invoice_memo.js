@@ -1,4 +1,4 @@
-var currency ="";
+var currency = "";
 
 if (!localStorage.getItem('hasReloaded')) {
     // Set a flag to indicate the page has been reloaded
@@ -77,6 +77,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Set the formatted date in the "formatted-date" element
                     document.getElementById("formatted-date").textContent = formattedDateString;
 
+                    const paymentStatus = data.payment_status; // Replace with the actual value from your data
+
+                    // Get the checkboxes by their IDs
+                    const receivedCheckbox = document.getElementById("receivedCheckbox");
+                    const notReceivedCheckbox = document.getElementById("notReceivedCheckbox");
+
+                    // Check the checkbox based on the paymentStatus value
+                    if (paymentStatus === "Received") {
+                        receivedCheckbox.checked = true;
+                        notReceivedCheckbox.checked = false;
+                    } else if (paymentStatus === "Not Received") {
+                        receivedCheckbox.checked = false;
+                        notReceivedCheckbox.checked = true;
+                    }
+
                     const finalWtColumn = document.querySelector('td[name="total_wt"]');
                     finalWtColumn.textContent = data.total_wt || 0;
 
@@ -102,6 +117,22 @@ document.addEventListener('DOMContentLoaded', function () {
     addressInput.readOnly = true;
 
     fetchInvoiceData(invoice_no);
+});
+
+// JavaScript for checkbox behavior
+const receivedCheckbox = document.getElementById("receivedCheckbox");
+const notReceivedCheckbox = document.getElementById("notReceivedCheckbox");
+
+receivedCheckbox.addEventListener("change", function () {
+    if (receivedCheckbox.checked) {
+        notReceivedCheckbox.checked = false;
+    }
+});
+
+notReceivedCheckbox.addEventListener("change", function () {
+    if (notReceivedCheckbox.checked) {
+        receivedCheckbox.checked = false;
+    }
 });
 
 // Add a new row when the "Add Row" button is clicked
@@ -574,6 +605,9 @@ function saveData() {
     const totalFinalTotElement = document.querySelector('.total_final_tot');
     const total_final_tot = parseFloat(totalFinalTotElement.textContent.replace(/[^\d.]/g, '')) || 0;
 
+    // Determine if "Received" or "Not Received" checkbox is checked
+    const paymentStatus = document.getElementById("receivedCheckbox").checked ? "Received" : "Not Received";
+
     tableRows.forEach((row) => {
         const rowData = {};
         row.querySelectorAll('td.editable').forEach((cell) => {
@@ -589,6 +623,7 @@ function saveData() {
         address: address,
         total_wt: total_wt,
         total_final_tot: total_final_tot,
+        paymentStatus: paymentStatus,
         data: data,
     };
 
@@ -611,6 +646,7 @@ function saveData() {
                 // Optionally, you can clear the message after a few seconds
                 setTimeout(() => {
                     successMessage.textContent = '';
+                    location.reload();
                 }, 3000); // Clear the message after 3 seconds
             } else {
                 // Handle other response statuses here if needed
