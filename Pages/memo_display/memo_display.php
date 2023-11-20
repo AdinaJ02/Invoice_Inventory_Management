@@ -63,7 +63,7 @@ $conn->close();
             <tr id="header">
                 <th>Memo no.</th>
                 <th>Date</th>
-                <th>Customer name</th>
+                <th>Customer Name</th>
                 <th>Total Weight</th>
                 <th>Final Total</th>
                 <th>Is Open</th>
@@ -186,7 +186,7 @@ $conn->close();
             window.location.reload();
         });
     </script>
-    <a href="../landing_page/landing_page.html" class="home-button">
+    <a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 

@@ -165,7 +165,7 @@ $importedData = json_encode($mergedData);
                 <th>Size</th>
                 <th>Pcs</th>
                 <th>Wt (cts)</th>
-                <th>value</th>
+                <th>Value</th>
             </tr>
         </thead>
         <tbody id="table-body">
@@ -342,7 +342,7 @@ $importedData = json_encode($mergedData);
             </script>
         </tbody>
     </table>
-    <a href="../../landing_page/landing_page.html" class="home-button">
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

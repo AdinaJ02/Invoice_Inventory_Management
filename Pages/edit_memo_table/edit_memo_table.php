@@ -56,11 +56,11 @@ $conn->close();
     <table class="table_data">
         <thead>
             <tr id="header">
-                <th>memo no.</th>
-                <th>date</th>
-                <th>name</th>
-                <th>totalwt</th>
-                <th>totalvalue</th>
+                <th>Memo No.</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Total Wt</th>
+                <th>Total Value</th>
             </tr>
         </thead>
         <tbody>
@@ -135,7 +135,7 @@ $conn->close();
 
     </script>
 
-<a href="../landing_page/landing_page.html" class="home-button">
+<a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

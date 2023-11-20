@@ -389,7 +389,7 @@ foreach ($combinedData as $lot_no => $lotData) {
         });
 
     </script>
-    <a href="../../landing_page/landing_page.html" class="home-button">
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

@@ -139,7 +139,7 @@ $conn->close();
                 <th>Customer Name</th>
                 <th>Lot No.</th>
                 <th>Shape</th>
-                <th>final_total Sales</th>
+                <th>Final Total Sales</th>
             </tr>
         </thead>
         <tbody id="table-body">
@@ -228,7 +228,7 @@ $conn->close();
             window.history.back();
         });
     </script>
-    <a href="../../landing_page/landing_page.html" class="home-button">
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

@@ -10,6 +10,7 @@
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    font-family: Arial, Helvetica, sans-serif;
   }
 
   .hide-on-print {
@@ -31,6 +32,10 @@
     white-space: nowrap;
     /* Prevent text from wrapping to the next line */
   }
+}
+
+body{
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .header_top {
@@ -198,11 +203,11 @@ p {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: rgb(0, 128, 128);
+  background-color: white;
   padding: 10px;
   border-radius: 8px;
   text-align: center;
-  color: aliceblue;
+  color: black;
   font-size: larger;
   transition: transform 0.2s;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
