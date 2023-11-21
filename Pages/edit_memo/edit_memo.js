@@ -1050,6 +1050,11 @@ function goBackOneStep() {
     window.history.back(); // This will go back one step in the browser's history
 }
 
+// Reload the page when the history changes (e.g., after using window.history.back())
+window.addEventListener("popstate", function (event) {
+    location.reload();
+});
+
 function printMemo() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
