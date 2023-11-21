@@ -8,7 +8,6 @@ fetch("../php_data/fetch_data_company.php")
     const address = document.querySelector("#title_table #address");
     const email = document.querySelector("#title_table #email");
     const disclaimerMemo = document.querySelector("#disclaimer b");
-    const bank_details = document.querySelector("#bank_details");
 
     // Set data in HTML elements
     companyName.textContent = data.company_name;
@@ -17,7 +16,6 @@ fetch("../php_data/fetch_data_company.php")
     address.textContent = data.address;
     email.textContent = `E: ${data.email}`;
     disclaimerMemo.textContent = data.disclaimer_memo;
-    bank_details.textContent = data.bank_details;
   })
   .catch((error) => {
     console.error("Error:", error);
@@ -195,7 +193,7 @@ document.getElementById("printButton").addEventListener("click", function () {
 function printMemo() {
   // Hide the button when printing by applying a media query
   const style = document.createElement("style");
-  style.innerHTML = "@media print { #printButton, #goBack, #editButton { display: none; } #bank_details { display: block; position: fixed; bottom: 0; width: 100%; padding: 10px; border-top: 1px solid #ccc; background-color: #fff; }}";
+  style.innerHTML = "@media print { #printButton, #goBack, #editButton { display: none; }}";
   document.head.appendChild(style);
 
   // Clone the original content

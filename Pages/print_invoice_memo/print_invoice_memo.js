@@ -10,6 +10,7 @@ fetch('../php_data/fetch_data_company.php')
         const address = document.querySelector('#title_table #address');
         const email = document.querySelector('#title_table #email');
         const termsInvoice = document.querySelector('#terms b');
+        const bank_details = document.querySelector('#terms #bank_details');
 
         // Set data in HTML elements
         companyName.textContent = data.company_name;
@@ -19,6 +20,7 @@ fetch('../php_data/fetch_data_company.php')
         email.textContent = `E: ${data.email}`;
         termsInvoice.textContent = data.terms_invoice;
         currency = data.currency;
+        bank_details.textContent = data.bank_details;
     })
     .catch(error => {
         console.error('Error:', error);

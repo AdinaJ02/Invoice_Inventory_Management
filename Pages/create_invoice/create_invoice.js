@@ -222,16 +222,6 @@ function addRow() {
                 console.error('Error:', error);
             });
     })
-
-    function updatePrintButtonState() {
-        const printButton = document.getElementById("printButton");
-        const rowsWithData = document.querySelectorAll('#table-body tr:not(:last-child):not(.export-row)'); // Select all rows except the last one and export rows
-        const enablePrintButton = Array.from(rowsWithData).some((row) => {
-            const inputs = Array.from(row.querySelectorAll('.editable')).map((cell) => cell.textContent.trim());
-            return inputs.some(input => input !== ''); // Enable the button if any cell in any row contains data
-        });
-        printButton.disabled = !enablePrintButton;
-    }
 }
 
 // Add an event listener to disc_price
@@ -383,6 +373,8 @@ function saveData() {
                 // Optionally, you can clear the message after a few seconds
                 setTimeout(() => {
                     successMessage.textContent = '';
+                    const printButton = document.getElementById("printButton");
+                    printButton.disabled = false;
                 }, 3000); // Clear the message after 3 seconds
             } else {
                 // Handle other response statuses here if needed

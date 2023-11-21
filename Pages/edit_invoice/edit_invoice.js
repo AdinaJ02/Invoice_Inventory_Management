@@ -1,4 +1,4 @@
-var currency="";
+var currency = "";
 
 if (!localStorage.getItem('hasReloaded')) {
     // Set a flag to indicate the page has been reloaded

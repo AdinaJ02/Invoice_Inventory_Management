@@ -271,3 +271,10 @@ color:#E7CE74;
     font-size: 20px;
     vertical-align: middle;
 }
+
+#bank_details {
+    font-size: 14px;
+    white-space: pre-line;
+    line-height: 1.5;
+    padding-bottom: 5px;
+}

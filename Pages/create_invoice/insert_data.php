@@ -71,14 +71,10 @@ if ($conn->connect_error) {
                     if ($conn->query($sql_update_data) === TRUE) {
                         echo 'Data updated successfully';
 
-                        // Check payment_status and update stock_list if required
-                        if (strcasecmp($paymentStatus, "Received") === 0) {
-                            // Payment received in the passed data but not received in the database, update stock_list
-                            $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                            if ($conn->query($update_stock_sql) !== TRUE) {
-                                // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                                echo 'Error updating stock: ' . $conn->error;
-                            }
+                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
+                        if ($conn->query($update_stock_sql) !== TRUE) {
+                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
+                            echo 'Error updating stock: ' . $conn->error;
                         }
                     } else {
                         echo 'Error updating data: ' . $conn->error;
@@ -90,14 +86,12 @@ if ($conn->connect_error) {
                     if ($conn->query($sql_insert_data) === TRUE) {
                         echo 'Data inserted successfully';
 
-                        if (strcasecmp($paymentStatus, "Received") === 0) {
-                            // Payment received in the passed data but not received in the database, update stock_list
-                            $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                            if ($conn->query($update_stock_sql) !== TRUE) {
-                                // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                                echo 'Error updating stock: ' . $conn->error;
-                            }
+                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
+                        if ($conn->query($update_stock_sql) !== TRUE) {
+                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
+                            echo 'Error updating stock: ' . $conn->error;
                         }
+
                     } else {
                         echo 'Error: ' . $sql_insert_data . '<br>' . $conn->error;
                     }
