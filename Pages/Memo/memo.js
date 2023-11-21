@@ -180,7 +180,26 @@ function addRow() {
                     currentRow.querySelector('[name="rap"]').textContent = data.rap;
                     currentRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
-                    calculatePriceAndTotal();
+                    const rapField = currentRow.querySelector('.rap');
+                    const discField = currentRow.querySelector('.disc');
+                    const priceField = currentRow.querySelector('.price');
+                    const totalField = currentRow.querySelector('.total');
+                    const wtField = currentRow.querySelector('.wt');
+
+                    const rapValue = parseFloat(rapField.textContent) || 0;
+                    const discValue = parseFloat(discField.textContent) || 0;
+                    const priceValue = parseFloat(priceField.textContent) || 0;
+                    const wtValue = parseFloat(wtField.textContent) || 0;
+                    if (rapValue === 0 && discValue === 0) {
+                    } else {
+                        // Calculate the Price
+                        const price = (rapValue * (100 + discValue)) / 100;
+                        priceField.textContent = price.toFixed(2);
+                    }
+                    const price = Math.abs(parseFloat(priceField.textContent));
+                    const total = Math.abs(price * wtValue);
+                    totalField.textContent = total.toFixed(2);
+                    calculateTotals();
                 }
             })
             .catch(error => {
