@@ -95,6 +95,7 @@ $conn->close();
         function goBackOneStep() {
             window.history.back(); // This will go back one step in the browser's history
         }
+        
 
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");

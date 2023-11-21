@@ -88,6 +88,11 @@ $conn->close();
             window.history.back(); // This will go back one step in the browser's history
         }
 
+        // Reload the page when the history changes (e.g., after using window.history.back())
+        window.addEventListener("popstate", function (event) {
+            location.reload();
+        });
+
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
         const sortDropdown = document.getElementById("sortDropdown");
@@ -135,9 +140,9 @@ $conn->close();
 
     </script>
 
-<a href="../landing_page/home_landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+    <a href="../landing_page/home_landing_page.html" class="home-button">
+        <i class="fas fa-home"></i>
+    </a>
 </body>
 
 </html>

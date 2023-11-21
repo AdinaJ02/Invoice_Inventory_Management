@@ -117,11 +117,11 @@ $conn->close();
     <table class="table_data">
         <thead>
             <tr id="header">
-                <th>invoice no.</th>
-                <th>date</th>
-                <th>name</th>
-                <th>totalwt</th>
-                <th>totalvalue</th>
+                <th>Invoice no.</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Total Wt</th>
+                <th>Total Value</th>
                 <th>Payment Status</th>
             </tr>
         </thead>
