@@ -1,3 +1,12 @@
+<?php
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: ../../index.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,9 +14,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice</title>
-    <link rel="stylesheet" href="../edit_invoice/edit_invoice.css">
+    <link rel="stylesheet" href="print_invoice.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-
 </head>
 
 <body>
@@ -51,7 +59,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3" id="terms"><b></b>
+                    <td colspan="3" id="terms"><b></b><br>
+                        <p id="bank_details"></p>
                     </td>
                 </tr>
             </table>
@@ -70,30 +79,15 @@
                         <th>Discount</th>
                         <th>Price/CTS ($)</th>
                         <th>Total</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
                     <!-- JavaScript will generate rows here -->
                 </tbody>
                 <tr>
-                    <td><b>Discount</b></td>
-                    <td></td>
-                    <td name="disc_wt" id="disc_wt" value="1"></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td contenteditable="true" name="disc_price" id="disc_price"></td>
-                    <td name="disc_total" id="disc_total"></td>
-                    <td></td>
-                </tr>
-                <tr>
                     <td><b>Total</b></td>
                     <td></td>
-                    <td name="total_wt" class="total_wt"></td>
+                    <td name="total_wt" class="total_wt">0.0</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -101,39 +95,22 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td name="total_final_tot" class="total_final_tot"></td>
-                    <td></td>
+                    <td name="total_final_tot" class="total_final_tot"><span id="currency"></span>0.0</td>
                 </tr>
                 <tr style="text-align:center">
                     <td colspan="17"><b>THANK YOU</b></td>
                 </tr>
             </table>
 
-            <div id="successMessage" class="success-message"></div>
-
-            <div class="checkbox-container">
-                <label>
-                    <input type="checkbox" id="receivedCheckbox" name="paymentStatus" value="received"> Received
-                </label>
-                <label>
-                    <input type="checkbox" id="notReceivedCheckbox" name="paymentStatus" value="not_received">
-                    Not
-                    Received
-                </label>
-            </div>
-
             <div class="form-group" style="text-align: center;">
-                <div class="button-container">
-                    <input type="button" value="Add Row" id="addButton">
-                    <input type="button" value="Save" id="saveInvoice">
-                    <input type="button" value="Print Invoice" id="printButton">
-                    <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
-                </div>
+                <button id="printButton" class="no-print">Print Invoice</button>
+                <input type="button"  class="no-print" value="Back" id="goBack" onclick="goBackOneStep()">
             </div>
         </form>
     </div>
-    <script src="edit_invoice_memo.js"></script>
-    <a href="../landing_page/home_landing_page.html" class="home-button">
+    <script src="print_invoice.js"></script>
+
+    <a href="../landing_page/home_landing_page.php" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

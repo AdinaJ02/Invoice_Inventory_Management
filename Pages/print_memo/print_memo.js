@@ -235,5 +235,5 @@ function editMemo() {
   // Use encodeURIComponent to properly encode the value
   const encodedMemoNo = encodeURIComponent(memoNoValue);
   // Navigate to the edit_memo page with the memo_no parameter
-  window.location.href = `../edit_memo/edit_memo.html?memo_no=${encodedMemoNo}`;
+  window.location.href = `../edit_memo/edit_memo.php?memo_no=${encodedMemoNo}`;
 }

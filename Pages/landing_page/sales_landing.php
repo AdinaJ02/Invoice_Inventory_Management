@@ -1,3 +1,12 @@
+<?php
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../index.php');
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +25,7 @@
         <div class="box top-box" onclick="window.location.href='../sales_reports/sales_lot_reports/lot_sales.php'">Lot No sales</div>
     </div>
 
-    <a href="report_landing.html" class="home-button">
+    <a href="report_landing.php" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

@@ -1,6 +1,13 @@
 <?php
 include '../../connection.php';
 
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../index.php');
+  exit;
+}
+
 // Fetch memo_no values from the memo table where is_open is 'close'
 $sqlMemo = "SELECT memo_no FROM memo WHERE is_open = 'close'";
 $resultMemo = $conn->query($sqlMemo);
@@ -160,7 +167,7 @@ $conn->close();
             window.location.reload();
         });
     </script>
-    <a href="../landing_page/home_landing_page.html" class="home-button">
+    <a href="../landing_page/home_landing_page.php" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

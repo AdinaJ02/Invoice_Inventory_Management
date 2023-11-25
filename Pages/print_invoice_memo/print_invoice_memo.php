@@ -1,3 +1,12 @@
+<?php
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: ../../index.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -102,7 +111,7 @@
     </div>
     <script src="print_invoice_memo.js"></script>
 
-    <a href="../landing_page/home_landing_page.html" class="home-button">
+    <a href="../landing_page/home_landing_page.php" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

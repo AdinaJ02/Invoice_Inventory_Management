@@ -1,6 +1,13 @@
 <?php
 include '../../connection.php';
 
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../index.php');
+  exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle edits and new data
     if (isset($_POST['action'])) { 
@@ -167,7 +174,7 @@ $conn->close();
     });
 </script>
 
-<a href="../landing_page/home_landing_page.html" class="home-button">
+<a href="../landing_page/home_landing_page.php" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

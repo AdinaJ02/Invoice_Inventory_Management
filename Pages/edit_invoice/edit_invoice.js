@@ -594,7 +594,7 @@ function calculateTotals() {
 document.getElementById('printButton').addEventListener('click', function (e) {
     // saveData();
     const invoice_no = document.getElementById("invoice_no").value;
-    window.location.href = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodeURIComponent(invoice_no)}`;
+    window.location.href = `../print_invoice_create/print_invoice_create.php?invoice_no=${encodeURIComponent(invoice_no)}`;
 });
 
 function saveData() {
