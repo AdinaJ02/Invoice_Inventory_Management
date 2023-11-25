@@ -1042,7 +1042,7 @@ document.getElementById('table-body').addEventListener('keydown', function (e) {
 function printInvoice() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
-    window.location.href = `../print_invoice/print_invoice.html?memo_no=${encodeURIComponent(memo_no)}`;
+    window.location.href = `../print_invoice/print_invoice.php?memo_no=${encodeURIComponent(memo_no)}`;
 }
 
 // JavaScript for the "Back" button
@@ -1058,5 +1058,5 @@ window.addEventListener("popstate", function (event) {
 function printMemo() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
-    window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
+    window.location.href = `../print_memo/print_memo.php?memo_no=${encodeURIComponent(memo_no)}`;
 }

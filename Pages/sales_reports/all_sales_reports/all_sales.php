@@ -4,6 +4,13 @@
 require '../../../vendor/autoload.php';
 include '../../../connection.php';
 
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../../index.php');
+  exit;
+}
+
 // Check the connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
@@ -342,7 +349,7 @@ $importedData = json_encode($mergedData);
             </script>
         </tbody>
     </table>
-    <a href="../../landing_page/home_landing_page.html" class="home-button">
+    <a href="../../landing_page/home_landing_page.php" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

@@ -4,6 +4,13 @@ require '../../vendor/autoload.php';
 
 include '../../connection.php';
 
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../index.php');
+  exit;
+}
+
 // Check the connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
@@ -42,13 +49,13 @@ if ($conn->connect_error) {
 <body>
     <!-- Add buttons at the top of the table -->
     <div id="table-buttons" class="fixed-buttons">
-    <button id="add-button">Add</button>
-    <button id="edit-button" disabled>Edit</button>
-    <button id="duplicate-button" disabled>Duplicate</button>
-    <button id="update-button">Update</button>
-    <button id="delete-button" disabled>Delete</button>
-    <button id="download-button">Download</button>
-    <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
+        <button id="add-button">Add</button>
+        <button id="edit-button" disabled>Edit</button>
+        <button id="duplicate-button" disabled>Duplicate</button>
+        <button id="update-button">Update</button>
+        <button id="delete-button" disabled>Delete</button>
+        <button id="download-button">Download</button>
+        <input type="button" value="Back" onclick="window.history.back()" class='btn-back'>
     </div>
     <div id="success-message" class="hidden">Success Message</div>
     <table class="table_data">
@@ -416,9 +423,9 @@ if ($conn->connect_error) {
 
 
     </script>
-    <a href="../landing_page/home_landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+    <a href="../landing_page/home_landing_page.php" class="home-button">
+        <i class="fas fa-home"></i>
+    </a>
 </body>
 
 </html>

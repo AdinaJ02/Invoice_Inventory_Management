@@ -298,7 +298,7 @@ function print() {
 
     // Delay the redirection by 3 seconds
     const encodedInvoiceNo = encodeURIComponent(invoice_no);
-    const destinationURL = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodedInvoiceNo}`;
+    const destinationURL = `../print_invoice_create/print_invoice_create.php?invoice_no=${encodedInvoiceNo}`;
     window.location.href = destinationURL;
 }
 

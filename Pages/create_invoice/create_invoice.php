@@ -1,11 +1,21 @@
+<?php
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: ../../index.php');
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memo</title>
-    <link rel="stylesheet" href="memo.css">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="create_invoice.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 
@@ -14,7 +24,7 @@
         <table class="header_top">
             <tr>
                 <td colspan="3" id="header_table">
-                    <h3><select id="dayDropdown" name="memorandum_day"></select> - DAY MEMORANDUM</h3>
+                    <h3>INVOICE</h3>
                 </td>
             </tr>
             <tr>
@@ -26,8 +36,8 @@
                     <p id="address"></p>
                     <p id="email"></p>
                 </td>
-                <td colspan="3"><b>Memo no.</b> <input type="text" name="memo_no" id="memo_no" placeholder="Memo Number"
-                        readonly></td>
+                <td colspan="3"><b>Invoice no.<input type="text" name="invoice_no" id="invoice_no"
+                            placeholder="Invoice Number" readonly></b></td>
             </tr>
             <tr>
                 <td colspan="3">
@@ -48,7 +58,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="3" id="disclaimer"><b></b>
+                <td colspan="3" id="terms"><b></b>
                 </td>
             </tr>
         </table>
@@ -58,21 +68,15 @@
                 <tr id="header">
                     <th>Sr No</th>
                     <th>Lot No</th>
-                    <th>Description</th>
-                    <th>Shape</th>
-                    <th>Size</th>
-                    <th>Pcs</th>
                     <th>Wt (cts)</th>
+                    <th>Shape</th>
                     <th>Color</th>
                     <th>Clarity</th>
                     <th>Certificate</th>
                     <th>Rap ($)</th>
                     <th>Discount</th>
-                    <th>Price ($)</th>
+                    <th>Price/CTS ($)</th>
                     <th>Total</th>
-                    <th>Return</th>
-                    <th>Kept</th>
-                    <th>Final Total</th>
                     <th></th>
                 </tr>
             </thead>
@@ -80,37 +84,62 @@
                 <!-- JavaScript will generate rows here -->
             </tbody>
             <tr>
+                <td><b>Discount</b></td>
+                <td></td>
+                <td name="disc_wt" id="disc_wt" value="1"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td contenteditable="true" name="disc_price" id="disc_price"></td>
+                <td name="disc_total" id="disc_total"></td>
+                <td></td>
+            </tr>
+            <tr>
                 <td><b>Total</b></td>
                 <td></td>
+                <td name="total_wt" class="total_wt">0.0</td>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td id="total_wt" name="total_wt" class="total_wt"></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td id="total_tot" name="total_tot" class="total_tot"></td>
+                <td name="total_final_tot" class="total_final_tot">US$ 0.0</td>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+            </tr>
+            <tr style="text-align:center">
+                <td colspan="17"><b>THANK YOU</b></td>
             </tr>
         </table>
 
-        <div class="form-group" style="text-align: center;">
-            <input type="submit" value="Print Memo" id="submitMemo" style="display: inline-block; margin-right: 10px;">
-            <input type="button" value="Back" id="goBack" onclick="goBackOneStep()" style="display: inline-block;">
-        </div>        
-    </form>
+        <div id="successMessage" class="success-message"></div>
 
-    <script src="memo.js"></script>
-    <a href="../landing_page/home_landing_page.html" class="home-button">
-        <i class="fas fa-home"></i>
-    </a>
+        <div class="checkbox-container">
+            <label>
+                <input type="checkbox" id="receivedCheckbox" name="paymentStatus" value="received"> Received
+            </label>
+            <label>
+                <input type="checkbox" id="notReceivedCheckbox" name="paymentStatus" value="not_received" checked> Not
+                Received
+            </label>
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            <div class="button-container">
+                <input type="button" value="Save" id="saveInvoice">
+                <input type="button" value="Print Invoice" id="printButton">
+                <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
+            </div>
+        </div>
+        <a href="../landing_page/home_landing_page.php" class="home-button">
+            <i class="fas fa-home"></i>
+        </a>
+    </form>
+    <script src="create_invoice.js"></script>
 </body>
 
 </html>

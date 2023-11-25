@@ -19,8 +19,10 @@ if ($conn->connect_error) {
 
         if ($result->num_rows == 1) {
             $message = 'Authentication successful. You are now logged in.';
+            session_start();
+            $_SESSION['logged_in'] = true;
             // Redirect to the 'memo.html' page
-            header('Location: Pages/landing_page/home_landing_page.html');
+            header('Location: Pages/landing_page/home_landing_page.php');
             exit;
             // Ensure no further PHP code is executed after the redirection
         } else {

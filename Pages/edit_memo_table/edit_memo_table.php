@@ -1,6 +1,13 @@
 <?php
 include '../../connection.php';
 
+session_start();
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+  header('Location: ../../index.php');
+  exit;
+}
+
 // SQL query to retrieve data from the database
 $sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total FROM memo where is_open='open'";
 $result = $conn->query($sql);
@@ -67,7 +74,7 @@ $conn->close();
             <?php
             foreach ($data as $row) {
                 echo '<tr>';
-                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
+                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.php?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
                 $memoDate = date('F j, Y', strtotime($row['memo_date']));
                 echo '<td>' . $memoDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
@@ -140,7 +147,7 @@ $conn->close();
 
     </script>
 
-    <a href="../landing_page/home_landing_page.html" class="home-button">
+    <a href="../landing_page/home_landing_page.php" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>
