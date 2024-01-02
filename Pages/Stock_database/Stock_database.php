@@ -63,6 +63,7 @@ if ($conn->connect_error) {
             <tr id="header">
                 <!-- <th>Sr No</th> -->
                 <th>Lot No</th>
+                <th>Description</th>
                 <th>Shape</th>
                 <th>Size</th>
                 <th>Pcs</th>
@@ -113,6 +114,7 @@ if ($conn->connect_error) {
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
         <td contenteditable="true" data-key="lot_no"></td>
+        <td contenteditable="true" data-key="description"></td>
         <td contenteditable="true" data-key="shape"></td>
         <td contenteditable="true" data-key="size"></td>
         <td contenteditable="true" data-key="pcs"></td>
@@ -289,6 +291,7 @@ if ($conn->connect_error) {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
             <td data-key="lot_no">${selectedRowData.lot_no}</td>
+            <td data-key="lot_no">${selectedRowData.description}</td>
             <td data-key="shape">${selectedRowData.shape}</td>
             <td data-key="size">${selectedRowData.size}</td>
             <td data-key="pcs">${selectedRowData.pcs}</td>
@@ -383,6 +386,7 @@ if ($conn->connect_error) {
                 newRow.innerHTML = `
                 
                 <td data-key="lot_no">${rowData.lot_no}</td>
+                <td data-key="lot_no">${rowData.description}</td>
                 <td data-key="shape">${rowData.shape}</td>
                 <td data-key="size">${rowData.size}</td>
                 <td data-key="pcs">${rowData.pcs}</td>

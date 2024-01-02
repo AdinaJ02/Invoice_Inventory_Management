@@ -15,7 +15,7 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     // Output CSV column headers
-    echo "Sr No,Lot No,Shape,Size,Pcs,Wt (cts),Color,Clarity,Certificate,Video,Cut,POL,SYM,FL,M1,M2,M3,TAB,DEP,Rap (\$),Dis,Total,Price,Name,Average weight\n";
+    echo "Lot No,Description,Shape,Size,Pcs,Wt (cts),Color,Clarity,Certificate,Video,Cut,POL,SYM,FL,M1,M2,M3,TAB,DEP,Rap (\$),Dis,Total,Price,Name,Average weight\n";
 
     // Output each row as a CSV line
     while ($row = $result->fetch_assoc()) {
