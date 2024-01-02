@@ -7,8 +7,8 @@ include '../../connection.php';
 session_start();
 // Check if the user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../index.php');
-  exit;
+    header('Location: ../../index.php');
+    exit;
 }
 
 // Check the connection
@@ -23,16 +23,23 @@ if ($conn->connect_error) {
         $file_ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); // Get the file extension
 
         // Define the allowed file extensions
-        $allowed_extensions = array('xls', 'xlsx');
+        $allowed_extensions = array('xls', 'xlsx', 'csv');
 
         if (in_array($file_ext, $allowed_extensions)) {
             move_uploaded_file($file_tmp, 'uploads/' . $fileName);
 
-            $Reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
-            $spreadSheet = $Reader->load("uploads/" . $fileName);
-            $excelSheet = $spreadSheet->getActiveSheet();
-            $spreadSheetAry = $excelSheet->toArray();
-            $sheetCount = count($spreadSheetAry);
+            if ($file_ext === 'csv') {
+                // Handle CSV file
+                $spreadSheetAry = array_map('str_getcsv', file("uploads/" . $fileName));
+                $sheetCount = count($spreadSheetAry);
+            } else {
+                // Handle XLS and XLSX files
+                $Reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
+                $spreadSheet = $Reader->load("uploads/" . $fileName);
+                $excelSheet = $spreadSheet->getActiveSheet();
+                $spreadSheetAry = $excelSheet->toArray();
+                $sheetCount = count($spreadSheetAry);
+            }
 
 
             // Assuming the first row contains headers, you can start from the second row (index 1).
@@ -41,36 +48,37 @@ if ($conn->connect_error) {
 
                 // Assuming the columns in your Excel file match the database columns in order.
                 $lot_no = $rowData[0];
-                $shape = $rowData[1];
-                $size = $rowData[2];
-                $pcs = $rowData[3];
-                $Weight = $rowData[4];
-                $color = $rowData[5];
-                $clarity = $rowData[6];
-                $certificate_no = $rowData[7];
-                $cut = $rowData[8];
-                $pol = $rowData[9];
-                $sym = $rowData[10];
-                $fl = $rowData[11];
-                $m1 = $rowData[12];
-                $m2 = $rowData[13];
-                $m3 = $rowData[14];
-                $tab = $rowData[15];
-                $dep = $rowData[16];
-                $ratio = $rowData[17];
-                $rap = $rowData[18];
-                $discount = $rowData[19];
-                $total = $rowData[20];
-                $price = $rowData[21];
-                $name = $rowData[22];
-                $avg_Weight = $rowData[23];
+                $description = $rowData[1];
+                $shape = $rowData[2];
+                $size = $rowData[3];
+                $pcs = $rowData[4];
+                $Weight = $rowData[5];
+                $color = $rowData[6];
+                $clarity = $rowData[7];
+                $certificate_no = $rowData[8];
+                $cut = $rowData[9];
+                $pol = $rowData[10];
+                $sym = $rowData[11];
+                $fl = $rowData[12];
+                $m1 = $rowData[13];
+                $m2 = $rowData[14];
+                $m3 = $rowData[15];
+                $tab = $rowData[16];
+                $dep = $rowData[17];
+                $ratio = $rowData[18];
+                $rap = $rowData[19];
+                $discount = $rowData[20];
+                $total = $rowData[21];
+                $price = $rowData[22];
+                $name = $rowData[23];
+                $avg_Weight = $rowData[24];
 
                 if ($lot_no !== null) {
                     // Define your SQL query using INSERT INTO ... ON DUPLICATE KEY UPDATE
-                    $sql = "INSERT INTO stock_list (lot_no, shape, `size`, pcs, `weight`, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, `name`, avg_weight) 
-                        VALUES ('$lot_no', '$shape', '$size', '$pcs', '$Weight', '$color', '$clarity', '$certificate_no', '$cut', '$pol', '$sym', '$fl', '$m1', '$m2', '$m3', '$tab', '$dep', '$ratio', '$rap', '$discount', '$total', '$price', '$name', '$avg_Weight') 
+                    $sql = "INSERT INTO stock_list (lot_no, `description`, shape, `size`, pcs, `weight`, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, `name`, avg_weight) 
+                        VALUES ('$lot_no', '$description', '$shape', '$size', '$pcs', '$Weight', '$color', '$clarity', '$certificate_no', '$cut', '$pol', '$sym', '$fl', '$m1', '$m2', '$m3', '$tab', '$dep', '$ratio', '$rap', '$discount', '$total', '$price', '$name', '$avg_Weight') 
                         ON DUPLICATE KEY UPDATE 
-                        shape = VALUES(shape), `size` = VALUES(`size`), pcs = VALUES(pcs), `weight` = VALUES(`weight`), color = VALUES(color), 
+                        `description` = VALUES(description), shape = VALUES(shape), `size` = VALUES(`size`), pcs = VALUES(pcs), `weight` = VALUES(`weight`), color = VALUES(color), 
                         clarity = VALUES(clarity), certificate_no = VALUES(certificate_no), cut = VALUES(cut), pol = VALUES(pol), sym = VALUES(sym), 
                         fl = VALUES(fl), m1 = VALUES(m1), m2 = VALUES(m2), m3 = VALUES(m3), tab = VALUES(tab), dep = VALUES(dep), ratio = VALUES(ratio), 
                         rap = VALUES(rap), discount = VALUES(discount), total = VALUES(total), price = VALUES(price), `name` = VALUES(`name`), avg_weight = VALUES(avg_weight)";
@@ -84,6 +92,7 @@ if ($conn->connect_error) {
                     // Store the imported data in an array
                     $importedData[] = array(
                         'lot_no' => $lot_no,
+                        'description' => $description,
                         'shape' => $shape,
                         'size' => $size,
                         'pcs' => $pcs,
@@ -146,6 +155,7 @@ if ($conn->connect_error) {
             <tr id="header">
                 <th>Sr No</th>
                 <th>Lot No</th>
+                <th>Description</th>
                 <th>Shape</th>
                 <th>Size</th>
                 <th>Pcs</th>
@@ -192,6 +202,7 @@ if ($conn->connect_error) {
                 newRow.innerHTML = `
                 <td>${i + 1}</td>
                 <td>${rowData.lot_no}</td>
+                <td>${rowData.description}</td>
                 <td>${rowData.shape}</td>
                 <td>${rowData.size}</td>
                 <td>${rowData.pcs}</td>
@@ -226,8 +237,8 @@ if ($conn->connect_error) {
         populateTable(importedData);
     </script>
     <a href="../landing_page/home_landing_page.php" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+        <i class="fas fa-home"></i>
+    </a>
 </body>
 
 </html>
