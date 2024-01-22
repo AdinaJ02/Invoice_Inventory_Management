@@ -51,7 +51,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                     <div class="underline-input">
                         <label for="recipient"><b>To,</b></label>
                         <input type="text" id="recipient" name="recipient" placeholder="Name" required>
-                        <input type="text" id="addressInput" name="address" placeholder="Address" required>
+                        <textarea id="addressInput" name="address" placeholder="Address" required></textarea>
                         <div id="autocomplete-results"></div>
                     </div>
                 </td>
@@ -113,7 +113,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <div class="form-group" style="text-align: center;">
             <input type="submit" value="Print Memo" id="submitMemo" style="display: inline-block; margin-right: 10px;">
             <input type="button" value="Back" id="goBack" onclick="goBackOneStep()" style="display: inline-block;">
-        </div>        
+        </div>
     </form>
 
     <script src="memo.js"></script>

@@ -10,7 +10,7 @@ if ($conn->connect_error) {
 $value = $_GET['value']; // Assuming 'value' is the parameter sent from JavaScript
 
 // Create a SQL query to fetch data based on partial matches using the LIKE operator
-$sql = "SELECT * FROM stock_list WHERE shape LIKE '%$value%' OR size LIKE '%$value%'"; 
+$sql = "SELECT * FROM stock_list WHERE description LIKE '%$value%' OR shape LIKE '%$value%' OR size LIKE '%$value%'"; 
 
 $result = $conn->query($sql);
 

@@ -104,7 +104,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                 <td></td>
                 <td name="total_tot" class="total_tot"></td>
                 <td></td>
-                <td></td>
+                <td name="total_kept" id="total_kept" class="total_kept"></td>
                 <td id="total_final_tot" name="total_final_tot" class="total_final_tot"></td>
                 <td></td>
             </tr>
@@ -116,10 +116,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             <div class="button-container">
                 <input type="button" value="Add Row" id="addButton">
                 <input type="button" value="Save Memo" id="saveButton">
-                <input type="button" value="Close Memo" id="closeButton">
                 <input type="button" value="Print Memo" id="submitMemo" onclick="printMemo()">
-                <input type="button" value="Print Invoice" id="printButton">
                 <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
+                <input type="button" value="Print Invoice" id="printButton">
+                <input type="button" value="Close Memo" id="closeButton">
             </div>
         </div>
     </form>

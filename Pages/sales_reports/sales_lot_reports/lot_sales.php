@@ -3,13 +3,6 @@
 require '../../../vendor/autoload.php';
 include '../../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../../index.php');
-  exit;
-}
-
 // Check the connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
@@ -33,7 +26,7 @@ while ($row = $result->fetch_assoc()) {
 $combinedData = array();
 
 foreach ($data as $memo_no) {
-    $sql = "SELECT lot_no, shape, `size`, final_total FROM memo_data WHERE memo_no = '$memo_no'";
+    $sql = "SELECT lot_no, shape, `size`, final_total FROM memo_data WHERE memo_no = '$memo_no' AND (final_total > 0)";
     $result = $conn->query($sql);
 
     if ($result) {
@@ -56,7 +49,7 @@ if ($invoiceResult) {
         $invoice_no = $invoiceRow['invoice_no'];
 
         // Fetch lot_no, shape, and sales from invoice_data for each invoice_no
-        $invoiceDataSql = "SELECT lot_no, shape, total FROM invoice_data WHERE invoice_no = '$invoice_no'";
+        $invoiceDataSql = "SELECT lot_no, shape, total FROM invoice_data WHERE invoice_no = '$invoice_no' AND (total > 0)";
         $invoiceDataResult = $conn->query($invoiceDataSql);
 
         if ($invoiceDataResult) {
@@ -396,7 +389,19 @@ foreach ($combinedData as $lot_no => $lotData) {
         });
 
     </script>
-    <a href="../../landing_page/home_landing_page.php" class="home-button">
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

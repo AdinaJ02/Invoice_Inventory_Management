@@ -73,10 +73,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
           </div>
         </div>
 
-        <div class="option" onclick="handleOptionClick(event, '../edit_memo_table/edit_memo_table.php')">
+        <div class="option" onclick="handleOptionClick(event, '../invoice_reports/invoice_reports.php')">
           All Sales Invoice
         </div>
-        <div class="option" onclick="handleOptionClick(event, '../memo_display/memo_display.php')">
+        <div class="option" onclick="handleOptionClick(event, '../memo_reports/memo_reports.php')">
           All Sales Memo
         </div>
       </div>

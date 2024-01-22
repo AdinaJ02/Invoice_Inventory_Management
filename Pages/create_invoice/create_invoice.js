@@ -54,6 +54,15 @@ const recipientInput = document.getElementById('recipient');
 const addressInput = document.getElementById('addressInput');
 const autocompleteResults = document.getElementById('autocomplete-results');
 
+let inputTimeout; // Variable to store the input delay timer
+let isNameDropdownDisplayed = false;
+let dropdown; // Variable to store the dropdown
+
+// Create a container for the dropdown and append it above the recipientInput
+const dropdownContainer = document.createElement('div');
+dropdownContainer.classList.add('dropdown-container');
+document.body.appendChild(dropdownContainer);
+
 // Listen for input changes in the recipient input field
 recipientInput.addEventListener('input', function () {
     const name = recipientInput.value.trim();
@@ -63,33 +72,90 @@ recipientInput.addEventListener('input', function () {
     autocompleteResults.innerHTML = '';
 
     if (name.length === 0) {
+        // Hide the dropdown container if input is empty
+        dropdownContainer.style.display = 'none';
         return;
     }
 
-    // Make an AJAX request to fetch the address based on the name
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const data = JSON.parse(xhr.responseText);
-            console.log('Received response:', data);
+    // Delay before making the AJAX request
+    clearTimeout(inputTimeout);
+    inputTimeout = setTimeout(() => {
+        // Make an AJAX request to fetch the names and addresses based on the input
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                console.log('Received response:', data);
 
-            // Display the autocomplete results
-            if (data.length > 0) {
-                autocompleteResults.innerHTML = data.map(item => `<div>${item}</div>`).join('');;
+                // Display the dropdown with names and addresses
+                if (data.length > 0) {
+                    // Set the flag to indicate that the name dropdown is displayed
+                    isNameDropdownDisplayed = true;
+
+                    // Clear the dropdown container before populating new data
+                    dropdownContainer.innerHTML = '';
+
+                    // Create and populate the dropdown
+                    dropdown = document.createElement('select');
+                    dropdown.classList.add('dropdown');
+                    
+                    const option = document.createElement('option');
+                    option.textContent = "Select name and address";
+                    dropdown.appendChild(option);
+
+                    for (const item of data) {
+                        const option = document.createElement('option');
+                        // Combine name and address for each option
+                        option.textContent = `${item.name} - ${item.address}`;
+                        dropdown.appendChild(option);
+                    }
+
+                    // Append the dropdown to the dropdown container
+                    dropdownContainer.appendChild(dropdown);
+
+                    // Add an event listener to handle dropdown selection
+                    dropdown.addEventListener('change', function () {
+                        const selectedValue = this.value;
+                        // Split the selected value into name and address
+                        const [selectedName, selectedAddress] = selectedValue.split(' - ');
+                        recipientInput.value = selectedName;
+                        addressInput.value = selectedAddress;
+                        autocompleteResults.innerHTML = '';
+                        isNameDropdownDisplayed = false; // Reset the flag
+                        // Hide the dropdown container after selection
+                        dropdownContainer.style.display = 'none';
+                    });
+
+                    // Show the dropdown container above the recipientInput
+                    const rect = recipientInput.getBoundingClientRect();
+                    dropdownContainer.style.display = 'block';
+                    dropdownContainer.style.position = 'absolute';
+                    dropdownContainer.style.top = `${rect.top - dropdownContainer.clientHeight}px`;
+                    dropdownContainer.style.left = `${rect.left}px`;
+
+                    // Calculate the spacing at the bottom of the dropdown container
+                    const spacingBottom = 5; // You can adjust this value as needed
+
+                    // Adjust the position of the dropdown container
+                    dropdownContainer.style.top = `${rect.top - dropdownContainer.clientHeight - spacingBottom}px`;
+
+                } else {
+                    // If no names found, hide the dropdown container
+                    dropdownContainer.style.display = 'none';
+                }
             }
-        }
-    };
+        };
 
-    // Adjust the URL to your PHP script that fetches addresses based on names
-    xhr.open('GET', `../Memo/fetch_addresses.php?name=${name}`, true);
-    xhr.send();
+        // Adjust the URL to your PHP script that fetches names and addresses based on input
+        xhr.open('GET', `../Memo/fetch_name.php?input=${name}`, true);
+        xhr.send();
+    }, 500); // Adjust the delay time (in milliseconds) as needed
 });
 
-// Listen for clicks on autocomplete results and fill in the address
-autocompleteResults.addEventListener('click', function (event) {
-    if (event.target.tagName === 'DIV') {
-        addressInput.value = event.target.textContent;
-        autocompleteResults.innerHTML = '';
+// Close the dropdown when clicking outside the dropdown container
+document.addEventListener('click', function (event) {
+    if (!dropdownContainer.contains(event.target)) {
+        dropdownContainer.style.display = 'none';
     }
 });
 
@@ -298,7 +364,7 @@ function print() {
 
     // Delay the redirection by 3 seconds
     const encodedInvoiceNo = encodeURIComponent(invoice_no);
-    const destinationURL = `../print_invoice_create/print_invoice_create.php?invoice_no=${encodedInvoiceNo}`;
+    const destinationURL = `../print_invoice_create/print_invoice_create.html?invoice_no=${encodedInvoiceNo}`;
     window.location.href = destinationURL;
 }
 

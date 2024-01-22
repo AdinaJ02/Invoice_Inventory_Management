@@ -1,13 +1,6 @@
 <?php
 include '../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../index.php');
-  exit;
-}
-
 // Fetch memo_no values from the memo table where is_open is 'close'
 $sqlMemo = "SELECT memo_no FROM memo WHERE is_open = 'close'";
 $resultMemo = $conn->query($sqlMemo);
@@ -33,7 +26,7 @@ foreach ($closeMemoNumbers as $memoNo) {
 // Fetch data for memo_no, lot_no, shape, size, kept, and final_total from memo_data
 $memoData = array();
 foreach ($closeMemoNumbers as $memoNo) {
-    $sqlMemoData = "SELECT memo_no, lot_no, shape, `size`, kept, final_total FROM memo_data WHERE memo_no = '$memoNo'";
+    $sqlMemoData = "SELECT memo_no, lot_no, shape, size, kept, final_total FROM memo_data WHERE memo_no = '$memoNo' AND (kept > 0 OR final_total > 0)";
     $resultMemoData = $conn->query($sqlMemoData);
     while ($rowMemoData = $resultMemoData->fetch_assoc()) {
         $memoData[] = $rowMemoData;
@@ -167,7 +160,19 @@ $conn->close();
             window.location.reload();
         });
     </script>
-    <a href="../landing_page/home_landing_page.php" class="home-button">
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

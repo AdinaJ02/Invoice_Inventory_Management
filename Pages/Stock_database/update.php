@@ -14,10 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($existingRow->num_rows > 0) {
             // Update the existing row
             $sql = "UPDATE stock_list SET
+                description = '{$row['description']}',
                 shape = '{$row['shape']}',
-                `size` = '{$row['size']}',
+                size = '{$row['size']}',
                 pcs = '{$row['pcs']}',
-                `weight` = '{$row['weight']}',
+                weight = '{$row['weight']}',
                 color = '{$row['color']}',
                 clarity = '{$row['clarity']}',
                 certificate_no = '{$row['certificate_no']}',
@@ -35,16 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 discount = '{$row['discount']}',
                 total = '{$row['total']}',
                 price = '{$row['price']}',
-                `name` = '{$row['name']}',
+                name = '{$row['name']}',
                 avg_Weight = '{$row['avg_Weight']}'
                 WHERE lot_no = '$lot_no'";
             
             $result = $conn->query($sql);
         } else {
             // Insert a new row
-            $sql = "INSERT INTO stock_list (lot_no, shape, `size`, pcs, `weight`, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, `name`, avg_Weight)
+            $sql = "INSERT INTO stock_list (lot_no, description, shape, size, pcs, weight, color, clarity, certificate_no, cut, pol, sym, fl, m1, m2, m3, tab, dep, ratio, rap, discount, total, price, name, avg_Weight)
                 VALUES (
                     '{$row['lot_no']}',
+                    '{$row['description']}',
                     '{$row['shape']}',
                     '{$row['size']}',
                     '{$row['pcs']}',

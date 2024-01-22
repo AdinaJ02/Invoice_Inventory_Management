@@ -4,13 +4,6 @@ require '../../vendor/autoload.php';
 
 include '../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../index.php');
-  exit;
-}
-
 // Check the connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
@@ -291,7 +284,7 @@ if ($conn->connect_error) {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
             <td data-key="lot_no">${selectedRowData.lot_no}</td>
-            <td data-key="lot_no">${selectedRowData.description}</td>
+            <td data-key="description">${selectedRowData.description}</td>
             <td data-key="shape">${selectedRowData.shape}</td>
             <td data-key="size">${selectedRowData.size}</td>
             <td data-key="pcs">${selectedRowData.pcs}</td>
@@ -386,7 +379,7 @@ if ($conn->connect_error) {
                 newRow.innerHTML = `
                 
                 <td data-key="lot_no">${rowData.lot_no}</td>
-                <td data-key="lot_no">${rowData.description}</td>
+                <td data-key="description">${rowData.description}</td>
                 <td data-key="shape">${rowData.shape}</td>
                 <td data-key="size">${rowData.size}</td>
                 <td data-key="pcs">${rowData.pcs}</td>
@@ -427,7 +420,19 @@ if ($conn->connect_error) {
 
 
     </script>
-    <a href="../landing_page/home_landing_page.php" class="home-button">
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../landing_page/home_landing_page.html" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 </body>

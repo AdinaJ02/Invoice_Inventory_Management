@@ -30,6 +30,7 @@ function addRow() {
     deleteIcon.addEventListener('click', function () {
         const shapeDropdown = newRow.querySelector('[name="shape"] + .dropdown');
         const sizeDropdown = newRow.querySelector('[name="size"] + .dropdown');
+        const descDropdown = newRow.querySelector('[name="desc"] + .dropdown');
 
         if (shapeDropdown) {
             shapeDropdown.parentNode.removeChild(shapeDropdown);
@@ -45,6 +46,13 @@ function addRow() {
             newRow.querySelector('[name="size"]').textContent = '';
         }
 
+        if (descDropdown) {
+            descDropdown.parentNode.removeChild(descDropdown);
+            descInput.textContent = '';
+        } else {
+            newRow.querySelector('[name="desc"]').textContent = '';
+        }
+
         // Clear other cell contents without affecting the cells themselves
         const cellsToClear = newRow.querySelectorAll('.editable');
         cellsToClear.forEach((cell) => {
@@ -55,6 +63,7 @@ function addRow() {
         // Enable content editing for certain cells
         newRow.querySelector('[name="size"]').setAttribute('contenteditable', 'true');
         newRow.querySelector('[name="shape"]').setAttribute('contenteditable', 'true');
+        newRow.querySelector('[name="desc"]').setAttribute('contenteditable', 'true');
 
         // Calculate totals based on the updated data
         calculateTotals();
@@ -62,6 +71,7 @@ function addRow() {
 
     const shapeCells = document.querySelectorAll('td[name="shape"]');
     const sizeCells = document.querySelectorAll('td[name="size"]');
+    const descCells = document.querySelectorAll('td[name="desc"]');
     let inputTimeout; // Variable to store the input delay timer
 
     shapeCells.forEach(shapeCell => {
@@ -84,6 +94,30 @@ function addRow() {
         });
 
         shapeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
+    });
+
+    descCells.forEach(descCell => {
+        let isCellFocused = false;
+        descCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const desc = descCell.textContent.trim();
+                    if (desc !== '') {
+                        fetchDropdownData(desc, 'desc', descCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
+
+        descCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        descCell.addEventListener('blur', function () {
             isCellFocused = false;
         });
     });
@@ -131,7 +165,7 @@ function addRow() {
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
+                        option.textContent = `${item.description} - ${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
@@ -170,6 +204,7 @@ function addRow() {
 
                     // Populate other fields in the current row with data from the server
                     currentRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    currentRow.querySelector('[name="desc"]').textContent = data.description;
                     currentRow.querySelector('[name="shape"]').textContent = data.shape;
                     currentRow.querySelector('[name="size"]').textContent = data.size;
                     currentRow.querySelector('[name="wt"]').textContent = data.weight;
@@ -274,6 +309,9 @@ function addRow() {
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
 
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
+
                         newRow.querySelector('[name="size"]').textContent = data.size;
                         newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
 
@@ -375,7 +413,7 @@ for (let i = 1; i <= 30; i++) {
 }
 
 // Set the default value to the current day
-dayDropdown.value = currentDate.getDate();
+dayDropdown.value = 5;
 
 // Fetch data from fetch_data.php using JavaScript
 fetch('../php_data/fetch_data_company.php')
@@ -415,6 +453,15 @@ const recipientInput = document.getElementById('recipient');
 const addressInput = document.getElementById('addressInput');
 const autocompleteResults = document.getElementById('autocomplete-results');
 
+let inputTimeout; // Variable to store the input delay timer
+let isNameDropdownDisplayed = false;
+let dropdown; // Variable to store the dropdown
+
+// Create a container for the dropdown and append it above the recipientInput
+const dropdownContainer = document.createElement('div');
+dropdownContainer.classList.add('dropdown-container');
+document.body.appendChild(dropdownContainer);
+
 // Listen for input changes in the recipient input field
 recipientInput.addEventListener('input', function () {
     const name = recipientInput.value.trim();
@@ -424,33 +471,90 @@ recipientInput.addEventListener('input', function () {
     autocompleteResults.innerHTML = '';
 
     if (name.length === 0) {
+        // Hide the dropdown container if input is empty
+        dropdownContainer.style.display = 'none';
         return;
     }
 
-    // Make an AJAX request to fetch the address based on the name
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const data = JSON.parse(xhr.responseText);
-            console.log('Received response:', data);
+    // Delay before making the AJAX request
+    clearTimeout(inputTimeout);
+    inputTimeout = setTimeout(() => {
+        // Make an AJAX request to fetch the names and addresses based on the input
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                console.log('Received response:', data);
 
-            // Display the autocomplete results
-            if (data.length > 0) {
-                autocompleteResults.innerHTML = data.map(item => `<div>${item}</div>`).join('');;
+                // Display the dropdown with names and addresses
+                if (data.length > 0) {
+                    // Set the flag to indicate that the name dropdown is displayed
+                    isNameDropdownDisplayed = true;
+
+                    // Clear the dropdown container before populating new data
+                    dropdownContainer.innerHTML = '';
+
+                    // Create and populate the dropdown
+                    dropdown = document.createElement('select');
+                    dropdown.classList.add('dropdown');
+                    
+                    const option = document.createElement('option');
+                    option.textContent = "Select name and address";
+                    dropdown.appendChild(option);
+
+                    for (const item of data) {
+                        const option = document.createElement('option');
+                        // Combine name and address for each option
+                        option.textContent = `${item.name} - ${item.address}`;
+                        dropdown.appendChild(option);
+                    }
+
+                    // Append the dropdown to the dropdown container
+                    dropdownContainer.appendChild(dropdown);
+
+                    // Add an event listener to handle dropdown selection
+                    dropdown.addEventListener('change', function () {
+                        const selectedValue = this.value;
+                        // Split the selected value into name and address
+                        const [selectedName, selectedAddress] = selectedValue.split(' - ');
+                        recipientInput.value = selectedName;
+                        addressInput.value = selectedAddress;
+                        autocompleteResults.innerHTML = '';
+                        isNameDropdownDisplayed = false; // Reset the flag
+                        // Hide the dropdown container after selection
+                        dropdownContainer.style.display = 'none';
+                    });
+
+                    // Show the dropdown container above the recipientInput
+                    const rect = recipientInput.getBoundingClientRect();
+                    dropdownContainer.style.display = 'block';
+                    dropdownContainer.style.position = 'absolute';
+                    dropdownContainer.style.top = `${rect.top - dropdownContainer.clientHeight}px`;
+                    dropdownContainer.style.left = `${rect.left}px`;
+
+                    // Calculate the spacing at the bottom of the dropdown container
+                    const spacingBottom = 5; // You can adjust this value as needed
+
+                    // Adjust the position of the dropdown container
+                    dropdownContainer.style.top = `${rect.top - dropdownContainer.clientHeight - spacingBottom}px`;
+
+                } else {
+                    // If no names found, hide the dropdown container
+                    dropdownContainer.style.display = 'none';
+                }
             }
-        }
-    };
+        };
 
-    // Adjust the URL to your PHP script that fetches addresses based on names
-    xhr.open('GET', `fetch_addresses.php?name=${name}`, true);
-    xhr.send();
+        // Adjust the URL to your PHP script that fetches names and addresses based on input
+        xhr.open('GET', `fetch_name.php?input=${name}`, true);
+        xhr.send();
+    }, 500); // Adjust the delay time (in milliseconds) as needed
 });
 
-// Listen for clicks on autocomplete results and fill in the address
-autocompleteResults.addEventListener('click', function (event) {
-    if (event.target.tagName === 'DIV') {
-        addressInput.value = event.target.textContent;
-        autocompleteResults.innerHTML = '';
+// Close the dropdown when clicking outside the dropdown container
+document.addEventListener('click', function (event) {
+    if (!dropdownContainer.contains(event.target)) {
+        dropdownContainer.style.display = 'none';
     }
 });
 
@@ -511,7 +615,7 @@ function saveData() {
         .then((response) => {
             if (response.ok) {
                 // If the response status is OK (HTTP status 200), redirect to another page
-                window.location.href = `../print_memo/print_memo.php?memo_no=${encodeURIComponent(memo_no)}`;
+                window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
             } else {
                 // Handle other response statuses here if needed
                 console.error('Server returned an error:', response.statusText);
@@ -551,6 +655,15 @@ document.getElementById('table-body').addEventListener('keydown', function (e) {
                     firstCell.focus();
                 }
             }
+        }
+    }
+});
+
+addressInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        const lotNoCell = document.querySelector('[name="lot_no"]');
+        if (lotNoCell) {
+            lotNoCell.focus(); // Move the focus to the lot_no cell
         }
     }
 });
