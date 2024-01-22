@@ -4,13 +4,6 @@ require '../../vendor/autoload.php';
 
 include '../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header('Location: ../../index.php');
-    exit;
-}
-
 // Check the connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
@@ -34,7 +27,12 @@ if ($conn->connect_error) {
                 $sheetCount = count($spreadSheetAry);
             } else {
                 // Handle XLS and XLSX files
-                $Reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
+                if ($file_ext === 'xls') {
+                    $Reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
+                }
+                else {
+                    $Reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+                }
                 $spreadSheet = $Reader->load("uploads/" . $fileName);
                 $excelSheet = $spreadSheet->getActiveSheet();
                 $spreadSheetAry = $excelSheet->toArray();
@@ -236,9 +234,21 @@ if ($conn->connect_error) {
         const importedData = <?php echo json_encode($importedData); ?>;
         populateTable(importedData);
     </script>
-    <a href="../landing_page/home_landing_page.php" class="home-button">
-        <i class="fas fa-home"></i>
-    </a>
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../landing_page/home_landing_page.html" class="home-button">
+                <i class="fas fa-home"></i>
+            </a>
 </body>
 
 </html>

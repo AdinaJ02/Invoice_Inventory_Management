@@ -24,7 +24,7 @@ if ($check_result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $lastInvoiceNo = $row["invoice_no"];
     } else {
-        $lastInvoiceNo = 0;
+        $lastInvoiceNo = 1000;
     }
 
     $nextInvoiceNo = $lastInvoiceNo + 1;

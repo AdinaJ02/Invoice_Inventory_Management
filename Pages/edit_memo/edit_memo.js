@@ -230,11 +230,40 @@ function addRow(data) {
             const totalVal = wtVal * priceVal;
             totalCell.textContent = totalVal.toFixed(2); // You can format it as needed
         }
+        
+         if (targetCell.getAttribute('name') === 'return') {
+            calculateTotals();
+        }
     });
 
     const shapeCells = document.querySelectorAll('td[name="shape"]');
     const sizeCells = document.querySelectorAll('td[name="size"]');
+    const descCells = document.querySelectorAll('td[name="desc"]');
     let inputTimeout; // Variable to store the input delay timer
+
+    descCells.forEach(descCell => {
+        let isCellFocused = false;
+        descCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const desc = descCell.textContent.trim();
+                    if (desc !== '') {
+                        fetchDropdownData(desc, 'desc', descCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
+
+        descCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        descCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
+    });
 
     shapeCells.forEach(shapeCell => {
         let isCellFocused = false;
@@ -303,7 +332,7 @@ function addRow(data) {
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
+                        option.textContent = `${item.description} - ${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
@@ -342,6 +371,7 @@ function addRow(data) {
 
                     // Populate other fields in the current row with data from the server
                     currentRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    currentRow.querySelector('[name="desc"]').textContent = data.description;
                     currentRow.querySelector('[name="shape"]').textContent = data.shape;
                     currentRow.querySelector('[name="size"]').textContent = data.size;
                     currentRow.querySelector('[name="wt"]').textContent = data.weight;
@@ -366,6 +396,7 @@ function addRow(data) {
     deleteIcon.addEventListener('click', function () {
         const shapeDropdown = newRow.querySelector('[name="shape"] + .dropdown');
         const sizeDropdown = newRow.querySelector('[name="size"] + .dropdown');
+        const descDropdown = newRow.querySelector('[name="desc"] + .dropdown');
 
         if (shapeDropdown) {
             shapeDropdown.parentNode.removeChild(shapeDropdown);
@@ -381,6 +412,13 @@ function addRow(data) {
             newRow.querySelector('[name="size"]').textContent = '';
         }
 
+        if (descDropdown) {
+            descDropdown.parentNode.removeChild(descDropdown);
+            descInput.textContent = '';
+        } else {
+            newRow.querySelector('[name="desc"]').textContent = '';
+        }
+
         // Clear other cell contents without affecting the cells themselves
         const cellsToClear = newRow.querySelectorAll('.editable');
         cellsToClear.forEach((cell) => {
@@ -391,6 +429,7 @@ function addRow(data) {
         // Enable content editing for certain cells
         newRow.querySelector('[name="size"]').setAttribute('contenteditable', 'true');
         newRow.querySelector('[name="shape"]').setAttribute('contenteditable', 'true');
+        newRow.querySelector('[name="desc"]').setAttribute('contenteditable', 'true');
 
         // Calculate totals based on the updated data
         calculateTotals();
@@ -415,6 +454,9 @@ function addRow(data) {
                     const data = JSON.parse(responseText); // Attempt to parse the response as JSON
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
+
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="size"]').textContent = data.size;
                         newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
@@ -484,10 +526,12 @@ function addRow(data) {
     function calculateTotals() {
         let totalWt = 0;
         let totalTot = 0;
+        let totalKept = 0;
 
         // Calculate total_wt and total_tot based on input values in all rows
         const wtInputs = document.querySelectorAll('.editable[name="wt"]');
         const totalInputs = document.querySelectorAll('.editable[name="total"]');
+        const keptInputs = document.querySelectorAll('.editable[name="kept"]');
 
         wtInputs.forEach((input) => {
             const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
@@ -498,14 +542,22 @@ function addRow(data) {
             const totalValue = parseFloat(input.textContent) || 0;
             totalTot += totalValue;
         });
+        
+        keptInputs.forEach((input) => {
+            const keptValue = parseFloat(input.textContent) || 0;
+            totalKept += keptValue;
+        });
 
         // Update the corresponding <td> elements for the totals
         const totalWtField = document.querySelector('.total_wt');
         const totalTotField = document.querySelector('.total_tot');
+        const totalKeptField = document.querySelector('.total_kept');
         totalWtField.textContent = totalWt.toFixed(2);
         totalWtField.value = totalWt.toFixed(2);
         totalTotField.textContent = totalTot.toFixed(2);
         totalTotField.value = totalTot.toFixed(2);
+        totalKeptField.textContent = totalKept.toFixed(2);
+        totalKeptField.value = totalKept.toFixed(2);
     }
 }
 
@@ -538,6 +590,7 @@ function addRowEmpty() {
 
     const shapeCells = document.querySelectorAll('td[name="shape"]');
     const sizeCells = document.querySelectorAll('td[name="size"]');
+    const descCells = document.querySelectorAll('td[name="desc"]');
     let inputTimeout; // Variable to store the input delay timer
 
     shapeCells.forEach(shapeCell => {
@@ -560,6 +613,30 @@ function addRowEmpty() {
         });
 
         shapeCell.addEventListener('blur', function () {
+            isCellFocused = false;
+        });
+    });
+
+    descCells.forEach(descCell => {
+        let isCellFocused = false;
+        descCell.addEventListener('input', function () {
+            clearTimeout(inputTimeout); // Clear the previous timeout
+            if (isCellFocused) {
+                // Delay showing the dropdown if the cell is focused
+                inputTimeout = setTimeout(() => {
+                    const desc = descCell.textContent.trim();
+                    if (desc !== '') {
+                        fetchDropdownData(desc, 'desc', descCell);
+                    }
+                }, 1000); // Adjust the delay time (in milliseconds) as needed
+            }
+        });
+
+        descCell.addEventListener('focus', function () {
+            isCellFocused = true;
+        });
+
+        descCell.addEventListener('blur', function () {
             isCellFocused = false;
         });
     });
@@ -607,7 +684,7 @@ function addRowEmpty() {
                     for (const item of data) {
                         const option = document.createElement('option');
                         option.value = item.lot_no;
-                        option.textContent = `${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
+                        option.textContent = `${item.description} - ${item.shape} - ${item.size} - ${item.pcs} - ${item.weight}`;
                         dropdown.appendChild(option);
                     }
 
@@ -646,6 +723,7 @@ function addRowEmpty() {
 
                     // Populate other fields in the current row with data from the server
                     currentRow.querySelector('[name="lot_no"]').textContent = data.lot_no;
+                    currentRow.querySelector('[name="desc"]').textContent = data.description;
                     currentRow.querySelector('[name="shape"]').textContent = data.shape;
                     currentRow.querySelector('[name="size"]').textContent = data.size;
                     currentRow.querySelector('[name="wt"]').textContent = data.weight;
@@ -669,6 +747,7 @@ function addRowEmpty() {
     deleteIcon.addEventListener('click', function () {
         const shapeDropdown = newRow.querySelector('[name="shape"] + .dropdown');
         const sizeDropdown = newRow.querySelector('[name="size"] + .dropdown');
+        const descDropdown = newRow.querySelector('[name="desc"] + .dropdown');
 
         if (shapeDropdown) {
             shapeDropdown.parentNode.removeChild(shapeDropdown);
@@ -684,6 +763,13 @@ function addRowEmpty() {
             newRow.querySelector('[name="size"]').textContent = '';
         }
 
+        if (descDropdown) {
+            descDropdown.parentNode.removeChild(descDropdown);
+            descInput.textContent = '';
+        } else {
+            newRow.querySelector('[name="desc"]').textContent = '';
+        }
+
         // Clear other cell contents without affecting the cells themselves
         const cellsToClear = newRow.querySelectorAll('.editable');
         cellsToClear.forEach((cell) => {
@@ -694,6 +780,7 @@ function addRowEmpty() {
         // Enable content editing for certain cells
         newRow.querySelector('[name="size"]').setAttribute('contenteditable', 'true');
         newRow.querySelector('[name="shape"]').setAttribute('contenteditable', 'true');
+        newRow.querySelector('[name="desc"]').setAttribute('contenteditable', 'true');
 
         // Calculate totals based on the updated data
         calculateTotals();
@@ -719,6 +806,9 @@ function addRowEmpty() {
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
 
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
+                        
                         newRow.querySelector('[name="size"]').textContent = data.size;
                         newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
 
@@ -787,10 +877,12 @@ function addRowEmpty() {
     function calculateTotals() {
         let totalWt = 0;
         let totalTot = 0;
+        let totalKept = 0;
 
         // Calculate total_wt and total_tot based on input values in all rows
         const wtInputs = document.querySelectorAll('.editable[name="wt"]');
         const totalInputs = document.querySelectorAll('.editable[name="total"]');
+        const keptInputs = document.querySelectorAll('.editable[name="kept"]');
 
         wtInputs.forEach((input) => {
             const wtValue = Math.abs(parseFloat(input.textContent)) || 0;
@@ -801,14 +893,22 @@ function addRowEmpty() {
             const totalValue = parseFloat(input.textContent) || 0;
             totalTot += totalValue;
         });
+        
+        keptInputs.forEach((input) => {
+            const keptValue = parseFloat(input.textContent) || 0;
+            totalKept += keptValue;
+        });
 
         // Update the corresponding <td> elements for the totals
         const totalWtField = document.querySelector('.total_wt');
         const totalTotField = document.querySelector('.total_tot');
+        const totalKeptField = document.querySelector('.total_kept');
         totalWtField.textContent = totalWt.toFixed(2);
         totalWtField.value = totalWt.toFixed(2);
         totalTotField.textContent = totalTot.toFixed(2);
         totalTotField.value = totalTot.toFixed(2);
+        totalKeptField.textContent = totalKept.toFixed(2);
+        totalKeptField.value = totalKept.toFixed(2);
     }
 
 
@@ -838,6 +938,10 @@ function addRowEmpty() {
             // Calculate "Total" based on "Weight" and "Price" (total = wt * price)
             const totalVal = wtVal * priceVal;
             totalCell.textContent = totalVal.toFixed(2); // You can format it as needed
+        }
+        
+        if (targetCell.getAttribute('name') === 'return') {
+            calculateTotals();
         }
     });
 }
@@ -902,6 +1006,7 @@ function saveData(isCalledFromCloseMemo = false) {
     const name = document.getElementById("recipient").value;
     const address = document.getElementById("addressInput").value;
     const total_wt = document.getElementById("total_wt").textContent;
+    const total_kept = document.getElementById("total_kept").textContent;
     const total_final_tot = document.getElementById("total_final_tot").textContent;
 
     tableRows.forEach((row) => {
@@ -919,7 +1024,7 @@ function saveData(isCalledFromCloseMemo = false) {
         memorandum_day: memorandum_day,
         name: name,
         address: address,
-        total_wt: total_wt,
+        total_wt: total_kept !== '' && total_kept !== 0.00 ? total_kept : total_wt,
         total_final_tot: total_final_tot,
         data: data,
     };
@@ -1042,7 +1147,7 @@ document.getElementById('table-body').addEventListener('keydown', function (e) {
 function printInvoice() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
-    window.location.href = `../print_invoice/print_invoice.php?memo_no=${encodeURIComponent(memo_no)}`;
+    window.location.href = `../print_invoice/print_invoice.html?memo_no=${encodeURIComponent(memo_no)}`;
 }
 
 // JavaScript for the "Back" button
@@ -1058,5 +1163,5 @@ window.addEventListener("popstate", function (event) {
 function printMemo() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
-    window.location.href = `../print_memo/print_memo.php?memo_no=${encodeURIComponent(memo_no)}`;
+    window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
 }

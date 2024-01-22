@@ -165,6 +165,7 @@ p {
 
 .total_wt,
 .total_tot,
+.total_kept,
 .total_final_tot {
     font-weight: bold;
 }
@@ -206,4 +207,30 @@ color:#E7CE74;
 .home-button i {
     font-size: 20px;
     vertical-align: middle;
+}
+
+#addressInput {
+    margin-left: 50px;
+    width: 75%;
+    min-height: 65px;
+    border: none;
+    outline: none;
+    resize: none;
+}
+
+#closeButton {
+    background-color: red;
+}
+
+#printButton {
+    background-color: green;
+    margin-left: auto; 
+}
+
+#closeprintButtonButton:hover {
+    background-color: darkgreen; 
+}
+
+#closeButton:hover {
+    background-color: darkred; 
 }

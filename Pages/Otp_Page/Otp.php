@@ -85,6 +85,18 @@ if ($conn->connect_error) {
     </form>
   </div>
   <script src="Otp.js"></script>
+  <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -268,3 +268,12 @@ color:#E7CE74;
     font-size: 20px;
     vertical-align: middle;
 }
+
+#addressInput {
+    margin-left: 50px;
+    width: 75%;
+    min-height: 65px;
+    border: none;
+    outline: none;
+    resize: none;
+}

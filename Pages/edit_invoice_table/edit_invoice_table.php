@@ -1,17 +1,9 @@
 <?php
 include '../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../index.php');
-  exit;
-}
-
 $sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status 
         FROM invoice i
         JOIN memo m ON i.memo_no = m.memo_no
-        AND i.payment_status = 'Not Received'
         ORDER BY i.invoice_no ASC";
 $result = $conn->query($sql);
 
@@ -37,7 +29,6 @@ if ($result === false) {
 $sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status 
                     FROM invoice_wmemo iw
                     WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i)
-                    AND iw.payment_status = 'Not Received'
                     ORDER BY iw.invoice_no ASC";
 $resultInvoiceWMemo = $conn->query($sqlInvoiceWMemo);
 
@@ -120,6 +111,12 @@ $conn->close();
             <option value="date-asc">Date Ascending</option>
             <option value="date-desc">Date Descending</option>
         </select>
+        <!-- New dropdown for Invoice Status -->
+        <select class="dropdown" id="statusDropdown">
+            <option value="">All Status</option>
+            <option value="Received">Received</option>
+            <option value="Not Received">Not Received</option>
+        </select>
     </div>
     <table class="table_data">
         <thead>
@@ -143,8 +140,8 @@ $conn->close();
                 echo '<tr>';
                 // Check the source of invoice_no and provide the appropriate link
                 $editLink = ($row['source'] === 'invoice_wmemo') ?
-                    '../edit_invoice/edit_invoice.php' :
-                    '../edit_invoice_memo/edit_invoice_memo.php';
+                    '../edit_invoice/edit_invoice.html' :
+                    '../edit_invoice_memo/edit_invoice_memo.html';
         
                 echo '<td><a class="invoice-link" href="' . $editLink . '?invoice_no=' . $row['invoice_no'] . '">' . $row['invoice_no'] . '</a></td>';
                 $invoiceDate = date('F j, Y', strtotime($row['invoice_date']));
@@ -176,17 +173,25 @@ $conn->close();
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
         const sortDropdown = document.getElementById("sortDropdown");
+        const statusDropdown = document.getElementById("statusDropdown");
         const tableRows = document.querySelectorAll(".table_data tbody tr");
 
         customerDropdown.addEventListener("change", filterTable);
         sortDropdown.addEventListener("change", filterTableDate);
+        statusDropdown.addEventListener("change", filterTableStatus);
 
         function filterTable() {
             const selectedCustomer = customerDropdown.value;
+            const selectedStatus = statusDropdown.value;
 
             tableRows.forEach(row => {
                 const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
+                const statusCell = row.querySelector("td:nth-child(6)"); // Select the 6th column (payment status)
+
+                const showRow =
+                    (selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers") &&
+                    (selectedStatus === "" || statusCell.textContent === selectedStatus || selectedStatus === "All Status");
+
                 row.style.display = showRow ? "table-row" : "none";
             });
         }
@@ -217,10 +222,38 @@ $conn->close();
                 sortedRows.forEach(row => tbody.appendChild(row));
             }
         }
+        
+        function filterTableStatus() {
+            const selectedCustomer = customerDropdown.value;
+            const selectedStatus = statusDropdown.value;
+
+            tableRows.forEach(row => {
+                const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
+                const statusCell = row.querySelector("td:nth-child(6)"); // Select the 6th column (payment status)
+
+                const showRow =
+                    (selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers") &&
+                    (selectedStatus === "" || statusCell.textContent === selectedStatus || selectedStatus === "All Status");
+
+                row.style.display = showRow ? "table-row" : "none";
+            });
+        }
 
     </script>
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
 
-    <a href="../landing_page/home_landing_page.php" class="home-button">
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <a href="../landing_page/home_landing_page.html" class="home-button">
         <i class="fas fa-home"></i>
     </a>
 

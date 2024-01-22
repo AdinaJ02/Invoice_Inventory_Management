@@ -111,7 +111,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     </div>
     <script src="print_invoice_create.js"></script>
 
-    <a href="../landing_page/home_landing_page.php" class="home-button">
+    <a href="../landing_page/home_landing_page.php" class="home-button no-print hide-on-print">
         <i class="fas fa-home"></i>
     </a>
 </body>

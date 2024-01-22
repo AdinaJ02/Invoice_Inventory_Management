@@ -2,13 +2,6 @@
 require '../../../vendor/autoload.php';
 include '../../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../../index.php');
-  exit;
-}
-
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
 }
@@ -30,7 +23,7 @@ while ($row = $result->fetch_assoc()) {
     $memoNo = $row['memo_no'];
 
     // Step 2: Fetch lot_no, shape, and final_total from memo_data for the current memo
-    $memoDataSql = "SELECT lot_no, shape, final_total FROM memo_data WHERE memo_no = '$memoNo'";
+    $memoDataSql = "SELECT lot_no, shape, final_total FROM memo_data WHERE memo_no = '$memoNo'AND (final_total > 0)";
     $memoDataResult = $conn->query($memoDataSql);
 
     if (!$memoDataResult) {
@@ -79,7 +72,7 @@ while ($invoiceRow = $invoiceResult->fetch_assoc()) {
     $invoiceNo = $invoiceRow['invoice_no'];
 
     // Step 4: Fetch lot_no, shape, and total from invoice_data for the current invoice
-    $invoiceDataSql = "SELECT lot_no, shape, total FROM invoice_data WHERE invoice_no = '$invoiceNo'";
+    $invoiceDataSql = "SELECT lot_no, shape, total FROM invoice_data WHERE invoice_no = '$invoiceNo' AND (total > 0)";
     $invoiceDataResult = $conn->query($invoiceDataSql);
 
     if (!$invoiceDataResult) {
@@ -150,7 +143,9 @@ $conn->close();
             </tr>
         </thead>
         <tbody id="table-body">
-            <?php foreach ($customerData as $customerName => $data) { ?>
+            <?php foreach ($customerData as $customerName => $data) { 
+                if ($data['final_total'] > 0) { // Check if final_total is greater than 0
+            ?>
                 <tr>
                     <td>
                         <?php echo $customerName; ?>
@@ -165,7 +160,9 @@ $conn->close();
                         <?php echo $data['final_total']; ?>
                     </td>
                 </tr>
-            <?php } ?>
+            <?php 
+                } // End of if condition
+            } ?>
         </tbody>
     </table>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
@@ -235,7 +232,19 @@ $conn->close();
             window.history.back();
         });
     </script>
-    <a href="../../landing_page/home_landing_page.php" class="home-button">
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 </body>

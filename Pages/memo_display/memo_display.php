@@ -1,13 +1,6 @@
 <?php
 include '../../connection.php';
 
-session_start();
-// Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-  header('Location: ../../index.php');
-  exit;
-}
-
 // SQL query to retrieve data from the database
 $sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total, is_open FROM memo";
 $result = $conn->query($sql);
@@ -19,6 +12,11 @@ if ($result->num_rows > 0) {
         $data[] = $row;
     }
 }
+
+// Sort the data array by customer name in alphabetical order
+usort($data, function ($a, $b) {
+    return strcmp($a['customer_name'], $b['customer_name']);
+});
 
 // Fetch and populate customer names from the customers table
 $sqlCustomer = "SELECT distinct customer_name FROM memo";
@@ -60,7 +58,7 @@ $conn->close();
             <option value="date-desc">Date Descending</option>
         </select>
         <select class="dropdown" id="statusDropdown">
-            <option value="" disabled selected>Memo Status</option>
+            <option value="" selected>Memo Status</option>
             <option value="open">Open</option>
             <option value="close">Close</option>
         </select>
@@ -80,8 +78,8 @@ $conn->close();
             <?php
             foreach ($data as $row) {
                 echo '<tr>';
-                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.php?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
-    $memoDate = date('F j, Y', strtotime($row['memo_date']));
+                echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
+                $memoDate = date('F j, Y', strtotime($row['memo_date']));
                 echo '<td>' . $memoDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
                 echo '<td>' . $row['total_wt'] . '</td>';
@@ -116,10 +114,16 @@ $conn->close();
 
         function filterTable() {
             const selectedCustomer = customerDropdown.value;
+            const selectedStatus = filterDropdown.value.toLowerCase();
 
             tableRows.forEach(row => {
                 const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
+                const statusCell = row.querySelector("td:nth-child(6)").textContent.toLowerCase();
+
+                const showRow =
+                    (selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers") &&
+                    (selectedStatus === "" || statusCell === selectedStatus);
+
                 row.style.display = showRow ? "table-row" : "none";
             });
         }
@@ -159,32 +163,16 @@ $conn->close();
 
             const rows = Array.from(tbody.querySelectorAll("tr"));
 
-            rows.sort((rowA, rowB) => {
-                const statusCellA = rowA.querySelector("td:nth-child(6)").textContent.toLowerCase();
-                const statusCellB = rowB.querySelector("td:nth-child(6)").textContent.toLowerCase();
+            rows.forEach(row => {
+                const customerName = row.querySelector("td:nth-child(3)").textContent;
+                const statusCell = row.querySelector("td:nth-child(6)").textContent.toLowerCase();
 
-                if (selectedCustomer === "" || rowA.querySelector("td:nth-child(3)").textContent === selectedCustomer) {
-                    if (selectedStatus === "open") {
-                        if (statusCellA === "open" && statusCellB === "close") {
-                            return -1;
-                        } else if (statusCellA === "close" && statusCellB === "open") {
-                            return 1;
-                        }
-                    } else if (selectedStatus === "close") {
-                        if (statusCellA === "close" && statusCellB === "open") {
-                            return -1;
-                        } else if (statusCellA === "open" && statusCellB === "close") {
-                            return 1;
-                        }
-                    }
-                } else {
-                    return 0;
-                }
+                const showRow =
+                    (selectedCustomer === "" || customerName === selectedCustomer || selectedCustomer === "All Customers") &&
+                    (selectedStatus === "" || statusCell === selectedStatus);
+
+                row.style.display = showRow ? "table-row" : "none";
             });
-
-            // Clear the table and append the sorted rows
-            tbody.innerHTML = "";
-            rows.forEach((row) => tbody.appendChild(row));
         }
 
         // JavaScript for the "Remove Filters" button
@@ -194,7 +182,19 @@ $conn->close();
             window.location.reload();
         });
     </script>
-    <a href="../landing_page/home_landing_page.php" class="home-button">
+    <script>
+         document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // Check if the key combination is Ctrl+U (for viewing page source)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <a href="../landing_page/home_landing_page.html" class="home-button">
                 <i class="fas fa-home"></i>
             </a>
 
