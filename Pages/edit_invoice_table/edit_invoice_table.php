@@ -1,9 +1,10 @@
 <?php
 include '../../connection.php';
 
-$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status 
+$sql = "SELECT i.invoice_no, i.invoice_date, m.memo_no,m.customer_name, m.total_wt, m.total_total, i.payment_status 
         FROM invoice i
         JOIN memo m ON i.memo_no = m.memo_no
+        WHERE i.payment_status = 'Not Received'
         ORDER BY i.invoice_no ASC";
 $result = $conn->query($sql);
 
@@ -16,6 +17,7 @@ if ($result === false) {
             $data[] = array(
                 'invoice_no' => $row['invoice_no'],
                 'invoice_date' => $row['invoice_date'],
+                'memo_no' => $row['memo_no'], // Add the Memo reference number
                 'customer_name' => $row['customer_name'],
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['total_total'],
@@ -28,7 +30,7 @@ if ($result === false) {
 
 $sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status 
                     FROM invoice_wmemo iw
-                    WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i)
+                    WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i) AND iw.payment_status = 'Not Received'
                     ORDER BY iw.invoice_no ASC";
 $resultInvoiceWMemo = $conn->query($sqlInvoiceWMemo);
 
@@ -40,6 +42,7 @@ if ($resultInvoiceWMemo === false) {
             $data[] = array(
                 'invoice_no' => $row['invoice_no'],
                 'invoice_date' => $row['invoice_date'],
+                'memo_no' => '', // Memo number not applicable for invoice_wmemo
                 'customer_name' => $row['customer_name'],
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['final_total'],
@@ -111,17 +114,12 @@ $conn->close();
             <option value="date-asc">Date Ascending</option>
             <option value="date-desc">Date Descending</option>
         </select>
-        <!-- New dropdown for Invoice Status -->
-        <select class="dropdown" id="statusDropdown">
-            <option value="">All Status</option>
-            <option value="Received">Received</option>
-            <option value="Not Received">Not Received</option>
-        </select>
     </div>
     <table class="table_data">
         <thead>
             <tr id="header">
                 <th>Invoice No.</th>
+                <th>Memo reference No.</th>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Total Wt</th>
@@ -144,6 +142,7 @@ $conn->close();
                     '../edit_invoice_memo/edit_invoice_memo.html';
         
                 echo '<td><a class="invoice-link" href="' . $editLink . '?invoice_no=' . $row['invoice_no'] . '">' . $row['invoice_no'] . '</a></td>';
+                echo '<td>' . $row['memo_no'] . '</td>'; // Display the Memo reference number
                 $invoiceDate = date('F j, Y', strtotime($row['invoice_date']));
                 echo '<td>' . $invoiceDate . '</td>';
                 echo '<td>' . $row['customer_name'] . '</td>';
@@ -223,21 +222,6 @@ $conn->close();
             }
         }
         
-        function filterTableStatus() {
-            const selectedCustomer = customerDropdown.value;
-            const selectedStatus = statusDropdown.value;
-
-            tableRows.forEach(row => {
-                const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const statusCell = row.querySelector("td:nth-child(6)"); // Select the 6th column (payment status)
-
-                const showRow =
-                    (selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers") &&
-                    (selectedStatus === "" || statusCell.textContent === selectedStatus || selectedStatus === "All Status");
-
-                row.style.display = showRow ? "table-row" : "none";
-            });
-        }
 
     </script>
     <script>

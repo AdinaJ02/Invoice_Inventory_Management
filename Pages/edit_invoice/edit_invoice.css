@@ -168,7 +168,7 @@ p {
     /* Placeholder text color */
 }
 
-#invoice_no {
+#invoice_no, #memo_no {
     border: 0px;
     font-size: 14px;
     padding-left: 10px;

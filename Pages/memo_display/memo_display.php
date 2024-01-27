@@ -2,7 +2,7 @@
 include '../../connection.php';
 
 // SQL query to retrieve data from the database
-$sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total, is_open FROM memo";
+$sql = "SELECT memo_no, memo_date, customer_name, total_wt, total_total, is_open, manual_entry, `status` FROM memo";
 $result = $conn->query($sql);
 
 // Store the retrieved data in an array
@@ -62,6 +62,7 @@ $conn->close();
             <option value="open">Open</option>
             <option value="close">Close</option>
         </select>
+        <button id="download-button">Download</button>
     </div>
     <table class="table_data">
         <thead>
@@ -72,6 +73,9 @@ $conn->close();
                 <th>Total Weight</th>
                 <th>Final Total</th>
                 <th>Is Open</th>
+                <th>Manual Entry</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -85,6 +89,13 @@ $conn->close();
                 echo '<td>' . $row['total_wt'] . '</td>';
                 echo '<td>' . $row['total_total'] . '</td>';
                 echo '<td>' . $row['is_open'] . '</td>';
+                echo '<td contenteditable="true" class="manual-entry" data-memo-no="' . $row['memo_no'] . '">' . $row['manual_entry'] . '</td>';
+                echo '<td><select class="status-dropdown" data-memo-no="' . $row['memo_no'] . '">
+                <option value="invoice" ' . ($row['status'] == 'invoice' ? 'selected' : '') . '>Invoice</option>
+                <option value="all_return" ' . ($row['status'] == 'all_return' ? 'selected' : '') . '>All Return</option>
+                <option value="accounted" ' . ($row['status'] == 'accounted' ? 'selected' : '') . '>Accounted</option>
+            </select></td>';
+                echo '<td><button class="save-button" data-memo-no="' . $row['memo_no'] . '">Save</button></td>';
                 echo '</tr>';
             }
             ?>
@@ -100,7 +111,7 @@ $conn->close();
         function goBackOneStep() {
             window.history.back(); // This will go back one step in the browser's history
         }
-        
+
 
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
@@ -183,7 +194,7 @@ $conn->close();
         });
     </script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 
@@ -193,10 +204,46 @@ $conn->close();
                 e.preventDefault();
             }
         });
+
+
+
+        // Add this script to handle the save button click event
+        document.addEventListener('DOMContentLoaded', function () {
+            const saveButtons = document.querySelectorAll('.save-button');
+
+            saveButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const memoNo = button.getAttribute('data-memo-no');
+                    const manualEntry = document.querySelector(`.manual-entry[data-memo-no="${memoNo}"]`).textContent;
+                    const status = document.querySelector(`.status-dropdown[data-memo-no="${memoNo}"]`).value;
+
+                    // Send the data to the server using AJAX or fetch API
+                    // Example using jQuery AJAX:
+                    $.ajax({
+                        method: 'POST',
+                        url: 'save_data.php', // Replace with the actual server-side script to handle the data
+                        data: { memo_no: memoNo, manual_entry: manualEntry, status: status },
+                        success: function (response) {
+                            // Handle the server response if needed
+                            console.log(response);
+                        },
+                        error: function (error) {
+                            // Handle the error if needed
+                            console.error(error);
+                        }
+                    });
+                });
+            });
+        });
+
+        document.getElementById('download-button').addEventListener('click', function () {
+            window.location.href = 'memo_download.php';
+        });
+
     </script>
     <a href="../landing_page/home_landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+        <i class="fas fa-home"></i>
+    </a>
 
 </body>
 
