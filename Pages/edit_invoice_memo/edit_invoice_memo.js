@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (Object.keys(data).length > 0) {
+                    const memo_no = data.memo_no;
+                    document.getElementById('memo_no').value=memo_no;
+                    console.log(memo_no);
                     // Assuming data.date contains the date in the format "YYYY-MM-DD"
                     const rawDate = data.invoice_date; // Replace with your actual date
 

@@ -57,6 +57,18 @@ body{
     /* Change the background color on hover */
 }
 
+#download-button{
+    color: white;
+    background-color: #106f7b;
+    border-radius: 5px; /* Add border radius */
+    padding: 8px; /* Add some padding for spacing */
+    width: 100px; /* Set a fixed width */
+  }
+  #download-button:hover{
+    background-color: #3095a2;
+    cursor: pointer;
+  }
+
 .dropdown-container {
     display: flex;
     justify-content: center;
@@ -110,4 +122,24 @@ color:#E7CE74;
 .home-button i {
     font-size: 20px;
     vertical-align: middle;
+}
+
+/* Add these styles for the save button */
+.save-button {
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.save-button:hover {
+    background-color: rgb(57, 184, 184);
 }
