@@ -136,6 +136,11 @@ function totalWeightTotal() {
 
 // Function to add a new row
 function addRow(data) {
+    if (data.kept == 0.00) {
+        console.log('Skipped row with data.kept = 0:', data);
+        return;
+    }
+
     const tableBody = document.getElementById('table-body');
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
