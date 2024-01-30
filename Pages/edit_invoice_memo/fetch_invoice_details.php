@@ -8,7 +8,9 @@ if ($conn->connect_error) {
         $invoiceNo = $_GET["invoice_no"];
 
         // Construct the SQL query to fetch data based on invoice_no from both tables
+
         $sql = "SELECT i.memo_no, i.invoice_date, m.customer_name, m.address, m.total_wt, m.total_total, i.disc_total, i.payment_status
+
         FROM invoice i
         JOIN memo m ON i.memo_no = m.memo_no
         WHERE i.invoice_no = $invoiceNo";

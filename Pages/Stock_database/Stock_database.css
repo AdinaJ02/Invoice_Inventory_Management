@@ -8,7 +8,7 @@ body {
 .table_data {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 50px;
+    margin-top: 100px;
     font-size: 15px;
 }
 
@@ -27,10 +27,23 @@ body {
   position: fixed;
   top: 10;
   margin-left: 6%;
+  margin-top: 5%;
   /* background-color: white; You can set a background color for the fixed buttons if needed */
   z-index: 1; /* Ensure the buttons are above other content */
   width: 100%; /* Make the buttons span the entire width */
   /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); Add a shadow for a nice effect */
+}
+
+.fixed-textbox{
+  margin-top: 0.5%;
+  margin-left: 15%;
+}
+
+.search_stock{
+  border-radius: 5px; /* Add border radius */ /* Add some padding for spacing */
+  padding: 5px;
+  margin-bottom: 10px;
+  width: 200px; /* Set a fixed width */
 }
 #download-button{
   color: white;
