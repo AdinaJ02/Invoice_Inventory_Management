@@ -1,4 +1,4 @@
-body{
+body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -88,6 +88,7 @@ body{
     display: inline-block;
     width: 100%;
 }
+
 .home-button {
     position: fixed;
     bottom: 20px;
@@ -104,10 +105,29 @@ body{
 
 .home-button:hover {
     transform: translateY(-5px);
-color:#E7CE74;
+    color: #E7CE74;
 }
 
 .home-button i {
     font-size: 20px;
     vertical-align: middle;
+}
+
+.save-button {
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.save-button:hover {
+    background-color: rgb(57, 184, 184);
 }

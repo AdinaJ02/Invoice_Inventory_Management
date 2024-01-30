@@ -95,11 +95,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("addButton").disabled = true;
                 document.getElementById("saveButton").disabled = true;
                 document.getElementById("closeButton").disabled = true;
+                document.getElementById("printButton").disabled = true;
 
                 const tableCells = document.querySelectorAll('.table_data tbody td.editable');
                 tableCells.forEach(cell => {
                     cell.contentEditable = "false"; // Use "false" as a string to set contentEditable to "false"
                 });
+            }
+            else {
+                document.getElementById("reopenButton").disabled = true;
             }
         })
         .catch(error => {
@@ -230,8 +234,8 @@ function addRow(data) {
             const totalVal = wtVal * priceVal;
             totalCell.textContent = totalVal.toFixed(2); // You can format it as needed
         }
-        
-         if (targetCell.getAttribute('name') === 'return') {
+
+        if (targetCell.getAttribute('name') === 'return') {
             calculateTotals();
         }
     });
@@ -499,7 +503,28 @@ function addRow(data) {
     rapField.addEventListener('input', calculatePriceAndTotal);
     discField.addEventListener('input', calculatePriceAndTotal);
     priceField.addEventListener('input', calculatePriceAndTotal);
-    wtField.addEventListener('input', calculatePriceAndTotal);
+    wtField.addEventListener('input', function () {
+        calculateKeptAndReturn();
+        calculatePriceAndTotal();
+    });
+
+    function calculateKeptAndReturn() {
+        // Get the "wt" and "return" cells in the current row
+        const wtCell = newRow.querySelector('[name="wt"]');
+        const returnCell = newRow.querySelector('[name="return"]');
+        const keptCell = newRow.querySelector('[name="kept"]');
+
+        // Parse the values or set them to 0 if empty
+        const wtValue = parseFloat(wtCell.textContent) || 0;
+        const returnValue = parseFloat(returnCell.textContent) || 0;
+
+        // Calculate "kept" as the remaining half of "wt" value
+        const keptValue = wtValue - returnValue;
+        keptCell.textContent = keptValue.toFixed(2);
+
+        // Trigger the total calculations
+        calculateTotals();
+    }
 
     // Initial calculation
     calculatePriceAndTotal();
@@ -542,7 +567,7 @@ function addRow(data) {
             const totalValue = parseFloat(input.textContent) || 0;
             totalTot += totalValue;
         });
-        
+
         keptInputs.forEach((input) => {
             const keptValue = parseFloat(input.textContent) || 0;
             totalKept += keptValue;
@@ -808,7 +833,7 @@ function addRowEmpty() {
 
                         newRow.querySelector('[name="desc"]').textContent = data.description;
                         newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
-                        
+
                         newRow.querySelector('[name="size"]').textContent = data.size;
                         newRow.querySelector('[name="size"]').setAttribute('contentEditable', 'false');
 
@@ -828,6 +853,8 @@ function addRowEmpty() {
 
                         newRow.querySelector('[name="rap"]').textContent = data.rap;
                         newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
+
+                        newRow.querySelector('[name="kept"]').textContent = data.weight;
 
                         calculatePriceAndTotal();
                     }
@@ -850,7 +877,29 @@ function addRowEmpty() {
     rapField.addEventListener('input', calculatePriceAndTotal);
     discField.addEventListener('input', calculatePriceAndTotal);
     priceField.addEventListener('input', calculatePriceAndTotal);
-    wtField.addEventListener('input', calculatePriceAndTotal);
+    wtField.addEventListener('input', function () {
+        calculatePriceAndTotal();
+        // Call your additional method here
+        calculateKeptAndReturn();
+    });
+
+    function calculateKeptAndReturn() {
+        // Get the "wt" and "return" cells in the current row
+        const wtCell = newRow.querySelector('[name="wt"]');
+        const returnCell = newRow.querySelector('[name="return"]');
+        const keptCell = newRow.querySelector('[name="kept"]');
+
+        // Parse the values or set them to 0 if empty
+        const wtValue = parseFloat(wtCell.textContent) || 0;
+        const returnValue = parseFloat(returnCell.textContent) || 0;
+
+        // Calculate "kept" as the remaining half of "wt" value
+        const keptValue = wtValue - returnValue;
+        keptCell.textContent = keptValue.toFixed(2);
+
+        // Trigger the total calculations
+        calculateTotals();
+    }
 
     // Initial calculation
     calculatePriceAndTotal();
@@ -893,7 +942,7 @@ function addRowEmpty() {
             const totalValue = parseFloat(input.textContent) || 0;
             totalTot += totalValue;
         });
-        
+
         keptInputs.forEach((input) => {
             const keptValue = parseFloat(input.textContent) || 0;
             totalKept += keptValue;
@@ -910,7 +959,6 @@ function addRowEmpty() {
         totalKeptField.textContent = totalKept.toFixed(2);
         totalKeptField.value = totalKept.toFixed(2);
     }
-
 
     // Add an event listener to the table body to calculate "Price" and "Total" on input changes
     tableBody.addEventListener('input', function (event) {
@@ -939,7 +987,7 @@ function addRowEmpty() {
             const totalVal = wtVal * priceVal;
             totalCell.textContent = totalVal.toFixed(2); // You can format it as needed
         }
-        
+
         if (targetCell.getAttribute('name') === 'return') {
             calculateTotals();
         }
@@ -981,6 +1029,22 @@ document.getElementById('table-body').addEventListener('input', function (event)
                     finalTotalCell.textContent = finalTotalVal.toFixed(2); // You can format it as needed
                 }
             }
+        }
+    }
+
+    if (targetCell.getAttribute('name') === 'wt' || targetCell.getAttribute('name') === 'price') {
+        // Get the corresponding "Weight" cell
+        const priceCell = targetCell.parentElement.querySelector('[name="price"]');
+        const keptCell = targetCell.parentElement.querySelector('[name="kept"]');
+
+        const priceVal = parseFloat(priceCell.textContent) || 0;
+        const keptVal = parseFloat(keptCell.textContent) || 0;
+        const finalTotalVal = keptVal * priceVal;
+
+        // Get the "Final Total" cell and update its content
+        const finalTotalCell = targetCell.parentElement.querySelector('[name="final_total"]');
+        if (finalTotalCell) {
+            finalTotalCell.textContent = finalTotalVal.toFixed(2); // You can format it as needed
         }
     }
 
@@ -1145,6 +1209,7 @@ document.getElementById('table-body').addEventListener('keydown', function (e) {
 });
 
 function printInvoice() {
+    closeMemo();
     saveData();
     const memo_no = document.getElementById("memo_no").value;
     window.location.href = `../print_invoice/print_invoice.html?memo_no=${encodeURIComponent(memo_no)}`;
@@ -1164,4 +1229,54 @@ function printMemo() {
     saveData();
     const memo_no = document.getElementById("memo_no").value;
     window.location.href = `../print_memo/print_memo.html?memo_no=${encodeURIComponent(memo_no)}`;
+}
+
+function reopenMemo() {
+    const tableRows = document.querySelectorAll('#table-body tr');
+    const data = [];
+    // Get the memo_no value from your HTML, assuming it's stored in an element with an id "memo_no"
+    const memo_no = document.getElementById("memo_no").value;
+
+    tableRows.forEach((row) => {
+        const rowData = {};
+        row.querySelectorAll('td.editable').forEach((cell) => {
+            const name = cell.getAttribute('name');
+            rowData[name] = cell.textContent.trim();
+        });
+        data.push(rowData);
+    });
+
+    // Create a data object to send the memo_no value to the server
+    const requestData = {
+        memo_no: memo_no,
+        data: data,
+    };
+
+    // Send a POST request to closeMemo.php
+    fetch('reOpenMemo.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData),
+    })
+        .then((response) => {
+            if (response.ok) {
+                // Display a success message
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = 'Memo reopened successfully!';
+
+                // Optionally, you can clear the message after a few seconds
+                setTimeout(() => {
+                    successMessage.textContent = '';
+                    location.reload();
+                }, 3000); // Clear the message after 3 seconds
+            } else {
+                // Handle other response statuses here if needed
+                console.error('Server returned an error:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }

@@ -23,6 +23,27 @@ while ($rowCustomer = $resultCustomer->fetch_assoc()) {
     $customerNames[] = $rowCustomer['customer_name'];
 }
 
+// // Calculate total values
+// $totalWt = 0;
+// $totalValue = 0;
+
+// foreach ($data as $row) {
+//     $totalWt += $row['total_wt'];
+//     $totalValue += $row['total_total'];
+// }
+
+// // Add a total row to the data array
+// $totalRow = array(
+//     'memo_no' => 'Total',
+//     'memo_date' => '',
+//     'customer_name' => '',
+//     'total_wt' => $totalWt,
+//     'total_total' => $totalValue
+// );
+
+// // Append the total row to the data array
+// $data[] = $totalRow;
+
 // Close the database connection
 $conn->close();
 ?>
@@ -66,6 +87,10 @@ $conn->close();
         <tbody>
             <?php
             foreach ($data as $row) {
+                // Exclude the total row with a random date
+                if ($row['memo_no'] === 'Total') {
+                    continue;
+                }
                 echo '<tr>';
                 echo '<td><a class="memo-link" href="../edit_memo/edit_memo.html?memo_no=' . $row['memo_no'] . '">' . $row['memo_no'] . '</a></td>';
                 $memoDate = date('F j, Y', strtotime($row['memo_date']));
@@ -77,6 +102,18 @@ $conn->close();
             }
             ?>
         </tbody>
+        <!-- Add a total row at the end of the table -->
+        <tfoot>
+            <tr>
+                <td colspan="3"><strong>Total</strong></td>
+                <td>
+                    <b id="totalWt">0.00</b>
+                </td>
+                <td>
+                    <b id="totalValue">0.00</b>
+                </td>
+            </tr>
+        </tfoot>
     </table>
     <div class="form-group" style="text-align: center;">
         <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
@@ -93,54 +130,81 @@ $conn->close();
             location.reload();
         });
 
-        // Get references to the dropdown and table
-        const customerDropdown = document.getElementById("customerDropdown");
-        const sortDropdown = document.getElementById("sortDropdown");
-        const tableRows = document.querySelectorAll(".table_data tbody tr");
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get references to the dropdown and table
+            const customerDropdown = document.getElementById("customerDropdown");
+            const sortDropdown = document.getElementById("sortDropdown");
+            const tableRows = document.querySelectorAll(".table_data tbody tr");
 
-        customerDropdown.addEventListener("change", filterTable);
-        sortDropdown.addEventListener("change", filterTableDate);
+            customerDropdown.addEventListener("change", filterTable);
+            sortDropdown.addEventListener("change", filterTableDate);
 
-        function filterTable() {
-            const selectedCustomer = customerDropdown.value;
+            function calculateTotals() {
+                let totalWt = 0;
+                let totalValue = 0;
 
-            tableRows.forEach(row => {
-                const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
-                row.style.display = showRow ? "table-row" : "none";
-            });
-        }
+                tableRows.forEach(row => {
+                    const wtCell = row.querySelector("td:nth-child(4)"); // Select the 4th column (total weight)
+                    const valueCell = row.querySelector("td:nth-child(5)"); // Select the 5th column (total value)
 
-        function filterTableDate() {
-            const sortOption = sortDropdown.value;
-            const tbody = document.querySelector(".table_data tbody");
-
-            if (sortOption === "date-asc") {
-                // Sort the rows in ascending order by date
-                const sortedRows = Array.from(tableRows).sort((a, b) => {
-                    const dateA = new Date(a.querySelector("td:nth-child(2)").textContent);
-                    const dateB = new Date(b.querySelector("td:nth-child(2)").textContent);
-                    return dateA - dateB;
+                    // Check if the row is visible
+                    if (row.style.display !== "none") {
+                        totalWt += parseFloat(wtCell.textContent) || 0;
+                        totalValue += parseFloat(valueCell.textContent) || 0;
+                    }
                 });
 
-                // Append the sorted rows to the tbody
-                sortedRows.forEach(row => tbody.appendChild(row));
-            } else if (sortOption === "date-desc") {
-                // Sort the rows in descending order by date
-                const sortedRows = Array.from(tableRows).sort((a, b) => {
-                    const dateA = new Date(a.querySelector("td:nth-child(2)").textContent);
-                    const dateB = new Date(b.querySelector("td:nth-child(2)").textContent);
-                    return dateB - dateA;
-                });
+                // Display the totals in the footer
+                const totalWtCell = document.getElementById("totalWt");
+                const totalValueCell = document.getElementById("totalValue");
 
-                // Append the sorted rows to the tbody
-                sortedRows.forEach(row => tbody.appendChild(row));
+                totalWtCell.textContent = totalWt.toFixed(2);
+                totalValueCell.textContent = totalValue.toFixed(2);
             }
-        }
+
+
+            function filterTable() {
+                const selectedCustomer = customerDropdown.value;
+
+                tableRows.forEach(row => {
+                    const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
+                    const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
+                    row.style.display = showRow ? "table-row" : "none";
+                });
+
+                // Recalculate totals after filtering
+                calculateTotals();
+            }
+
+            function filterTableDate() {
+                const sortOption = sortDropdown.value;
+                const tbody = document.querySelector(".table_data tbody");
+
+                if (sortOption === "date-asc" || sortOption === "date-desc") {
+                    // Sort the rows based on the selected option
+                    const sortOrder = (sortOption === "date-asc") ? 1 : -1;
+
+                    const sortedRows = Array.from(tableRows).sort((a, b) => {
+                        const dateA = new Date(a.querySelector("td:nth-child(2)").textContent);
+                        const dateB = new Date(b.querySelector("td:nth-child(2)").textContent);
+                        return sortOrder * (dateA - dateB);
+                    });
+
+                    // Append the sorted rows to the tbody
+                    sortedRows.forEach(row => tbody.appendChild(row));
+                }
+
+                // Recalculate totals after sorting
+                calculateTotals();
+            }
+
+            // Initial calculation of totals when the page loads
+            calculateTotals();
+        });
 
     </script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 

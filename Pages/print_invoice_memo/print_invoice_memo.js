@@ -1,5 +1,3 @@
-let currency;
-
 // Fetch data from fetch_data.php using JavaScript
 fetch('../php_data/fetch_data_company.php')
     .then(response => response.json())
@@ -11,6 +9,7 @@ fetch('../php_data/fetch_data_company.php')
         const email = document.querySelector('#title_table #email');
         const termsInvoice = document.querySelector('#terms b');
         const bank_details = document.querySelector('#terms #bank_details');
+        const currency = document.getElementById('currency');
 
         // Set data in HTML elements
         companyName.textContent = data.company_name;
@@ -19,7 +18,7 @@ fetch('../php_data/fetch_data_company.php')
         address.textContent = data.address;
         email.textContent = `E: ${data.email}`;
         termsInvoice.textContent = data.terms_invoice;
-        currency = data.currency;
+        currency.textContent = data.currency;
         bank_details.textContent = data.bank_details;
     })
     .catch(error => {
@@ -74,8 +73,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 recipientInput.value = data.customer_name;
                 addressInput.value = data.address;
 
-                const finalTotalColumn = document.querySelector('td[name="total_final_tot"]');
-                finalTotalColumn.textContent = currency + " " + data.total_total || 0;
+                const finalTotalColumn = document.querySelector('.total_final_tot');
+                finalTotalColumn.textContent = data.total_total || 0;
+
+                var discPriceElement = document.getElementById('disc_price');
+                var discTotalElement = document.getElementById('disc_total');
+                var discountRow = document.getElementById('discountRow');
+
+                // Check if the value is 0, and hide the entire row if true
+                if (data.disc_total == 0.00) {
+                    discountRow.style.display = 'none';
+                } else {
+                    // Assigning the value to the text content of the <td> elements
+                    discPriceElement.innerText = data.disc_total;
+                    discTotalElement.innerText = data.disc_total;
+                }
             })
             .catch(error => console.error('Error fetching memo details:', error));
     } else {
@@ -129,6 +141,7 @@ function addRow(data) {
     newRow.innerHTML = `
         <td>${tableBody.children.length + 1}</td>
         <td name="lot_no" class="editable">${data.lot_no}</td>
+        <td name="desc" class="editable">${data.description}</td>
         <td name="wt" class="editable wt">${data.kept}</td>
         <td name="shape" class="editable">${data.shape}</td>
         <td name="color" class="editable">${data.color}</td>

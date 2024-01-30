@@ -1,10 +1,9 @@
 <?php
 include '../../connection.php';
 
-$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status 
+$sql = "SELECT i.invoice_no, i.invoice_date, m.customer_name, m.total_wt, m.total_total, i.payment_status, i.manual_entry
         FROM invoice i
         JOIN memo m ON i.memo_no = m.memo_no
-        AND i.payment_status = 'Received'
         ORDER BY i.invoice_no ASC";
 $result = $conn->query($sql);
 
@@ -21,16 +20,16 @@ if ($result === false) {
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['total_total'],
                 'payment_status' => $row['payment_status'],
+                'manual_entry' => $row['manual_entry'],
                 'source' => 'invoice'
             );
         }
     }
 }
 
-$sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status 
+$sqlInvoiceWMemo = "SELECT iw.invoice_no, iw.date AS invoice_date, iw.customer_name, iw.total_wt, iw.final_total, iw.payment_status, iw.manual_entry 
                     FROM invoice_wmemo iw
                     WHERE iw.invoice_no NOT IN (SELECT i.invoice_no FROM invoice i)
-                    AND iw.payment_status = 'Received'
                     ORDER BY iw.invoice_no ASC";
 $resultInvoiceWMemo = $conn->query($sqlInvoiceWMemo);
 
@@ -46,6 +45,7 @@ if ($resultInvoiceWMemo === false) {
                 'total_wt' => $row['total_wt'],
                 'total_total' => $row['final_total'],
                 'payment_status' => $row['payment_status'],
+                'manual_entry' => $row['manual_entry'],
                 'source' => 'invoice_wmemo'
             );
         }
@@ -60,12 +60,11 @@ usort($data, function ($a, $b) {
 // Fetch distinct customer names from the invoice table
 $sqlInvoiceCustomer = "SELECT DISTINCT m.customer_name 
                        FROM invoice i
-                       JOIN memo m ON i.memo_no = m.memo_no
-                       AND i.payment_status = 'Received'";
+                       JOIN memo m ON i.memo_no = m.memo_no";
 $resultInvoiceCustomer = $conn->query($sqlInvoiceCustomer);
 
 // Fetch distinct customer names from the invoice_wmemo table
-$sqlInvoiceWMemoCustomer = "SELECT DISTINCT customer_name FROM invoice_wmemo where payment_status='Received'";
+$sqlInvoiceWMemoCustomer = "SELECT DISTINCT customer_name FROM invoice_wmemo";
 $resultInvoiceWMemoCustomer = $conn->query($sqlInvoiceWMemoCustomer);
 
 // Store customer names in an array
@@ -83,6 +82,9 @@ while ($rowInvoiceWMemoCustomer = $resultInvoiceWMemoCustomer->fetch_assoc()) {
 
 // Filter out duplicate customer names and keep only distinct ones
 $distinctCustomerNames = array_unique($customerNames);
+
+// Convert the PHP $data array to a JSON string
+$dataJson = json_encode($data);
 
 // Close the database connection
 $conn->close();
@@ -113,6 +115,11 @@ $conn->close();
             <option value="date-asc">Date Ascending</option>
             <option value="date-desc">Date Descending</option>
         </select>
+        <select class="dropdown" id="statusDropdown">
+            <option value="">All Status</option>
+            <option value="Received">Received</option>
+            <option value="Not Received">Not Received</option>
+        </select>
     </div>
     <table class="table_data">
         <thead>
@@ -123,6 +130,8 @@ $conn->close();
                 <th>Total Wt</th>
                 <th>Total Value</th>
                 <th>Payment Status</th>
+                <th>Manual Entry</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -146,6 +155,8 @@ $conn->close();
                 echo '<td>' . $row['total_wt'] . '</td>';
                 echo '<td>' . $row['total_total'] . '</td>';
                 echo '<td>' . $row['payment_status'] . '</td>';
+                echo '<td contenteditable="true" class="manual-entry" data-invoice-no="' . $row['invoice_no'] . '">' . $row['manual_entry'] . '</td>';
+                echo '<td><button class="save-button" data-invoice-no="' . $row['invoice_no'] . '">Save</button></td>';
                 echo '</tr>';
             }
             ?>
@@ -165,17 +176,25 @@ $conn->close();
         // Get references to the dropdown and table
         const customerDropdown = document.getElementById("customerDropdown");
         const sortDropdown = document.getElementById("sortDropdown");
+        const statusDropdown = document.getElementById("statusDropdown");
         const tableRows = document.querySelectorAll(".table_data tbody tr");
 
         customerDropdown.addEventListener("change", filterTable);
+        statusDropdown.addEventListener("change", filterTable);
         sortDropdown.addEventListener("change", filterTableDate);
 
         function filterTable() {
             const selectedCustomer = customerDropdown.value;
+            const selectedStatus = statusDropdown.value;
 
             tableRows.forEach(row => {
                 const customerNameCell = row.querySelector("td:nth-child(3)"); // Select the 3rd column (customer name)
-                const showRow = selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers";
+                const statusCell = row.querySelector("td:nth-child(6)"); // Select the 6th column (payment status)
+
+                const showRow =
+                    (selectedCustomer === "" || customerNameCell.textContent === selectedCustomer || selectedCustomer === "All Customers") &&
+                    (selectedStatus === "" || statusCell.textContent === selectedStatus || selectedStatus === "All Status");
+
                 row.style.display = showRow ? "table-row" : "none";
             });
         }
@@ -209,7 +228,7 @@ $conn->close();
 
     </script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 
@@ -219,9 +238,45 @@ $conn->close();
                 e.preventDefault();
             }
         });
+
+        const data = <?php echo $dataJson; ?>;
+
+        // Add this script to handle the save button click event
+        document.addEventListener('DOMContentLoaded', function () {
+            const saveButtons = document.querySelectorAll('.save-button');
+
+            saveButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const invoiceNo = button.getAttribute('data-invoice-no');
+                    const manualEntry = document.querySelector(`.manual-entry[data-invoice-no="${invoiceNo}"]`).textContent;
+                    const source = getSource(invoiceNo, data);
+
+                    // Send the data to the server using AJAX or fetch API
+                    // Example using jQuery AJAX:
+                    $.ajax({
+                        method: 'POST',
+                        url: 'save_data.php', // Replace with the actual server-side script to handle the data
+                        data: { invoice_no: invoiceNo, manual_entry: manualEntry, source: source },
+                        success: function (response) {
+                            // Handle the server response if needed
+                            console.log(response);
+                        },
+                        error: function (error) {
+                            // Handle the error if needed
+                            console.error(error);
+                        }
+                    });
+                });
+            });
+
+            function getSource(invoiceNo, data) {
+                const foundRow = data.find(row => row.invoice_no == invoiceNo);
+                return foundRow ? foundRow.source : '';
+            }
+        });
     </script>
     <a href="../landing_page/home_landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
+        <i class="fas fa-home"></i>
     </a>
 </body>
 

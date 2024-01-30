@@ -111,12 +111,13 @@
                 <input type="button" value="Back" id="goBack" onclick="goBackOneStep()">
                 <input type="button" value="Print Invoice" id="printButton">
                 <input type="button" value="Close Memo" id="closeButton">
+                <input type="button" value="Reopen Memo" id="reopenButton" onclick="reopenMemo()">
             </div>
         </div>
     </form>
     <script src="edit_memo.js"></script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 

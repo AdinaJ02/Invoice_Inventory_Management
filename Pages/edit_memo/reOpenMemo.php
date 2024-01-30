@@ -12,7 +12,7 @@ if ($conn->connect_error) {
 
         // Create a SQL query to insert data into the memo table
         $sql_update_memo = "UPDATE memo
-        SET is_open = 'close'
+        SET is_open = 'open'
         WHERE memo_no = '$memo_no'";
 
         if ($conn->query($sql_update_memo) === TRUE) {
