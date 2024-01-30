@@ -55,8 +55,8 @@ if ($conn->connect_error) {
                         $row = $weight_result->fetch_assoc();
                         $existingWeight = $row['kept'];
 
-                        if ($wt > $existingWeight) {
-                            $diff = $wt - $existingWeight; // Calculate the difference
+                        if ($kept > $existingWeight) {
+                            $diff = $kept - $existingWeight; // Calculate the difference
                             // Update memo_data
                             $sql_update_data = "UPDATE memo_data 
                                                 SET `description`='$desc', `shape`='$shape', `size`='$size', `pcs`='$pcs', `weight`='$wt', 
@@ -77,7 +77,7 @@ if ($conn->connect_error) {
                             }
 
                         } else {
-                            $diff = $existingWeight - $wt; // Calculate the difference
+                            $diff = $existingWeight - $kept; // Calculate the difference
                             // Update memo_data
                             $sql_update_data = "UPDATE memo_data 
                                     SET `description`='$desc', `shape`='$shape', `size`='$size', `pcs`='$pcs', `weight`='$wt', 
@@ -126,7 +126,7 @@ if ($conn->connect_error) {
                     // Lot number doesn't exist, perform an insert
                     $sql_insert_stock = "INSERT INTO `stock_list`(`lot_no`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `total`, `price`) 
                     VALUES ('$lotNo','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc', '$total', '$price')";
-                    
+
                     if ($conn->query($sql_insert_stock) === TRUE) {
                         echo 'Data Inserted successfully';
                     } else {

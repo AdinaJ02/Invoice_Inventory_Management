@@ -261,8 +261,8 @@ $conn->close();
             <tr id="header">
                 <th>Customer Name</th>
                 <th>Lot No.</th>
-                <th>Total Memo Sales</th>
                 <th>Total Invoice Sales</th>
+                <th>Total Memo Sales</th>
                 <th>Final Total Sales</th>
             </tr>
         </thead>
@@ -284,7 +284,7 @@ $conn->close();
                             <?php echo isset($memoData[strtolower($customerName)]) ? $memoData[strtolower($customerName)]['total_total'] : 0; ?>
                         </td>
                         <td>
-                            <?php echo $memoData[strtolower($customerName)]['total_total'] + $invoiceData[strtolower($customerName)]['total_invoice_sales']; ?>
+                            <?php echo (isset($memoData[strtolower($customerName)]['total_total']) ? $memoData[strtolower($customerName)]['total_total'] : 0) + (isset($invoiceData[strtolower($customerName)]['total_invoice_sales']) ? $invoiceData[strtolower($customerName)]['total_invoice_sales'] : 0); ?>
                         </td>
                     </tr>
                     <?php

@@ -140,6 +140,22 @@ if ($conn->connect_error) {
             }
         }
 
+        // Update stock_list by adding back the weights of the deleted rows
+        $deleted_rows_weight = "SELECT `weight`, lot_no FROM memo_data WHERE memo_no = '$memo_no' AND lot_no NOT IN ('" . implode("','", $lotNosFromData) . "')";
+        $deleted_rows_result = $conn->query($deleted_rows_weight);
+
+        if ($deleted_rows_result->num_rows > 0) {
+            while ($row = $deleted_rows_result->fetch_assoc()) {
+                $deleted_weight = $row['weight'];
+                $deleted_lot_no = $row['lot_no'];
+
+                $add_deleted_weight_sql = "UPDATE stock_list SET weight = weight + $deleted_weight WHERE lot_no = '$deleted_lot_no'";
+                if ($conn->query($add_deleted_weight_sql) !== TRUE) {
+                    echo 'Error updating stock: ' . $conn->error;
+                }
+            }
+        }
+
         // Delete rows from invoice_data where lot_no is not in the $lotNosFromData array
         $delete_sql = "DELETE FROM memo_data WHERE memo_no = '$memo_no' AND lot_no NOT IN ('" . implode("','", $lotNosFromData) . "')";
         if ($conn->query($delete_sql) === TRUE) {

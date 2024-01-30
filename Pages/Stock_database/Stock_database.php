@@ -422,58 +422,36 @@ if ($conn->connect_error) {
             window.location.href = 'download.php';
         });
 
-
-
         // Function to perform search
-function performSearch() {
-    const searchLotNo = document.getElementById('lot_no').value.toUpperCase();
-    const searchDesc = document.getElementById('desc').value.toUpperCase();
-    const searchShape = document.getElementById('shape').value.toUpperCase();
-    const searchSize = document.getElementById('size').value.toUpperCase();
-    
-    const tableRows = document.querySelectorAll('.table_data tbody tr');
+        function performSearch() {
+            const searchLotNo = document.getElementById('lot_no').value.toUpperCase();
+            const searchDesc = document.getElementById('desc').value.toUpperCase();
+            const searchShape = document.getElementById('shape').value.toUpperCase();
+            const searchSize = document.getElementById('size').value.toUpperCase();
 
-    tableRows.forEach((row) => {
-        const lotNo = row.querySelector('[data-key="lot_no"]').textContent.toUpperCase();
-        const desc = row.querySelector('[data-key="description"]').textContent.toUpperCase();
-        const shape = row.querySelector('[data-key="shape"]').textContent.toUpperCase();
-        const size = row.querySelector('[data-key="size"]').textContent.toUpperCase();
+            const tableRows = document.querySelectorAll('.table_data tbody tr');
 
-        if (lotNo.includes(searchLotNo) &&
-            desc.includes(searchDesc) &&
-            shape.includes(searchShape) &&
-            size.includes(searchSize)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+            tableRows.forEach((row) => {
+                const lotNo = row.querySelector('[data-key="lot_no"]').textContent.toUpperCase();
+                const desc = row.querySelector('[data-key="description"]').textContent.toUpperCase();
+                const shape = row.querySelector('[data-key="shape"]').textContent.toUpperCase();
+                const size = row.querySelector('[data-key="size"]').textContent.toUpperCase();
+
+                if (lotNo.includes(searchLotNo) &&
+                    desc.includes(searchDesc) &&
+                    shape.includes(searchShape) &&
+                    size.includes(searchSize)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
-    });
-}
 
-// Event listeners for search input fields
-document.querySelectorAll('.search_stock').forEach((input) => {
-    input.addEventListener('keyup', performSearch);
-});
-
-// Function to handle row click for redirection
-function handleRowClick(row) {
-    // Get the lot number of the clicked row
-    const lotNo = row.querySelector('[data-key="lot_no"]').textContent;
-    
-    // Redirect to a page with the lot number as a parameter
-    window.location.href = 'details.php?lot_no=' + encodeURIComponent(lotNo);
-}
-
-// Event listener for row clicks
-document.getElementById('table-body').addEventListener('click', (event) => {
-    if (event.target.tagName === 'TD') {
-        const row = event.target.parentElement;
-        handleRowClick(row);
-    }
-});
-
-
-
+        // Event listeners for search input fields
+        document.querySelectorAll('.search_stock').forEach((input) => {
+            input.addEventListener('keyup', performSearch);
+        });
     </script>
     <script>
         document.addEventListener('contextmenu', function (e) {
