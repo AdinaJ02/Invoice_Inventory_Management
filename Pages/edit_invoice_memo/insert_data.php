@@ -13,6 +13,7 @@ if ($conn->connect_error) {
         $address = $request_data["address"];
         $total_wt = $request_data["total_wt"];
         $total_final_tot = $request_data["total_final_tot"];
+        $disc_total = $request_data["disc_total"];
         $paymentStatus = $request_data["paymentStatus"];
         $data = $request_data["data"];
 
@@ -23,6 +24,14 @@ if ($conn->connect_error) {
             if (!empty($lotNo)) {
                 $lotNosFromData[] = $lotNo;
             }
+        }
+
+        $sql_update_disc_total = "UPDATE invoice SET disc_total = '$disc_total' WHERE invoice_no = '$invoice_no'";
+
+        if ($conn->query($sql_update_disc_total) === TRUE) {
+            echo "Disc_total updated successfully";
+        } else {
+            echo "Error updating disc_total: " . $conn->error;
         }
 
         // Check if the invoice already exists
@@ -56,6 +65,7 @@ if ($conn->connect_error) {
         // Iterate through the data and insert or update each row into the database
         foreach ($data as $row) {
             $lotNo = (string) $row['lot_no'];
+            $desc = (string) $row['desc'];
             $wt = (float) $row['wt'];
             $shape = (string) $row['shape'];
             $color = (string) $row['color'];
@@ -67,7 +77,7 @@ if ($conn->connect_error) {
             $total = (float) $row['final_total'];
 
             if (!empty($lotNo)) {
-                // Check if the lot_no already exists in invoice_data
+                // Check if the lot_no already exists in memo_data
                 $check_sql_lot = "SELECT * FROM memo_data WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
                 $check_lot_result = $conn->query($check_sql_lot);
 
@@ -85,7 +95,7 @@ if ($conn->connect_error) {
                             $diff = $wt - $kept; // Calculate the difference
                             // Update memo_data
                             $sql_update_data = "UPDATE memo_data 
-                                                SET kept = '$wt', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
+                                                SET kept = '$wt', `description` = '$desc', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
                                                 WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
                             if ($conn->query($sql_update_data) === TRUE) {
                                 echo 'Data updated successfully';
@@ -102,7 +112,7 @@ if ($conn->connect_error) {
                             $diff = $kept - $wt; // Calculate the difference
                             // Update memo_data
                             $sql_update_data = "UPDATE memo_data 
-                                                SET kept = '$wt', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
+                                                SET kept = '$wt', `description` = '$desc', shape = '$shape', color = '$color', clarity = '$clarity', certificate_no = '$certificate', rap = '$rap', discount = '$disc', price = '$price', final_total = '$total' 
                                                 WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
                             if ($conn->query($sql_update_data) === TRUE) {
                                 echo 'Data updated successfully';
@@ -119,8 +129,8 @@ if ($conn->connect_error) {
                     }
                 } else {
                     // Insert a new row into invoice_data
-                    $sql_insert_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `kept`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `final_total`) 
-                    VALUES ('$memo_no','$lotNo','$wt','$shape','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
+                    $sql_insert_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `kept`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `final_total`) 
+                    VALUES ('$memo_no','$lotNo','$desc','$wt','$shape','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
                     if ($conn->query($sql_insert_data) === TRUE) {
                         echo 'Data inserted successfully';
                     } else {

@@ -192,6 +192,7 @@ function addRow(data) {
     newRow.innerHTML = `
         <td>${tableBody.children.length + 1}</td>
         <td contenteditable="true" name="lot_no" class="editable">${data.lot_no}</td>
+        <td contenteditable="true" name="desc" class="editable">${data.description}</td>
         <td contenteditable="true" name="wt" class="editable wt">${data.wt}</td>
         <td contenteditable="true" name="shape" class="editable">${data.shape}</td>
         <td contenteditable="true" name="color" class="editable">${data.color}</td>
@@ -209,6 +210,7 @@ function addRow(data) {
     const deleteIcon = newRow.querySelector('.delete-icon');
     deleteIcon.addEventListener('click', function () {
         newRow.querySelector('[name="shape"]').textContent = '';
+        newRow.querySelector('[name="desc"]').textContent = '';
         newRow.querySelector('[name="lot_no"]').textContent = '';
         newRow.querySelector('[name="wt"]').textContent = '';
         newRow.querySelector('[name="color"]').textContent = '';
@@ -240,6 +242,9 @@ function addRow(data) {
                     const data = JSON.parse(responseText); // Attempt to parse the response as JSON
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
+
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="shape"]').textContent = data.shape;
                         newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
@@ -340,6 +345,7 @@ function addRowEmpty() {
     newRow.innerHTML = `
         <td>${tableBody.children.length + 1}</td>
         <td contenteditable="true" name="lot_no" class="editable"></td>
+        <td contenteditable="true" name="desc" class="editable"></td>
         <td contenteditable="true" name="wt" class="editable wt"></td>
         <td contenteditable="true" name="shape" class="editable"></td>        
         <td contenteditable="true" name="color" class="editable"></td>
@@ -357,6 +363,7 @@ function addRowEmpty() {
     const deleteIcon = newRow.querySelector('.delete-icon');
     deleteIcon.addEventListener('click', function () {
         newRow.querySelector('[name="shape"]').textContent = '';
+        newRow.querySelector('[name="desc"]').textContent = '';
         newRow.querySelector('[name="lot_no"]').textContent = '';
         newRow.querySelector('[name="wt"]').textContent = '';
         newRow.querySelector('[name="color"]').textContent = '';
@@ -422,6 +429,9 @@ function addRowEmpty() {
                     const data = JSON.parse(responseText); // Attempt to parse the response as JSON
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
+
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
 
                         newRow.querySelector('[name="shape"]').textContent = data.shape;
                         newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
@@ -495,52 +505,6 @@ function addRowEmpty() {
 
     // Initial calculation when a new row is created
     calculateTotals();
-
-    newRow.querySelector('[name="lot_no"]').addEventListener('blur', function () {
-        const lotNo = this.textContent.trim();
-        console.log(lotNo);
-
-        // Make an AJAX request to fetch values from the server
-        fetch('../Memo/fetch_lot_data.php?lotNo=' + lotNo)
-            .then(response => {
-                console.log("Response status:", response.status);
-                console.log("Response headers:", response.headers);
-
-                return response.text(); // Read the response as text
-            })
-            .then(responseText => {
-                console.log("Response text:", responseText); // Log the raw response text
-
-                try {
-                    const data = JSON.parse(responseText); // Attempt to parse the response as JSON
-                    if (data) {
-                        newRow.querySelector('[name="wt"]').textContent = data.weight;
-
-                        newRow.querySelector('[name="shape"]').textContent = data.shape;
-                        newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
-
-                        newRow.querySelector('[name="color"]').textContent = data.color;
-                        newRow.querySelector('[name="color"]').setAttribute('contentEditable', 'false');
-
-                        newRow.querySelector('[name="clarity"]').textContent = data.clarity;
-                        newRow.querySelector('[name="clarity"]').setAttribute('contentEditable', 'false');
-
-                        newRow.querySelector('[name="certificate"]').textContent = data.certificate_no;
-                        newRow.querySelector('[name="certificate"]').setAttribute('contentEditable', 'false');
-
-                        newRow.querySelector('[name="rap"]').textContent = data.rap;
-                        newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
-
-                        calculatePriceAndTotal();
-                    }
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    })
 }
 
 // Add an event listener to disc_price

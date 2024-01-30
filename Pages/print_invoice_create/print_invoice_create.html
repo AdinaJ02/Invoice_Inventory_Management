@@ -61,6 +61,7 @@
                     <tr id="header">
                         <th>Sr No</th>
                         <th>Lot No</th>
+                        <th>Description</th>
                         <th>Wt (cts)</th>
                         <th>Shape</th>
                         <th>Color</th>
@@ -75,8 +76,23 @@
                 <tbody id="table-body">
                     <!-- JavaScript will generate rows here -->
                 </tbody>
+                <tr id="discountRow">
+                    <td><b>Discount</b></td>
+                    <td></td>
+                    <td name="disc_wt" id="disc_wt" value="1"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td contenteditable="true" name="disc_price" id="disc_price"></td>
+                    <td name="disc_total" id="disc_total"></td>
+                </tr>
                 <tr>
                     <td><b>Total</b></td>
+                    <td></td>
                     <td></td>
                     <td name="total_wt" class="total_wt">0.0</td>
                     <td></td>
@@ -86,7 +102,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td name="total_final_tot" class="total_final_tot">US$ 0.0</td>
+                    <td><b><span id="currency"></span></b> <span name="total_final_tot" class="total_final_tot">0.0</span></td>
                 </tr>
                 <tr style="text-align:center">
                     <td colspan="17"><b>THANK YOU</b></td>
@@ -97,12 +113,12 @@
                 <button id="printButton" class="no-print">Print Invoice</button>
                 <input type="button" class="no-print" value="Back" id="goBack" onclick="goBackOneStep()">
             </div>
-            
+
         </form>
     </div>
     <script src="print_invoice_create.js"></script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 

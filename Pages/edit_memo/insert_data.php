@@ -46,26 +46,76 @@ if ($conn->connect_error) {
                 $check_result_exists = $conn->query($sql_check_exists);
 
                 if ($check_result_exists->num_rows > 0) {
-                    $sql_insert_memo_data = "UPDATE memo_data SET
-                        `description` = '$desc',
-                        shape = '$shape',
-                        `size` = '$size',
-                        pcs = '$pcs',
-                        `weight` = '$wt',
-                        color = '$color',
-                        clarity = '$clarity',
-                        certificate_no = '$certificate',
-                        rap = '$rap',
-                        discount = '$disc',
-                        price = '$price',
-                        total = '$total',
-                        `return` = '$return',
-                        kept = '$kept',
-                        final_total = '$final_total'
-                        WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                    // Fetch the existing 'weight' value from the memo_data table
+                    $weight_query = "SELECT kept FROM memo_data WHERE memo_no = '$memo_no' AND lot_no = '$lotNo'";
+                    $weight_result = $conn->query($weight_query);
+
+                    if ($weight_result->num_rows > 0) {
+                        // Fetch the 'weight' value
+                        $row = $weight_result->fetch_assoc();
+                        $existingWeight = $row['kept'];
+
+                        if ($wt > $existingWeight) {
+                            $diff = $wt - $existingWeight; // Calculate the difference
+                            // Update memo_data
+                            $sql_update_data = "UPDATE memo_data 
+                                                SET `description`='$desc', `shape`='$shape', `size`='$size', `pcs`='$pcs', `weight`='$wt', 
+                                                `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', 
+                                                `discount`='$disc', `price`='$price', `total`='$total', `return`='$return', 
+                                                `kept`='$kept', `final_total`='$final_total' 
+                                                WHERE memo_no='$memo_no' AND lot_no='$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by subtracting the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight - $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
+                            }
+
+                        } else {
+                            $diff = $existingWeight - $wt; // Calculate the difference
+                            // Update memo_data
+                            $sql_update_data = "UPDATE memo_data 
+                                    SET `description`='$desc', `shape`='$shape', `size`='$size', `pcs`='$pcs', `weight`='$wt', 
+                                    `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', 
+                                    `discount`='$disc', `price`='$price', `total`='$total', `return`='$return', 
+                                    `kept`='$kept', `final_total`='$final_total' 
+                                    WHERE memo_no='$memo_no' AND lot_no='$lotNo'";
+                            if ($conn->query($sql_update_data) === TRUE) {
+                                echo 'Data updated successfully';
+
+                                // Update stock_list by adding the difference
+                                $update_stock_sql = "UPDATE stock_list SET weight = weight + $diff WHERE lot_no = '$lotNo'";
+                                if ($conn->query($update_stock_sql) !== TRUE) {
+                                    echo 'Error updating stock: ' . $conn->error;
+                                }
+                            } else {
+                                echo 'Error updating data: ' . $conn->error;
+                            }
+                        }
+                    }
                 } else {
-                    $sql_insert_memo_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`, `return`, `kept`, `final_total`) 
-                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc','$price','$total', '$return', '$kept', '$final_total')";
+                    // Insert a new row into memo_data
+                    $sql_insert_data = "INSERT INTO `memo_data`(`memo_no`, `lot_no`, `description`, `shape`, `size`, `pcs`, `weight`, 
+                    `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`, `return`, 
+                    `kept`, `final_total`) 
+                    VALUES ('$memo_no','$lotNo','$desc','$shape','$size','$pcs','$wt','$color','$clarity',
+                    '$certificate','$rap','$disc','$price','$total', '$return', '$kept', '$final_total')";
+                    if ($conn->query($sql_insert_data) === TRUE) {
+                        echo 'Data inserted successfully';
+
+                        // Update stock_list by subtracting the weight
+                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
+                        if ($conn->query($update_stock_sql) !== TRUE) {
+                            echo 'Error updating stock: ' . $conn->error;
+                        }
+                    } else {
+                        echo 'Error: ' . $sql_insert_data . '<br>' . $conn->error;
+                    }
                 }
 
                 // Check if the lot number exists in stock_list
@@ -76,12 +126,12 @@ if ($conn->connect_error) {
                     // Lot number doesn't exist, perform an insert
                     $sql_insert_stock = "INSERT INTO `stock_list`(`lot_no`, `shape`, `size`, `pcs`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `total`, `price`) 
                     VALUES ('$lotNo','$shape','$size','$pcs','$wt','$color','$clarity','$certificate','$rap','$disc', '$total', '$price')";
-                }
-
-                if ($conn->query($sql_insert_memo_data) === TRUE || $conn->query($sql_insert_stock) === TRUE) {
-                    echo 'Data Inserted successfully';
-                } else {
-                    echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
+                    
+                    if ($conn->query($sql_insert_stock) === TRUE) {
+                        echo 'Data Inserted successfully';
+                    } else {
+                        echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
+                    }
                 }
             }
         }
@@ -129,6 +179,22 @@ if ($conn->connect_error) {
             if (!empty($lot_numbers_to_delete)) {
                 // Delete rows from the memo_data table for lot numbers that are not in the data
                 $lot_numbers_to_delete_str = implode("', '", $lot_numbers_to_delete);
+                // Update stock_list by adding back the weights of the deleted rows
+                $deleted_rows_weight = "SELECT `weight`, lot_no FROM memo_data WHERE memo_no = '$memo_no' AND lot_no IN ('$lot_numbers_to_delete_str')";
+                $deleted_rows_result = $conn->query($deleted_rows_weight);
+
+                if ($deleted_rows_result->num_rows > 0) {
+                    while ($row = $deleted_rows_result->fetch_assoc()) {
+                        $deleted_weight = $row['weight'];
+                        $deleted_lot_no = $row['lot_no'];
+
+                        $add_deleted_weight_sql = "UPDATE stock_list SET weight = weight + $deleted_weight WHERE lot_no = '$deleted_lot_no'";
+                        if ($conn->query($add_deleted_weight_sql) !== TRUE) {
+                            echo 'Error updating stock: ' . $conn->error;
+                        }
+                    }
+                }
+
                 $sql_delete_rows = "DELETE FROM memo_data WHERE memo_no = '$memo_no' AND lot_no IN ('$lot_numbers_to_delete_str')";
                 if ($conn->query($sql_delete_rows) === TRUE) {
                     // Rows deleted successfully

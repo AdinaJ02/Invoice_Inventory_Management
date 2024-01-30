@@ -10,17 +10,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $customerName = $_POST['customer_name'];
             $phoneNo = $_POST['phone_no'];
             $address = $_POST['address'];
+            $limit = $_POST['limit_customer'];
 
             // Update the database with edited data
-            $sql = "UPDATE customers SET customer_name='$customerName', phone_no='$phoneNo', `address`='$address' WHERE id=$id";
+            $sql = "UPDATE customers SET customer_name='$customerName', phone_no='$phoneNo', `address`='$address', `limit_customer`='$limit' WHERE id=$id";
             $conn->query($sql);
         } elseif ($action === 'add') {
             $customerName = $_POST['customer_name'];
             $phoneNo = $_POST['phone_no'];
             $address = $_POST['address'];
+            $limit = $_POST['limit_customer'];
 
             // Insert new data into the database
-            $sql = "INSERT INTO customers (customer_name, phone_no, `address`) VALUES ('$customerName', '$phoneNo', '$address')";
+            $sql = "INSERT INTO customers (customer_name, phone_no, `address`, limit_customer) VALUES ('$customerName', '$phoneNo', '$address', '$limit')";
             $conn->query($sql);
         } elseif ($action === 'delete') {
             $id = $_POST['id'];
@@ -41,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // SQL query to retrieve data from the database
-$sql = "SELECT id, customer_name, phone_no, `address` FROM customers";
+$sql = "SELECT id, customer_name, phone_no, `address`, limit_customer FROM customers";
 $result = $conn->query($sql);
 
 // Store the retrieved data in an array
@@ -53,8 +55,15 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Close the database connection
-$conn->close();
+// Function to calculate the total open memos for a given customer name
+function calculateTotalOpenMemos($customerName, $conn)
+{
+    $sql = "SELECT SUM(total_total) AS total_open_memos FROM memo WHERE customer_name = '$customerName' AND is_open = 'open'";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['total_open_memos'];
+}
+
 ?>
  
 <!DOCTYPE html>
@@ -73,6 +82,8 @@ $conn->close();
             <th>Customer Name</th>
             <th>Phone No.</th>
             <th>Address</th>
+            <th>Limit</th>
+            <th>Utlize Limit</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -86,6 +97,8 @@ $conn->close();
                 <td class="editable" contenteditable="true" data-id="<?php echo $row['id']; ?>"><?php echo $row['customer_name']; ?></td>
                 <td class="editable" contenteditable="true" data-id="<?php echo $row['id']; ?>"><?php echo $row['phone_no']; ?></td>
                 <td class="editable" contenteditable="true" data-id="<?php echo $row['id']; ?>"><?php echo $row['address']; ?></td>
+                <td class="editable" contenteditable="true" data-id="<?php echo $row['id']; ?>"><?php echo $row['limit_customer']; ?></td>
+                <td><?php echo calculateTotalOpenMemos($row['customer_name'], $conn); ?></td>
                 <td>
                     <button class="edit-btn">Edit</button>
                     <button class="save-btn" style="display: none;">Save</button>
@@ -98,6 +111,8 @@ $conn->close();
             <td contenteditable="true" class="new-data" placeholder="Customer Name"></td>
             <td contenteditable="true" class="new-data" placeholder="Phone No."></td>
             <td contenteditable="true" class="new-data" placeholder="Address"></td>
+            <td contenteditable="true" class="new-data" placeholder="Limit"></td>
+            <td></td>
             <td><button class="add-btn">Add the detail</button></td>
         </tr>
     </tbody>
@@ -122,9 +137,10 @@ $conn->close();
             var customerName = row.find('.editable:eq(0)').text();
             var phoneNo = row.find('.editable:eq(1)').text();
             var address = row.find('.editable:eq(2)').text();
+            var limit = row.find('.editable:eq(3)').text();
 
             // Send data to the server to update in the database
-            $.post('', { action: 'edit', id: id, customer_name: customerName, phone_no: phoneNo, address: address }, function () {
+            $.post('', { action: 'edit', id: id, customer_name: customerName, phone_no: phoneNo, address: address, limit_customer: limit }, function () {
                 row.find('.editable').attr('contenteditable', 'false');
                 row.find('.edit-btn').show();
                 row.find('.save-btn').hide();
@@ -153,14 +169,10 @@ $conn->close();
             var customerName = newRow.find('.new-data:eq(0)').text();
             var phoneNo = newRow.find('.new-data:eq(1)').text();
             var address = newRow.find('.new-data:eq(2)').text();
-            
-            // Check for empty values
-        if (customerName.trim() === '' || phoneNo.trim() === '' || address.trim() === '') {
-        return;
-        }
+            var limit = newRow.find('.new-data:eq(3)').text();
 
             // Send data to the server to insert into the database
-            $.post('', { action: 'add', customer_name: customerName, phone_no: phoneNo, address: address }, function () {
+            $.post('', { action: 'add', customer_name: customerName, phone_no: phoneNo, address: address, limit_customer: limit }, function () {
                 location.reload();
             });
         });

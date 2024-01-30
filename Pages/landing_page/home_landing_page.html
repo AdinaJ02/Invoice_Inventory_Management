@@ -145,21 +145,32 @@
           </div>
           <div
             class="option"
-            onclick="handleOptionClick(event, '../Stock_links/stock_links.php')"
+            onclick="handleOptionClick(event, '../Stock_database/Stock_database.php')"
           >
-            Upload Stock Links
+            Stock List Database
           </div>
+        </div>
+      </div>
+
+      <div
+        class="box top-box"
+        onmouseover="showOptions(this)"
+        onmouseout="hideOptions(this)"
+        onclick="redirectTo('customer_data.html')"
+      >
+        Customer Data
+        <div class="options">
           <div
             class="option"
             onclick="handleOptionClick(event, '../customer_data_display/customer.php')"
           >
-            Customer Data
+            Show Database
           </div>
           <div
             class="option"
-            onclick="handleOptionClick(event, '../Stock_database/Stock_database.php')"
+            onclick="handleOptionClick(event, '../customer_search/customer_search.php')"
           >
-            Stock List Database
+            Customer Search
           </div>
         </div>
       </div>

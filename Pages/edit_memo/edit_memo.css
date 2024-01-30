@@ -151,7 +151,7 @@ p {
     background-color: #0a525e;
 }
 
-.button-container input[type="button"]:disabled {
+.button-container input[type="button"]:disabled, #closeButton:disabled, #printButton:disabled {
     background-color: #cccccc; 
     cursor: not-allowed; 
     color: #999999; 

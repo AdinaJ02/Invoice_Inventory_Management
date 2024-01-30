@@ -8,7 +8,7 @@ if ($conn->connect_error) {
 // Retrieve memo data based on memo_no
 if (isset($_GET['invoice_no'])) {
     $invoiceNo = $_GET['invoice_no'];
-    $sql = "SELECT lot_no, wt, shape, color, clarity, certificate_no, rap, discount, price, total  FROM invoice_data WHERE invoice_no = $invoiceNo";
+    $sql = "SELECT lot_no, `description`, wt, shape, color, clarity, certificate_no, rap, discount, price, total  FROM invoice_data WHERE invoice_no = $invoiceNo";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

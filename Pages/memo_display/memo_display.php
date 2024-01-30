@@ -205,8 +205,6 @@ $conn->close();
             }
         });
 
-
-
         // Add this script to handle the save button click event
         document.addEventListener('DOMContentLoaded', function () {
             const saveButtons = document.querySelectorAll('.save-button');

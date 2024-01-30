@@ -98,7 +98,7 @@ recipientInput.addEventListener('input', function () {
                     // Create and populate the dropdown
                     dropdown = document.createElement('select');
                     dropdown.classList.add('dropdown');
-                    
+
                     const option = document.createElement('option');
                     option.textContent = "Select name and address";
                     dropdown.appendChild(option);
@@ -165,6 +165,7 @@ function addRow() {
     newRow.innerHTML = `
 <td>${tableBody.children.length + 1}</td>
 <td contenteditable="true" name="lot_no" class="editable"></td>
+<td contenteditable="true" name="desc" class="editable"></td>
 <td contenteditable="true" name="wt" class="editable wt"></td>
 <td contenteditable="true" name="shape" class="editable"></td>
 <td contenteditable="true" name="color" class="editable"></td>
@@ -182,6 +183,7 @@ function addRow() {
     const deleteIcon = newRow.querySelector('.delete-icon');
     deleteIcon.addEventListener('click', function () {
         newRow.querySelector('[name="shape"]').textContent = '';
+        newRow.querySelector('[name="desc"]').textContent = '';
         newRow.querySelector('[name="lot_no"]').textContent = '';
         newRow.querySelector('[name="wt"]').textContent = '';
         newRow.querySelector('[name="color"]').textContent = '';
@@ -192,7 +194,6 @@ function addRow() {
         newRow.querySelector('[name="price"]').textContent = '';
         newRow.querySelector('[name="final_total"]').textContent = '';
         calculateTotals();
-        updatePrintButtonState();
     });
 
     // Add event listeners to rap and disc fields for calculations
@@ -262,6 +263,9 @@ function addRow() {
                     if (data) {
                         newRow.querySelector('[name="wt"]').textContent = data.weight;
 
+                        newRow.querySelector('[name="desc"]').textContent = data.description;
+                        newRow.querySelector('[name="desc"]').setAttribute('contentEditable', 'false');
+
                         newRow.querySelector('[name="shape"]').textContent = data.shape;
                         newRow.querySelector('[name="shape"]').setAttribute('contentEditable', 'false');
 
@@ -278,7 +282,6 @@ function addRow() {
                         newRow.querySelector('[name="disc"]').textContent = data.discount + "%";
 
                         calculatePriceAndTotal();
-                        updatePrintButtonState();
                     }
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
@@ -441,6 +444,9 @@ function saveData() {
                     successMessage.textContent = '';
                     const printButton = document.getElementById("printButton");
                     printButton.disabled = false;
+
+                    // If the response status is OK (HTTP status 200), redirect to another page
+                    window.location.href = `../edit_invoice/edit_invoice.html?invoice_no=${encodeURIComponent(invoice_no)}`;
                 }, 3000); // Clear the message after 3 seconds
             } else {
                 // Handle other response statuses here if needed

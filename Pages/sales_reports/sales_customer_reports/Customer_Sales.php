@@ -57,9 +57,9 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Fetch invoice data
-$invoiceSql = "SELECT iw.invoice_no, iw.customer_name
-              FROM invoice_wmemo iw
-              WHERE iw.payment_status = 'received'";
+$invoiceSql = "SELECT invoice_no, customer_name
+              FROM invoice_wmemo 
+              WHERE payment_status = 'Received'";
 $invoiceResult = $conn->query($invoiceSql);
 
 if (!$invoiceResult) {
@@ -105,6 +105,127 @@ while ($invoiceRow = $invoiceResult->fetch_assoc()) {
     }
 }
 
+// Fetch memo numbers from the invoice table
+$invoiceMemoNos = array();
+$invoiceMemoSql = "SELECT DISTINCT memo_no FROM invoice WHERE payment_status = 'Received'";
+$invoiceMemoResult = $conn->query($invoiceMemoSql);
+
+if (!$invoiceMemoResult) {
+    die('Error: ' . $conn->error);
+}
+
+while ($invoiceMemoRow = $invoiceMemoResult->fetch_assoc()) {
+    $invoiceMemoNos[] = $invoiceMemoRow['memo_no'];
+}
+
+// Fetch memo records not included in the invoice memo numbers
+$notIncludedMemoSql = "SELECT * FROM memo WHERE is_open = 'close' AND memo_no NOT IN (" . implode(',', $invoiceMemoNos) . ")";
+$notIncludedMemoResult = $conn->query($notIncludedMemoSql);
+
+if (!$notIncludedMemoResult) {
+    die('Error: ' . $conn->error);
+}
+
+// Initialize an array to store memo data
+$memoData = array();
+
+// Iterate through rows in the not included memo records
+while ($notIncludedMemoRow = $notIncludedMemoResult->fetch_assoc()) {
+    $customerName = $notIncludedMemoRow['customer_name'];
+    $memoNo = $notIncludedMemoRow['memo_no'];
+    $finalTotal = $notIncludedMemoRow['total_total'];
+
+    // Add or update the memo data in the array
+    if (isset($memoData[strtolower($customerName)])) {
+        $memoData[strtolower($customerName)]['total_total'] += $finalTotal;
+    } else {
+        $memoData[strtolower($customerName)] = [
+            'total_total' => $finalTotal,
+        ];
+    }
+}
+
+// Fetch memo numbers from the invoice table
+$invoiceMemoNos = array();
+$invoiceMemoSql = "SELECT DISTINCT memo_no FROM invoice WHERE payment_status = 'Received'";
+$invoiceMemoResult = $conn->query($invoiceMemoSql);
+
+if (!$invoiceMemoResult) {
+    die('Error: ' . $conn->error);
+}
+
+while ($invoiceMemoRow = $invoiceMemoResult->fetch_assoc()) {
+    $invoiceMemoNos[] = $invoiceMemoRow['memo_no'];
+}
+
+// Fetch memo records for the obtained memo numbers
+$invoiceMemoRecords = array();
+if (!empty($invoiceMemoNos)) {
+    $invoiceMemoRecordsSql = "SELECT * FROM memo WHERE is_open = 'close' AND memo_no IN (" . implode(',', $invoiceMemoNos) . ")";
+    $invoiceMemoRecordsResult = $conn->query($invoiceMemoRecordsSql);
+
+    if (!$invoiceMemoRecordsResult) {
+        die('Error: ' . $conn->error);
+    }
+
+    while ($invoiceMemoRecord = $invoiceMemoRecordsResult->fetch_assoc()) {
+        $customerName = $invoiceMemoRecord['customer_name'];
+        $finalTotal = $invoiceMemoRecord['total_total'];
+
+        // Add or update the memo data in the array
+        if (isset($invoiceData[strtolower($customerName)])) {
+            $invoiceData[strtolower($customerName)]['total_invoice_sales'] += $finalTotal;
+        } else {
+            $invoiceData[strtolower($customerName)] = [
+                'total_invoice_sales' => $finalTotal,
+            ];
+        }
+    }
+}
+
+// Fetch final_total from invoice_wmemo table for each customer
+$invoiceWMemoSql = "SELECT customer_name, final_total FROM invoice_wmemo WHERE payment_status = 'Received'";
+$invoiceWMemoResult = $conn->query($invoiceWMemoSql);
+
+if (!$invoiceWMemoResult) {
+    die('Error: ' . $conn->error);
+}
+
+while ($invoiceWMemoRow = $invoiceWMemoResult->fetch_assoc()) {
+    $customerName = $invoiceWMemoRow['customer_name'];
+    $finalTotal = $invoiceWMemoRow['final_total'];
+
+    // Add or update the invoice_wmemo data in the array
+    if (isset($invoiceData[strtolower($customerName)])) {
+        $invoiceData[strtolower($customerName)]['total_invoice_sales'] += $finalTotal;
+    } else {
+        $invoiceData[strtolower($customerName)] = [
+            'total_invoice_sales' => $finalTotal,
+        ];
+    }
+}
+
+// Fetch distinct customer names from the customers table
+$query = "SELECT DISTINCT customer_name FROM customer_data";
+$result = $conn->query($query);
+
+// Check if the query was successful
+if ($result) {
+    // Create an array to store customer names
+    $customerNames = array();
+
+    // Fetch each row and store customer names in the array
+    while ($row = $result->fetch_assoc()) {
+        $customerNames[] = $row['customer_name'];
+    }
+
+    // Close the result set
+    $result->close();
+} else {
+    // Handle the case where the query fails (you may want to log or display an error)
+    echo "Error: " . $conn->error;
+}
+
 // Close the database connection
 $conn->close();
 ?>
@@ -122,13 +243,15 @@ $conn->close();
 
 <body>
     <div class="dropdown-container">
-        <select id="customerSelect">
+        <select class="dropdown" id="customerDropdown">
             <option value="">All Customers</option>
-            <?php foreach (array_keys($customerData) as $customerName) { ?>
-                <option value="<?php echo strtolower($customerName); ?>">
-                    <?php echo $customerName; ?>
-                </option>
-            <?php } ?>
+            <?php
+            // Populate the dropdown with distinct customer names in lowercase
+            foreach ($customerNames as $customerName) {
+                $lowercaseCustomerName = strtolower($customerName);
+                echo "<option value=\"$lowercaseCustomerName\">$lowercaseCustomerName</option>";
+            }
+            ?>
         </select>
         <button id="downloadButton">Download Excel</button>
         <button id="backButton">Back</button>
@@ -138,29 +261,33 @@ $conn->close();
             <tr id="header">
                 <th>Customer Name</th>
                 <th>Lot No.</th>
-                <th>Shape</th>
+                <th>Total Memo Sales</th>
+                <th>Total Invoice Sales</th>
                 <th>Final Total Sales</th>
             </tr>
         </thead>
         <tbody id="table-body">
-            <?php foreach ($customerData as $customerName => $data) { 
+            <?php foreach ($customerData as $customerName => $data) {
                 if ($data['final_total'] > 0) { // Check if final_total is greater than 0
-            ?>
-                <tr>
-                    <td>
-                        <?php echo $customerName; ?>
-                    </td>
-                    <td>
-                        <?php echo implode(', ', $data['lot_no']); ?>
-                    </td>
-                    <td>
-                        <?php echo implode(', ', $data['shape']); ?>
-                    </td>
-                    <td>
-                        <?php echo $data['final_total']; ?>
-                    </td>
-                </tr>
-            <?php 
+                    ?>
+                    <tr>
+                        <td>
+                            <?php echo $customerName; ?>
+                        </td>
+                        <td>
+                            <?php echo implode(', ', $data['lot_no']); ?>
+                        </td>
+                        <td>
+                            <?php echo isset($invoiceData[strtolower($customerName)]['total_invoice_sales']) ? $invoiceData[strtolower($customerName)]['total_invoice_sales'] : 0; ?>
+                        </td>
+                        <td>
+                            <?php echo isset($memoData[strtolower($customerName)]) ? $memoData[strtolower($customerName)]['total_total'] : 0; ?>
+                        </td>
+                        <td>
+                            <?php echo $memoData[strtolower($customerName)]['total_total'] + $invoiceData[strtolower($customerName)]['total_invoice_sales']; ?>
+                        </td>
+                    </tr>
+                    <?php
                 } // End of if condition
             } ?>
         </tbody>
@@ -168,62 +295,38 @@ $conn->close();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
     <script>
         const customerData = <?php echo json_encode($customerData); ?>;
+        const invoiceData = <?php echo json_encode($invoiceData); ?>;
+        const memoData = <?php echo json_encode($memoData); ?>;
         // Get references to the select element and table body
-        const customerSelect = document.getElementById("customerSelect");
+        const customerDropdown = document.getElementById("customerDropdown");
         const tableBody = document.getElementById("table-body");
 
-        customerSelect.addEventListener("change", function () {
-            // Get the selected customer from the dropdown
-            const selectedCustomer = customerSelect.value.toLowerCase();
+        function filterTable() {
+            const selectedCustomer = customerDropdown.value.toLowerCase().trim();
 
-            // Clear the table body
-            tableBody.innerHTML = "";
+            // Loop through each row in the table body
+            for (const row of tableBody.rows) {
+                const customerName = row.cells[0].textContent.toLowerCase().trim();
 
-            // Iterate through customer data and display matching rows
-            for (const customerName in customerData) {
-                if (selectedCustomer === "" || customerName === selectedCustomer) {
-                    const data = customerData[customerName];
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${customerName}</td>
-                        <td>${data.lot_no.join(', ')}</td>
-                        <td>${data.shape.join(', ')}</td>
-                        <td>${data.final_total}</td>
-                    `;
-                    tableBody.appendChild(row);
-                }
+                // Show or hide the row based on the selected customer
+                row.style.display = selectedCustomer === "" || customerName === selectedCustomer ? "table-row" : "none";
             }
-        });
+        }
 
+        // Attach the filterTable function to the change event of the dropdown
+        customerDropdown.addEventListener("change", filterTable);
+
+        function exportToExcel() {
+            const table = document.querySelector('.table_data');
+            const tableData = XLSX.utils.table_to_book(table, { sheet: 'Sheet1' });
+
+            // Generate and download the Excel file
+            XLSX.writeFile(tableData, 'exported_data.xlsx');
+        }
+
+        // Attach the exportToExcel function to the downloadButton click event
         const downloadButton = document.getElementById("downloadButton");
-
-        downloadButton.addEventListener("click", function () {
-            // Get the selected customer from the dropdown
-            const selectedCustomer = customerSelect.value.toLowerCase();
-
-            // Filter data based on the selected customer
-            const filteredData = [];
-            for (const customerName in customerData) {
-                if (selectedCustomer === "" || customerName === selectedCustomer) {
-                    filteredData.push([
-                        customerName,
-                        customerData[customerName].lot_no.join(', '),
-                        customerData[customerName].shape.join(', '),
-                        customerData[customerName].final_total
-                    ]);
-                }
-            }
-
-            // Create a worksheet with filtered data
-            const ws = XLSX.utils.aoa_to_sheet([["Customer Name", "Lot No.", "Shape", "Final Total Sales"], ...filteredData]);
-
-            // Create a workbook and add the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "CustomerData");
-
-            // Generate the Excel file and trigger the download
-            XLSX.writeFile(wb, "customer_data.xlsx");
-        });
+        downloadButton.addEventListener("click", exportToExcel);
 
         var backButton = document.getElementById("backButton");
 
@@ -233,7 +336,7 @@ $conn->close();
         });
     </script>
     <script>
-         document.addEventListener('contextmenu', function (e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 
@@ -245,8 +348,8 @@ $conn->close();
         });
     </script>
     <a href="../../landing_page/home_landing_page.html" class="home-button">
-                <i class="fas fa-home"></i>
-            </a>
+        <i class="fas fa-home"></i>
+    </a>
 </body>
 
 </html>

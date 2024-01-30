@@ -41,7 +41,7 @@ if ($conn->connect_error) {
             }
         }
 
-        if ($conn->query($sql_insert_invoice) === TRUE && $conn->query($sql_insert_customers) === TRUE) {
+        if ($conn->query($sql_insert_invoice) === TRUE) {
             echo "<p style='color:green; text-align:center;'>Data inserted successfully.</p>";
         } else {
             echo "<p style='color:red; text-align:center;'>Error: " . $sql . "<br>" . $conn->error . "</p>";
@@ -50,6 +50,7 @@ if ($conn->connect_error) {
         // Iterate through the data and insert each row into the database
         foreach ($data as $row) {
             $lotNo = (string) $row['lot_no'];
+            $desc = (string) $row['desc'];
             $wt = (float) $row['wt'];
             $shape = (string) $row['shape'];
             $color = (string) $row['color'];
@@ -61,40 +62,39 @@ if ($conn->connect_error) {
             $total = (float) $row['final_total'];
 
             if (!empty($lotNo)) {
-                // Check if the lot_no already exists in invoice_data
-                $check_sql_lot = "SELECT * FROM invoice_data WHERE invoice_no = '$invoice_no' AND lot_no = '$lotNo'";
-                $check_lot_result = $conn->query($check_sql_lot);
+                $sql_insert_data = "INSERT INTO `invoice_data`(`invoice_no`, `lot_no`, `description`, `wt`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`) 
+                        VALUES ('$invoice_no','$lotNo','$desc','$wt','$shape','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
 
-                if ($check_lot_result->num_rows > 0) {
-                    // Update the existing row in invoice_data
-                    $sql_update_data = "UPDATE invoice_data SET `wt`='$wt', `shape`='$shape', `color`='$color', `clarity`='$clarity', `certificate_no`='$certificate', `rap`='$rap', `discount`='$disc', `price`='$price', `total`='$total' WHERE invoice_no='$invoice_no' AND lot_no='$lotNo'";
-                    if ($conn->query($sql_update_data) === TRUE) {
-                        echo 'Data updated successfully';
+                // Check if the lot number exists in stock_list
+                $check_sql = "SELECT * FROM stock_list WHERE lot_no = '$lotNo'";
+                $check_result = $conn->query($check_sql);
 
-                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                        if ($conn->query($update_stock_sql) !== TRUE) {
-                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                            echo 'Error updating stock: ' . $conn->error;
-                        }
+                if ($check_result->num_rows === 0) {
+                    // Lot number doesn't exist, perform an insert
+                    $sql_insert_stock = "INSERT INTO `stock_list`(`lot_no`, `shape`, `description`, `weight`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `total`, `price`) 
+                    VALUES ('$lotNo','$desc','$shape','$wt','$color','$clarity','$certificate','$rap','$disc', '$total', '$price')";
+
+                    if ($conn->query($sql_insert_stock) === TRUE) {
+                        echo 'Data Inserted successfully';
                     } else {
-                        echo 'Error updating data: ' . $conn->error;
+                        echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
                     }
                 } else {
-                    // Insert a new row into invoice_data
-                    $sql_insert_data = "INSERT INTO `invoice_data`(`invoice_no`, `lot_no`, `wt`, `shape`, `color`, `clarity`, `certificate_no`, `rap`, `discount`, `price`, `total`) 
-                        VALUES ('$invoice_no','$lotNo','$wt','$shape','$color','$clarity','$certificate','$rap','$disc','$price','$total')";
-                    if ($conn->query($sql_insert_data) === TRUE) {
-                        echo 'Data inserted successfully';
+                    $sql_insert_stock = "UPDATE `stock_list` SET
+                    `weight` = `weight` - $wt
+                    WHERE `lot_no` = '$lotNo'";
 
-                        $update_stock_sql = "UPDATE stock_list SET weight = weight - $wt WHERE lot_no = '$lotNo'";
-                        if ($conn->query($update_stock_sql) !== TRUE) {
-                            // Handle the error more gracefully, e.g., log the error or return a structured response to the client
-                            echo 'Error updating stock: ' . $conn->error;
-                        }
-
+                    if ($conn->query($sql_insert_stock) === TRUE) {
+                        echo 'Data Inserted successfully';
                     } else {
-                        echo 'Error: ' . $sql_insert_data . '<br>' . $conn->error;
+                        echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
                     }
+                }
+
+                if ($conn->query($sql_insert_data) === TRUE) {
+                    echo 'Data Inserted successfully';
+                } else {
+                    echo 'Error: ' . $sql_insert_memo_data . '<br>' . $conn->error;
                 }
             }
         }
